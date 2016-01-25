@@ -2,7 +2,9 @@ This README written by John Barron
 
 This directory contains an implementation of Horn and Schunck 1981
 in horn.c. Although its one file (for convenience) you use:
-   make -f makehorn
+   
+   gcc -O3 -march=native HORN/horn.c -o horn -ISOFTWARE -lm 
+   
 to compile it.
 An example of use:
 
