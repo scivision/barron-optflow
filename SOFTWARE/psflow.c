@@ -1,4 +1,5 @@
 #include <fcntl.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -17,9 +18,10 @@ float width, getval() ;
 float multiply= 0.5, numinch = 7.5, pixwidth = 2250.0 ;
 float scale ;
 float offset ; 
+void usage(), initialize(), execute();
 
 
-main(argc,argv)
+int main(argc,argv)
 int argc;
 char **argv;
 
@@ -62,7 +64,7 @@ char **argv;
   close(fo);
 }
 
-usage(s)
+void usage(s)
 char *s;
 
 {
@@ -78,7 +80,7 @@ char *s;
   exit(-1);
 }
 
-initialize(in,out)
+void initialize(in,out)
 char *in, *out ;
 /* Read raster files into internal 3-D array. */
 
@@ -146,7 +148,7 @@ char *in, *out ;
 }
 
 
-execute()
+void execute()
 
 { int i, j, ii, jj, x, y, iang, leftx, lefty ;
   float U, V, angle, arrow, mag ;
