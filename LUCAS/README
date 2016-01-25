@@ -4,7 +4,7 @@ This program, lucas.c, is an implementation of Lucas and Kanade 1981, 1984
 with some modifications proposed by Simoncelli, Adelson and Heeger 1991.
 To compile:
 
-gcc LUCAS/lucas.c -ISOFTWARE -o lucas -lm
+gcc -O3 LUCAS/lucas.c -ISOFTWARE -o lucas -lm
 
 Everything is in a single file so a make is really not necessary but...
 This program pre-smooths the image sequence with a spatio-temporal
