@@ -128,7 +128,7 @@ float *h, float *g, float s, float tau);
 /*********************************************************************/
 /*   Main program 						     */
 /*********************************************************************/
-main(argc,argv)
+int main(argc,argv)
 int argc;
 char **argv;
 {
