@@ -1,0 +1,121 @@
+This README written by John Barron
+
+
+This directory contains two sets of data:
+----------------------------------------------------------------------------------
+			The Input Data
+----------------------------------------------------------------------------------
+The input sequences in grayvalue SUN rasterfile format. This means
+that there are 32 byte headers (8 integers) and then the binary data (stored
+as unsigned char) values for each pixel. The 2nd and 3rd integers in the header
+give the number of columns and number of rows for each image in the sequence.
+The programs read this and hence can work with arbitrary sized images.
+[They are two constants PIC_X and PIC_Y in the programs which are usually set to 512 each
+(although sometimes they are set to 325 by 325). If you have images bigger than 512 by 152 
+just change these constants appropriately and recompile]. All programs have a -B
+option which lets you specify the size of the images and then use raw binary data
+directly as input.  The image sequences are number -1 to 19, i.e. x.9 is the
+image I compute flow for, where x is a file stem. The data in TREE_DATA
+is in binary format (150*150) so the -B option must be used. Flow is
+computed for image 20, that is, for newbinarytreet.20 and newbinarytreed.20.
+In the Technical Report we computed flow for treet.9 and treed.9 but
+this has now been changed. Previous image sequences, treet.* and treed.*
+have been removed from the ftp.
+[Note that the images do not have to be square.]
+
+The syntatic data:
+-----------------
+(a) mysineB-6. - two superimposed sinusoids moving with speeds 1.63 at 54 degrees
+and 1.02 at -27 degrees for a perceived velocity of (1.585,0.863) pixels/frame.
+The spatial wavelength is 6 pixels per cycle. cd to directory SINE_DATA.
+(b) mysineC-16. - two superimposed sinusoids both moving with speeds of 1 pixel/frame
+at 0 and 90 degrees orientation for a percieved velocity of (1,1) pixels/frame.
+The spatial wavelength is 16 pixels per cycle. cd to directory SINE_DATA.
+(c) square1. - a white square on a black background moving with velocity (1,1).
+cd to directory SQUATE_DATA.
+(d) square2. - a white square on a black background moving with velocity (4/3,4/3).
+    new_sq2. - a black square on a white background moving with velocity (4/3,4/3).
+cd to directory SQUATE_DATA.
+(new_sq2 was created by blurring and then down-sampling a larger version
+of the images which translated by 4 pixels/frame while square2. was created without
+blurring. We used new_sq2. for the results in the TR)
+(e) newbinarytreet. and newbinarytreed. - translating and diverging image 
+sequences produced by David Fleet when he was at U. of T. These images are 
+created by moving a synthetic camera relative to a planar image of a tree. For the 
+translating tree velocity ranges from (1.73,0) on the left to (2.3,0) on 
+the right. For the diverging tree velocity speeds range from
+0 in the middle (at the FOE) to 1.4 pixels/frame on the left and 2.0 pixels/frame
+on the right. cd to directory TREE_DATA.
+[It has been brought to my attention that the diveging and translating images
+are upside down - this in no way affects the results. The two sequences,
+new2binarytreet. and new2binarytreed. are the same image sequences with
+each image upright.]
+(f) yos. - the famous Yosemite Fly-Through sequence produced by Lynn Quam at SRI.
+The motion of the clouds is 2 pixel to the right while the rest of the flow
+is divergent, with speed of about 5 pixels/frame in the lower left corner.
+Note that the Yosemite sequence is only 15 images, numbered 2 to 16 (9 is the
+middle image). cd to directory YOSEMITE_DATA.
+[Note: originally the cloud motion was assumed to (1,0) but this is incorrect,
+as was pointed out to me by Michel Hafner at the University of Zurich.]
+
+The sinusoidal and square data are 100*100 images, the tree data are 150*150
+and the Yosemite data is 316*252.
+
+The Real data:
+-------------
+(a) rubic. - a rotating Rubik cube on a microwave turntable, produced by Richard
+Szeliski at DEC. cd to directory RUBIC_DATA.
+(b) taxi. - the famous Hamburg taxi scene from the University of Hamburg. There are
+four moving objects: a taxi turning the corner, a car in the lower left, driving
+from left to right, a van in the lower right driving from right to left
+and a predestrian in the upper right. cd to directory TAXI_DATA.
+(c) nasa. - a subimage of the original nasa coke can sequence made available
+by Nasa-Ames (the images in our sequence are only 300 by 300 whereas the original
+are 512*480). This is a purely diverging sequence. cd to directory NASA_DATA.
+(d) trees. - the SRI trees sequence; the motion is translation in the fronto-parallel
+plane. Both the nasa and trees sequences are available from IEEE Motion Workshop
+database at David Sarnoff Research Center. cd to SRI_TREES_DATA
+
+Other Data
+----------
+The complete versions of the translating and diverging trees are available
+in directory ORIGINAL_FLEET_DATA. This data is in simply binary format.
+------------------------------------------------------------------------------------
+				The Correct Data
+-------------------------------------------------------------------------------------
+The output of the programs consists of files of the following format:
+6 float numbers (why they are not integer is a good question) that give
+the actual size of the data (should be the same as the size of the input
+images), the actual size of the flow field (usually smaller) and the offsets.
+For example, the first six floats might be: 100.0 100.0 70.0 70.0 15.0 15.0
+meaning the original image is 100*100, the computed flow is 70*70 and
+is computed for the central part of the image 15 pixels from the boundaries.
+The flow is output as pairs of float numbers with special values of 100.0,100.0
+meaning no velocity. Expect for Fleet and Jepson, any technique that computes
+normal velocity also output that flow in the same manner. Fleet and Jepson
+output potentially 22 component velocities for each pixel so data format is
+different (but the full velocity format is as described above). Basically
+size and offset data is output as above, then the x,y location followed
+the x,y component velocity values for each filter until the special value
+1000000.0 is encountered. For example, for pixel 5,5 output is 5.0,5.0,1000000.0
+for no component velocities and 5.0,5.0,0.1,0.2,0.3,0.4,1000000.0 for two
+component velocities 0.1,0.2 and 0.3,0.4. Actually one never needs to be
+concerned with the velocity output formats unless one want to use his/her
+own program with our data. The correct flow fields are in the above format
+and are all full velocities:
+(1) correct_mysineB
+(2) correct_mysineC
+(3) correct_square1
+(4) correct_square2
+(5) correct_trans20 (binary data)
+(6) correct_div20 (binary data)
+(7) new_correct_yos (correct_yos is the correct Yosemite flow when
+    the cloud motion is assumed to be (1,0), new_correct_yos has the
+    cloud motion at (2,0))
+[Note that for the new2binarytreet. and newbinary2treed. sequences
+you have to use correct2_trans20 and correct2_div20 as the correct flows.
+These are correct_trans20 and correct_div20 right up. See above.]
+Thet are in directory CORRECT_FLOWS.
+Programs for error analysis and printing the flow fields (in postscript)
+are available in directory ../SOFTWARE. Note that the individual programs
+also compute statistics if the -C option is used.
