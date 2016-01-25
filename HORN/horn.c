@@ -7,6 +7,7 @@
 	for calculating an optical flow field.
 ************************************************************/
 #include  <fcntl.h>
+#include <unistd.h>
 #include  <stdio.h>
 #include  <math.h>
 #include "rasterfile.h"
@@ -45,19 +46,22 @@ int pic_x,pic_y,pic_t,THRESHOLD,STANDARD,BINARY,int_size_x,int_size_y;
 float actual_x,actual_y,size_x,size_y,offset_x,offset_y;
 int startx,starty,endx,endy,step,WRITE_SMOOTH;
 
-
+void rearrange(), threshold(), calc_statistics(),output_velocities(),convolve_Gaussian();
+void calcIx(), calcIy(), calcIt(), calc_vels_avg(), calc_vels(), read_and_smooth();
+void read_and_smooth3D(), writefiles(), readfiles(), calc_diff_kernel();
+void compute_ders(), print_ders(), calc_vels();
 /*********************************************************************/
 /*   Main program 						     */
 /*********************************************************************/
-main(argc,argv)
+int main(argc,argv)
 int argc;
 char **argv;
 {
-int fd,fdf,offset,size,start,end,middle,i,j,num;
+int fdf,offset,size,start,end,middle,i,j;
 int fd_correct,no_bytes,numpass,time;
 float ave_error,st_dev,density,min_angle,max_angle,sigma,tau;
 unsigned char header[HEAD],path1[100],path2[100],path3[100];
-char full_name[100],norm_name[100],correct_filename[100];
+char full_name[100],correct_filename[100];
 
 if(argc < 7 || argc > 19)
 	{
@@ -281,7 +285,6 @@ starty += BORDER;
 endx -= BORDER;
 endy -= BORDER;
 
-num = 2;
 step = 1;
 
 time = 0;
@@ -352,6 +355,7 @@ printf("Density: %f\n",density);
 printf("Minimum angle error: %f Maximum angle error: %f\n",min_angle,max_angle);
 }
 fflush(stdout);
+return EXIT_SUCCESS;
 }
 
 
@@ -359,7 +363,7 @@ fflush(stdout);
 /****************************************************************/
 /* Compute x derivatives					*/
 /****************************************************************/
-calcIx(Ex,floatpic,t)
+void calcIx(Ex,floatpic,t)
 float Ex[PIC_X][PIC_Y];
 float floatpic[FIVE][PIC_X][PIC_Y];
 int t;
@@ -386,7 +390,7 @@ for(j=starty;j<=endy;j+=step)
 /****************************************************************/
 /* Compute y derivatives					*/
 /****************************************************************/
-calcIy(Ey,floatpic,t)
+void calcIy(Ey,floatpic,t)
 float Ey[PIC_X][PIC_Y];
 float floatpic[FIVE][PIC_X][PIC_Y];
 int t;
@@ -412,7 +416,7 @@ for(j=starty;j<=endy;j+=step)
 /****************************************************************/
 /* Compute t derivatives					*/
 /****************************************************************/
-calcIt(Et,floatpic,t)
+void calcIt(Et,floatpic,t)
 float Et[PIC_X][PIC_Y];
 float floatpic[FIVE][PIC_X][PIC_Y];
 int t;
@@ -439,7 +443,7 @@ for(j=starty;j<=endy;j+=step)
 /****************************************************************/
 /* Compute average u value in neighbour about i,j		*/
 /****************************************************************/
-vels_avg(vels,ave)
+void vels_avg(vels,ave)
 float vels[PIC_X][PIC_Y][2],ave[PIC_X][PIC_Y][2];
 {
 int i,j;
@@ -487,11 +491,11 @@ ave[endx][endy][1] = ave[endx-1][endy-1][1];
 /****************************************************************/
 /* Compute u,v values						*/
 /****************************************************************/
-calc_vels(vels,vels1,Ex,Ey,Et)
+void calc_vels(vels,vels1,Ex,Ey,Et)
 float vels[PIC_X][PIC_Y][2],vels1[PIC_X][PIC_Y][2];
 float Ex[PIC_X][PIC_Y],Ey[PIC_X][PIC_Y],Et[PIC_X][PIC_Y];
 {
-int i,j,k;
+int i,j;
 float mag,ave[PIC_X][PIC_Y][2];
 
 printf("****** Computing Velocity ******\n"); 
@@ -519,7 +523,7 @@ for(j=starty;j<=endy;j+=step)
 /****************************************************************/
 /* Print derivative information					*/
 /****************************************************************/
-print_ders(Ex,Ey,Et)
+void print_ders(Ex,Ey,Et)
 float Ex[PIC_X][PIC_Y],Ey[PIC_X][PIC_Y],Et[PIC_X][PIC_Y];
 {
 int i,j;
@@ -552,7 +556,7 @@ for(i=50;i<=60;i+=step)
 /*********************************************************************/
 /* Compute spatio-temporal derivatives 				     */
 /*********************************************************************/
-compute_ders(Ix,Iy,It,floatpic,pic_t,pic_x,pic_y,n)
+void compute_ders(Ix,Iy,It,floatpic,pic_t,pic_x,pic_y,n)
 float Ix[PIC_X][PIC_Y];
 float Iy[PIC_X][PIC_Y];
 float It[PIC_X][PIC_Y];
@@ -584,7 +588,7 @@ fflush(stdout);
 /*********************************************************************/
 /* Compute a 4 point central difference kernel			     */
 /*********************************************************************/
-calc_diff_kernel(diff_kernel)
+void calc_diff_kernel(diff_kernel)
 float diff_kernel[5];
 {
 diff_kernel[0] = -1.0/12.0;
@@ -657,15 +661,14 @@ return(sum);
 /*********************************************************************/
 /* Read input images and perform Gaussian smoothing.		     */
 /*********************************************************************/
-readfiles(path,s,pic,pic_t,pic_x,pic_y,start,end,header)
+void readfiles(path,s,pic,pic_t,pic_x,pic_y,start,end,header)
 char s[100],path[100];
 int pic_t,*pic_x,*pic_y,start,end;
 unsigned char header[HEAD];
 unsigned char pic[PIC_T][PIC_X][PIC_Y];
 {
 char fname[100];
-int i,j,k,fp,fd,time,no_bytes;
-unsigned char temp_save[PIC_X][PIC_Y];
+int i,j,fp,time,no_bytes;
 int ONCE;
 int ints[8];
 
@@ -715,7 +718,7 @@ for(i=start;i<=end;i++)
 /*********************************************************************/
 /*   Write smoothed files					     */
 /*********************************************************************/
-writefiles(path,s,result,sigma,pic_t,pic_x,pic_y,start,end,header)
+void writefiles(path,s,result,sigma,pic_t,pic_x,pic_y,start,end,header)
 char s[100],path[100];
 float sigma;
 int pic_t,pic_x,pic_y,start,end;
@@ -723,7 +726,7 @@ unsigned char result[FIVE][PIC_X][PIC_Y];
 unsigned char header[HEAD];
 {
 char fname[100];
-int i,j,k,fp,time,no_bytes;
+int i,j,fp,time,no_bytes;
 
 printf("\nWriting smoothed files...\n");
 
@@ -754,7 +757,7 @@ for (i=start;i<=end;i++)
 /*********************************************************************/
 /* Smooth the image sequence using a 3D separable Gaussian filter.   */
 /*********************************************************************/
-read_and_smooth3D(path,stem,sigma,floatpic,pic,inpic,start,middle,end,header)
+void read_and_smooth3D(path,stem,sigma,floatpic,pic,inpic,start,middle,end,header)
 char stem[100],path[100];
 float sigma;
 unsigned char pic[FIVE][PIC_X][PIC_Y];
@@ -763,8 +766,7 @@ unsigned char header[HEAD];
 float floatpic[FIVE][PIC_X][PIC_Y];
 int start,end,middle;
 {
-int fd,n,size,i,j,k,time,frame;
-char name[100];
+int i,j,k,time,frame;
 
 for(k=0;k<FIVE;k++)
 for(i=0;i<PIC_X;i++)
@@ -799,15 +801,15 @@ if(sigma!=0.0) printf("Input files smoothed\n");
 /************************************************************************/
 /* Perform 3D Gaussian smoothing by separable convolution 		*/
 /************************************************************************/
-convolve_Gaussian(inpic,floatpic,pic,sigma,pic_t,pic_x,pic_y,start,frame,time)
+void convolve_Gaussian(inpic,floatpic,pic,sigma,pic_t,pic_x,pic_y,start,frame,time)
 unsigned char inpic[PIC_T][PIC_X][PIC_Y];
 unsigned char pic[FIVE][PIC_X][PIC_Y];
 float floatpic[FIVE][PIC_X][PIC_Y];
 int pic_x,pic_y,pic_t,frame,time,start;
 float sigma;
 {
-float mask[100],term,product,sum;
-int size,i,j,k,offset,a,b;
+float mask[100],term,sum;
+int size,i,j,offset,a,b;
 float pic0[PIC_X][PIC_Y],pic1[PIC_X][PIC_Y];
 
 
@@ -909,16 +911,16 @@ fflush(stdout);
 /************************************************************
    Output full velocities using old Burkitt format
 ************************************************************/
-output_velocities(fdf,s,full_velocities,pic_x,pic_y,n)
+void output_velocities(fdf,s,full_velocities,pic_x,pic_y,n)
 float full_velocities[PIC_X][PIC_Y][2];
 char s[100];
 int fdf,n;
 {
 float x,y;
-int i,j,bytes,no_novals,no_vals,NORMAL;
-
-NORMAL = FALSE;
-if(strcmp(s,"Normal")==0) NORMAL = TRUE;
+int i,j,bytes,no_novals,no_vals;
+/*
+int NORMAL = FALSE;
+if(strcmp(s,"Normal")==0) NORMAL = TRUE; */
 if(fdf==NULL)
 	{
 	printf("\nFatal error: full velocity file not opened\n");
@@ -979,13 +981,13 @@ fflush(stdout);
 /***************************************************************/
 /*  Compute error statistics				       */
 /***************************************************************/
-calc_statistics(correct_vels,int_size_x,int_size_y,full_vels,
+void calc_statistics(correct_vels,int_size_x,int_size_y,full_vels,
 	pic_x,pic_y,n,ave_error,st_dev,density,min_angle,max_angle)
 float full_vels[PIC_X][PIC_Y][2],*ave_error,*density,*st_dev;
 float correct_vels[PIC_X][PIC_Y][2],*min_angle,*max_angle;
 int n,pic_x,pic_y,int_size_x,int_size_y;
 {
-int full_count,no_full_count,i,j,a,b,total_count;
+int full_count,no_full_count,i,j,total_count;
 float sumX2,temp,uva[2],uve[2];
 
 full_count = no_full_count = total_count = 0;
@@ -1043,7 +1045,7 @@ float ve[2],va[2];
 {
 float nva;
 float nve;
-float v,r,temp;
+float v,r;
 float VE[3],VA[3];
 
 VE[0] = ve[0];
@@ -1118,7 +1120,7 @@ return(sum);
 /* Threshold the computed velocities on the basis of the spatial  */
 /* intensity gradient.						  */
 /******************************************************************/
-threshold(full_vels,Ix,Iy,tau,pic_x,pic_y)
+void threshold(full_vels,Ix,Iy,tau,pic_x,pic_y)
 float full_vels[PIC_X][PIC_Y][2],Ix[PIC_X][PIC_Y],Iy[PIC_X][PIC_Y];
 float tau;
 int pic_x,pic_y;
@@ -1155,7 +1157,7 @@ else return(y);
 /* Rearrange velocity field v1 (in output format) and place  */
 /* the result in v2 so that error analysis can be performed. */
 /*************************************************************/
-rearrange(v1,v2)
+void rearrange(v1,v2)
 float v1[PIC_X][PIC_Y][2],v2[PIC_X][PIC_Y][2];
 {
 int i,j;
