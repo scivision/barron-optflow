@@ -11,10 +11,13 @@
 #include  <math.h>
 #include "rasterfile.h"
 
+#include <string.h>
+#include <stdlib.h>
+
 
 #define BORDER 2
 #define HEAD 32
-#define PI  M_PI
+#define PI 3.14159265358979323846
 #define PIC_X 675
 #define PIC_Y 675
 #define PIC_T 15
