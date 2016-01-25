@@ -1,10 +1,10 @@
-This README written by John Barron
+This README written by John Barron, modified by Michael Hirsch
 
 This program, lucas.c, is an implementation of Lucas and Kanade 1981, 1984
 with some modifications proposed by Simoncelli, Adelson and Heeger 1991.
 To compile:
 
-   make -f makelucas
+gcc --std=c89 LUCAS/lucas.c -ISOFTWARE -o lucas -lm
 
 Everything is in a single file so a make is really not necessary but...
 This program pre-smooths the image sequence with a spatio-temporal
