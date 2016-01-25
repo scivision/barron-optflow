@@ -1,6 +1,9 @@
 #include <fcntl.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+
+#define M_PI 3.14159265358979323846
 
 #define SPACE 10
 
@@ -162,9 +165,9 @@ execute()
   if (caption) {
     char name[100],exp[100];
     printf("Enter Name for caption:\n");
-    gets(name);
+    fgets(name, sizeof(name), stdin);
     printf("Enter Experiment for caption:\n");
-    gets(exp);	
+    fgets(exp, sizeof(exp), stdin);	
     fprintf(fo,"/Times-Roman findfont\n"); fprintf(fo,"  %6.2f scalefont\n  setfont\n",1.0/scale*12.0);
     fprintf(fo,"  %6.2f %6.2f  moveto\n",1.0/scale*72,1.0/scale*72*10.5);
     fprintf(fo,"  (%s --- %s) show\n",name,exp);
