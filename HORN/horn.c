@@ -18,7 +18,6 @@
 
 #define BORDER 2
 #define HEAD 32
-#define PI 3.14159265358979323846
 #define PIC_X 675
 #define PIC_Y 675
 #define PIC_T 15
@@ -30,7 +29,6 @@
 #define NO_VALUE 100.0
 #define OUTPUT_SMOOTH 1
 #define BIG_MAG 1000000.0
-#define HUGE 999999999.9
 
 
 unsigned char inpic[PIC_T][PIC_X][PIC_Y];
@@ -41,7 +39,7 @@ float Ix[PIC_X][PIC_Y],Iy[PIC_X][PIC_Y];
 float It[PIC_X][PIC_Y],full_vels[PIC_X][PIC_Y][2];
 float correct_vels[PIC_X][PIC_Y][2],full_vels1[PIC_X][PIC_Y][2]; 
 float diff_x(),diff_y(),diff_t(),difference(),temp_vels[PIC_X][PIC_Y][2];
-float PsiER(),norm(),alpha,fmin();
+float PsiER(),norm(),alpha;
 int pic_x,pic_y,pic_t,THRESHOLD,STANDARD,BINARY,int_size_x,int_size_y;
 float actual_x,actual_y,size_x,size_y,offset_x,offset_y;
 int startx,starty,endx,endy,step,WRITE_SMOOTH;
@@ -914,7 +912,7 @@ fflush(stdout);
 void output_velocities(fdf,s,full_velocities,pic_x,pic_y,n)
 float full_velocities[PIC_X][PIC_Y][2];
 char s[100];
-int fdf,n;
+int fdf,n,pic_x,pic_y;
 {
 float x,y;
 int i,j,bytes,no_novals,no_vals;
@@ -992,8 +990,8 @@ float sumX2,temp,uva[2],uve[2];
 
 full_count = no_full_count = total_count = 0;
 sumX2 = 0.0;
-(*min_angle) = HUGE;
-(*max_angle) = -HUGE;
+(*min_angle) = HUGE_VAL;
+(*max_angle) = -HUGE_VAL;
 (*ave_error) = (*st_dev) = (*density) = 0.0;
 for(i=n;i<pic_x-n;i++)
 {
@@ -1063,7 +1061,7 @@ v =  (VE[0]*VA[0]+VE[1]*VA[1]+1.0)/(nva*nve);
 /**  sometimes roundoff error causes problems **/
 if(v>1.0 && v < 1.0001) v = 1.0;
 
-r = acos(v)*180.0/PI;
+r = acos(v)*180.0/M_PI;
 
 if (!(r>=0.0 && r< 180.0))
 {
@@ -1144,13 +1142,6 @@ for(j=0;j<pic_y;j++)
 	}
 printf("Threshold: %f\n",tau);
 printf("%d velocities thresholded\n",count);
-}
-
-float fmin(x,y)
-float x,y;
-{
-if(x<y) return(x);
-else return(y);
 }
 
 /*************************************************************/
