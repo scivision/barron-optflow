@@ -513,7 +513,7 @@ int kk;
 
 printf("Eigenvalue Threshold: %f\n",tau_D);
 printf("Threshold on Raw Normal Velocities: %f\n",RAW_MAG);
-MAX_RAW_MAG = (float) -HUGE;
+MAX_RAW_MAG = (float) -HUGE_VAL;
 mag_zero = 0;
 fflush(stdout);
 /* Parameter values as specified in Simoncelli, Adelson and Heeger, page 313  */
@@ -977,9 +977,9 @@ int histogram_count[100],int_mag,bin_ct;
 
 full_count = norm_count1 = norm_count2 = no_full_count = no_norm_count1 = no_norm_count2 = total_count = 0;
 normal_sumX2_1 = normal_sumX2_2 = sumX2 = 0.0;
-(*norm_min_angle1) = (*min_angle) = (float) HUGE;
+(*norm_min_angle1) = (*min_angle) = (float) HUGE_VAL;
 (*norm_max_angle1) = (*max_angle) = 0.0f;
-(*norm_min_angle2) = (float) HUGE;
+(*norm_min_angle2) = (float) HUGE_VAL;
 (*norm_max_angle2) = 0.0f;
 (*ave_error) = (*st_dev) = (*density) = (*residual) = 0.0f;
 (*norm_ave_error1) = (*norm_st_dev1) = (*norm_density1) = 0.0f;
