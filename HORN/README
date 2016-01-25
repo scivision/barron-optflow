@@ -1,0 +1,33 @@
+This README written by John Barron
+
+This directory contains an implementation of Horn and Schunck 1981
+in horn.c. Although its one file (for convenience) you use:
+   make -f makehorn
+to compile it.
+An example of use:
+
+horn newbinarytreet. 0.5 1.5 20 100 /data/images1/BURKITT/testdata /data/images2/HORN -B 150 150 -C /data/images1/BURKITT/outdata/correct_trans20 -MH -T 5.0 
+
+This runs Horn and Schunck's technique on the translating tree sequence, newbinarytreet.
+This sets the Lagrange multiplier (alpha) to 0.5, the standard deviation of
+the spatio-temporal Gaussian to 1.5, the central image, for which flow is computed,
+to 20 (the programs figures out how many images to the left and right it needs),
+the maximum number of iterations to 100, and the input and output directories to be
+/data/images1/BURKITT/testdata and /data/images2/HORN respectively (you'll have
+to change these to something appropriate for your system).
+The options with -`s in front of them are optional. -H means run standard Horn
+and Schunck (no presmoothing and simple differencing for differentiation) while
+-MH (the default) means presmooth and use 4-point central differences.
+[Note that the algorithm for -H and -MH is the same, only its implementation
+differs.] -T allows you to threshold the final flow on the magnitude of the
+spatial gradient. -C allows you to specify the correct velocity file, in which
+case error analysis is preformed. The format of the correct velocity file must
+be as described in the README above. There is also a -B option which lets the input
+image sequence be raw binary data, i.e. 8 bit grayvalues from 0 to 255.
+-------------------------------------------------------------------
+[The program has been changed (as of early March 93). Originally the
+program was written to accept smoothed image data. The smoothing proggram
+was then incorporated into horn.c as a function, the smoothed data
+was computed as unsigned char. The new version computed the smoothed
+data as float and usually produces better results.]
+-------------------------------------------------------------------

@@ -1,0 +1,52 @@
+This README written by John Barron
+
+This program, lucas.c, is an implementation of Lucas and Kanade 1981, 1984
+with some modifications proposed by Simoncelli, Adelson and Heeger 1991.
+To compile:
+
+   make -f makelucas
+
+Everything is in a single file so a make is really not necessary but...
+This program pre-smooths the image sequence with a spatio-temporal
+Gaussian and uses 4-point central difference. Hence, if the standard
+deviation of the Gaussian is 1.5 you need 15 images. Examples of run
+files are also present. (You'll have to change the directory names where
+the input and output are directed.) You just specify the central image
+(I used 9 always) and the program figures out how many images to the
+left and right it needs. The program also use confidence measures based
+on Simoncelli, Adelson and Heeger, I used 1.0 typically (0.0 means
+no thresholding). To see the programs full range of options just type
+lucas on your terminal. An example run:
+
+lucas newbinarytreet. 1.5 20 1.0 /data/images1/BURKITT/testdata /data/images1/BURKITT -B 150 150 -C /data/images1/BURKITT/outdata/correct_trans20
+
+means run the program with the translating tree sequence, smooth with a Gaussian
+of 1.5, compute flow for image 20, use a threshold of 1.0, get the input image
+data from directory /data/images1/BURKITT/testdata, put the smoothed data in
+the same directory and put the output in /data/images1/BURKITT. Natually
+you'll have to change these names to the appropriate directories on your machine.
+-C indicates the correct answer is available and that you want error analysis
+conducted and that data is in /data/images1/BURKITT/outdata/correct_trans20 (change 
+this as well as appropriate). Note that in addition to thresholding on the
+eigenvalues the program also does not compute velocity where the determinant
+of the appropriate system of equations is singular. The program is rather verbose so 
+you might want to direct the output to another file. The -T option allows you
+to threshold the raw normal velocities (in the lucas.*R* files) with a spatial
+gradient magnitude. [So there are two types of normal velocities, which we
+call Raw and Least squares normal velocities.] The -S option allows you to
+print out the smoothed images. The -L option (default) is for standard
+Lucas and Kanade with eigenvalue thresholding and 4 point central differences.
+The -M option computes the flow using Sinoncelli (CVPR 91) et al.'s
+modifications.
+The program is reasonable fast (on a Sparc 2); I'd say about 1 minutes for most
+sequances.
+See the README above for information about the output format for flows and use 
+software in ../SOFTWARE to print out the flow fields in postscript or to
+do error analysis.
+-------------------------------------------------------------------
+[The program has been changed (as of early March 93). Originally the
+program was written to accept smoothed image data. The smoothing proggram
+was then incorporated into horn.c as a function, the smoothed data
+was computed as unsigned char. The new version computed the smoothed
+data as float and usually produces better results.]
+-------------------------------------------------------------------

@@ -1,0 +1,42 @@
+This README written by John Barron
+
+The programs included in this directory are for Fleet and Jepson's technique.
+To compile use
+   make -f makefleet
+Two files are required, fleet.c and svddouble.f. [Yup, that's a fortran program, in fact
+a double percision Limpack routine for computing SVD's. If you are compiling this
+program on an IBM 6000 change the line starting with dsvdc( in fleet.c to disvdc_( to 
+get a successful compilation. Why this difference? Ask someone at IBM!]
+To run the program see the run files for examples. Note that there is no runmysineC-16
+file: here the spatio-temporal wavelength on the input and the filters do not
+match and so no velocity output will be obtained.
+[NOTE: you will need a lot of disk space to use the program. For the
+Yosemite data, you need about 60MB for temporary filter files.]
+An axample of a run:
+
+fleet treet. 2.5 9 0.05 /data/images1/BURKITT/testdata /data/images2/FLEET/outfiles /data/images2/FLEET -C /data/images1/BURKITT/outdata/correct_treet -N 1.25
+
+The size of the input data is read from the treet. data (see the README in ../TESTDATA).
+The spatio-temporal wavelength of the 22 Gabor filters is set at 4.25 (spatio-temporal
+frequency 2.5) and the flow is computed for image 9. An amplitude threshold is set at 5%.
+The three directories specified should be changed as appropriate on your system and 
+indicate where the input is, where the intermediate filter results should be stored 
+(there is a lot of data, in fact often up to 30MB!!!) and where the output flows,
+etc. should be put. The -C option allows you to specify the correct flow field to
+conduct error analysis. This program takes a lot of time (2-4 hours on a Sparc 2) and
+most of it is used in the filtering stages. An option -NF means you can run the 
+program using previously computed filter results (useful if you just want to change
+thresholds or something like that). -NV tell the program not to do any velocity 
+computation [Yup, -NF and -NV together wouldn't do much!].
+There is a -B option which lets you specify the size of binary rather than SUN
+rasterfiles but I haven't tested it yet [But I am pretty sure it works]. Fleet
+and Jepson at various times used two different thresholding schemes.
+-N is the new way (see Fleet's new book) and involves a single threshold, for example
+-N 1.25 is often used (see our CVPR paper).
+-O is the old way and involves using two separate amplitude and frequency
+thresholds: try -O 1.35 1.5 or -O 1.25 1.35 or something like that although
+all results in our CVPR paper use -N. See the code in ../SOFTWARE to perform
+more extensive error analysis or to produce postscript flow fields.
+This program is verbose so it might be a good idea to direct the output to a file.
+Oh yeah, timing information of a sort is available, for the above example
+treet.time comtains the elapsed execution time of the program.

@@ -1,0 +1,80 @@
+This directory contains some programs useful for analyzing and displaying
+computed flows:
+-------------------------------------------------------------------------
+cc -g calc_error.c -lm -o calc_error
+
+calc_error.c - this program can compute all types of error given appropriate
+input. Examples:
+(1) calc_error -A x.F -F correct_trans20
+will compute full velocity angle error (as defined in our CVPR 92 paper) for 
+x.F given correct flow field "correct_trans20"
+(2) calc_error -A x.N -N correct_trans20
+will compute normal velocity angle error for x.N (again see CVPR 92 paper)
+(3) calc_error -A fleet.N -C correct_trans20
+will compute component velocity error (defined to be the same as normal velocity
+error) for Fleet and Jepson's output (component velocity is only used here).
+(4) Instead of -A you can use -R (but I have tested this for some time) for
+relative error.
+(5) Also not tested for some time is -D which should print out the difference
+flow field.
+(6) Tested and working is the -B option which prints out data for a histogram
+in latex. for example
+  calc_error -A -B 0.0 25.0 5 x.F -F correct_treet > temp
+will print a series of numbers into file temp which can subsequently be
+turned into latex code using graph_tex.c. The lower bound of the histogram
+is 0.0 degrees, the upper bound is 25.0 degrees and there are 5 intervals
+labelled 0.0, 5.0 10.0 15.0 20.0 and 25.0 on the x axis. Labels for
+the y axis are determined by the program.
+-------------------------------------------------------------------------
+cc -g graph_tex.c  -o graph_tex
+
+graph_tex.c - this program accepts output from calc_error and produces latex
+code for an appropriate histogram
+  graph_tex temp.tex -L < temp
+will produce a latex histogram file from the data in temp. The -L means
+that a complete latex file is produced and you can run latex directly on it.
+No -L means latex code is produced suitable for inclusion in another latex document.
+-------------------------------------------------------------------------
+cc -g pic2ps.c -o pic2ps
+
+pic2ps.c - this program was written by Richard Szeliski at DEC and is useful
+for converting black and white SUN rasterfiles into postscript files for
+printing or viewing (using say ghostscript). Example:
+pic2ps treet.9 150 150 8 5.0 5.0 > x.ps
+creates a postscript file, x.ps, of the 9th translating tree image which is
+150*150 in size and 8 bits deep (grapyvalues 0-255) which is 5 inches square.
+Note that if you want to include x.ps in a latex document using \special
+then you need to edit it and remove the centering command (its labelled
+that way) and the showpage at the end.
+-------------------------------------------------------------------------
+cc -g psflow.c -o psflow
+
+psflow.c - this program converts a flow field (eith full or normal, but not
+Fleet and Jepson'scomponent flow fields) into a postscript file that can
+be printed, viewed or included in another latex document. The program assumes
+the flow fields are in the format described in the README in ../TESTDATA.
+An example of a run:
+  psflow -s2 -m1.5 -l x.F x.ps
+which creates a postscript for flow field x.F in x.ps, subsampled by 2, scaled
+by 1.5 and (-l) ready for inclusion in alatex document (the x dimension is
+scaled to be 2.7 inches long). [use -f instead of -l for 6.0 inch output]
+I never used the -c (cut), -o (starting offset) and -n (no label) options
+so I don't know if they work.
+-------------------------------------------------------------------------
+cc -g cpsflow.c -lm -o cpsflow
+
+cpsflow.c - this program converts a component flow field computed by Fleet
+and Jepson into a postscript file. Usage is pretty much the same as psflow.c
+-------------------------------------------------------------------------
+cc -g velocity.c -lm -o velocity
+
+velocity.c - this programs computes the correct flow field for any frame
+in the translating or diverging tree sequence.
+-------------------------------------------------------------------------
+cc -g makeraster.c -o makeraster
+
+makeraster.c - this programs converts an unsigned char image (1 byte per pixel)
+into a black and white SUN rasterfile. rasterfile.h is included in the
+program and it is assumed that it is in /usr/include on your unix machine
+(a copy is supplied in this directory).
+-------------------------------------------------------------------------

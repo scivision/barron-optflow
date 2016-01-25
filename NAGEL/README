@@ -1,0 +1,105 @@
+This README written by Steven Beauchemin
+
+This program, nagel.c, is an implementation of Nagel 1987's motion
+detection algorithm.
+To compile:
+
+   make -f makenagel
+
+Everything is in a single file so a make is really not necessary but...
+This program uses a sequence of input images and smooths them according
+to the sigma values provided by the user prior to the estimation of the optical 
+flow using a 2nd-order derivative technique. 1st order intensity derivatives are 
+computed using 4-point central difference masks and 1st order velocity derivatives
+are computed using 2-point central differences. 2nd order derivatives are computed
+as cascaded of 1st order derivatives. An oriented smoothness relaxation scheme
+is also applied (see Nagel's 1987 paper)
+
+Examples of run files are also present. (You'll have to change the directory 
+names where the input and output are directed.) Here's a description of a 
+typical command line (that is exactly what one gets if one invokes the 
+program with no parameters):
+
+Usage: nagel input-path output-path seq-name. [-SG n.n] [-TG n.n] [-M n] [-I n] [-A n.n] [-F n.n] [-C corr-vel-file histo-data-file -T nbins increment]
+[-SG n.n]        : sigma value for spatial gaussian
+                   default value is 3.0
+[-TG n.n]        : sigma value for temporal gaussian
+                   default value is 1.5
+[-M n]           : middle frame of image sequence
+                   default value is 0
+[-I n]           : number of relaxation iterations
+                   default value is 10
+[-A n.n]         : smoothing parameter alpha
+                   default value is 5.0
+[-F n.n]         : filters out unreliable estimates
+                   using the magnitude of local gradient
+[-C corr-vel-file -T nbins increment]
+                 : error histogram
+                   corr-vel-file : file of correct velocities
+                   nbins : number of bins for histogram
+                   increment : value of gap between bins
+
+Here is a typical run:
+ 
+nagel /data/images1/BURKITT/testdata /data/images1/BURKITT/outdata newbinarytreet. -SG 1.5 -TG 1.5 -M 20 -A 0.5 -I 100 -B 150 150 -F 5.0 -C correct_trans20 20 0.5 
+
+This command means: run uras using the input files from 
+/data/images1/BURKITT/testdata and put output files in
+/data/images1/BURKITT/outdata 
+
+newbinarytreet. is the stem name of a typical set of input images (for example,
+the complete filename for frame 9 is "newbinarytreet.9"). In the above example,
+the program expects to find the input images in /data/images1/BURKITT/testdata.
+The data is in binary format (1 character per grayvalue) so the -B option tells
+the program that the images are 150 by 150.
+
+-SG 1.5 indicates that the sigma value of the spatial smoothing of the image
+sequence is 1.5. Typically this has to be higher for real image data, say in the
+range of 3.0 to 5.0.
+
+-TG 1.5 indicates that the sigma value of the temporal smoothing of the image
+sequence is 1.5 (the program computes the required number of frames by itself,
+see option -M)
+
+-M 20 indicates that the flow field will be estimated for frame 20, the
+program will automatically read in the required number of frames on both 
+sides of frame 20, according to the sigma value of temporal smoothing given
+by -TG and the size of the derivative masks.
+
+-A  0.5indicates that value 0.5 is used for ALPHA in the relaxation 
+process. Typical values range from 0.5 to even 100.0. (a -D option also
+exists which allows one to set the DELTA paramter. This has a default
+value of 1.0.)
+
+-I 100 indicates that 100 relaxation iterations will be executed
+
+-C indicates the correct answer is available and that you want error analysis
+conducted and that data is in /data/images1/BURKITT/testdata/correct_treet 
+(change this as well as appropriate). The data is analysed by producing a
+histogram. The next two numbers specify the number of bins in
+the histogram and the increment between them. The histogram is
+constructed by considering the error of the estimates versus the magnitude
+of the local gradient
+
+-F n.n allows the user to preserve the estimates that show 
+local gradient >= n.n only. (If this option is not present no thresholding
+is performed.)
+
+The program automatically generates the output filenames for the flow field
+and the histogram (if an histogram is requested). For the above example,
+the filename of the flow field would be:
+
+nagel.newbinarytreet.F-sg1.5-tg1.5-m20-a0.5-i100-f5.0
+
+and the filename of the histogram:
+
+nagel.newbinarytreet.H-sg1.5-tg1.5-m20-a0.5-i100-f5.0
+
+Note that the letters and numbers of the extension are the parameters 
+used when invoking the program.
+
+The program takes between 0:30 and 15:00 minutes to run on an IBM 6000,
+depending on the size of the images being processed and the nuber of
+relaxation iterations to be performed. See the README for
+information about the output format for flows and use software in ../SOFTWARE 
+to print out the flow fields in postscript.

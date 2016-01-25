@@ -1,0 +1,97 @@
+This README written by Steven Beauchemin
+
+This program, uras.c, is an implementation of Uras et al. 1988's motion
+detection algorithm.
+To compile:
+
+   make -f makeuras
+
+Everything is in a single file so a make is really not necessary but...
+This program uses a sequence of input images and smooths them according
+to the sigma values provided by the user prior to the estimation of the optical 
+flow using a 2nd-order derivative technique. Derivatives are computed using
+4-point central difference masks.
+
+Examples of run files are also present. (You'll have to change the directory 
+names where the input and output are directed.) Here's a description of a 
+typical command line (that is exactly what one gets if one invokes the 
+program with no parameters):
+
+Usage: uras input-path output-path seq-name. [-SG n.n] [-TG n.n] [-M n] [-R 1 | -R 2 n.n] [-B rows cols] [-F n.n] [-C corr-vel-file -T1 nbins1 increment1 -T2 nbins2 increment2]
+[-SG n.n]         : sigma value for spatial gaussian
+                    default value is 3.0
+[-TG n.n]         : sigma value for temporal gaussian
+                    default value is 1.5
+[-M n]            : middle frame of image sequence
+                    default value is 0
+[-R 1 | -R 2 n.n] : n = 1 : applies TR1 regularization
+                    n = 2 : applies TR2 regularization
+                    with sigma = n.n
+[-B rows cols]    : for binary input files without header
+[-F n.n]          : filters out unreliable estimates
+                    using the Gaussian curv. (det(H))
+[-C corr-vel-file -T1 nbins1 increment1 -T2 nbins2 increment2]
+                  : error histogram
+                    corr-vel-file : file of correct velocities
+                    nbins1, nbins2 : number of bins for histogram
+                    increnent1, increment2 : value of gap between bins
+
+Here is a typical run:
+ 
+uras /data/images1/BURKITT/testdata /data/images1/BURKITT/outdata treet. -SG 3.0 -TG 1.5 -M 9 -R 1 -F 0.5 -C correct_treet -T1 20 0.5 -T2 20 0.5 
+
+This command means: run uras using the input files from 
+/data/images1/BURKITT/testdata and put output files in
+/data/images1/BURKITT/outdata 
+
+treet. is the stem name of a typical set of input images (for example,
+the complete filename for frame 9 is "treet.9"). In the above example,
+the program expects to find the input images in /data/images1/BURKITT/testdata.
+
+-SG 3.0 indicates that the sigma value of the spatial smoothing of the image
+sequence is 3.0
+
+-TG 1.5 indicates that the sigma value of the temporal smoothing of the image
+sequence is 1.5 (the program computes the required number of frames by itself,
+see option -M)
+
+-M 9 indicates that the flow field will be estimated for frame 9, the
+program will automatically read in the required number of frames on both 
+sides of frame 9, according to the sigma value of temporal smoothing given
+by -TG and the size of the derivative masks
+
+-R 1 indicates that regularization procedure TR1 is used (see Uras et al.'s
+paper). -R 2 n.n indicates that procedure TR2 is used (we did not use
+it in our study). n.n is the sigma value of the spatial smoothing of the
+computed flow field when using TR2
+
+-C indicates the correct answer is available and that you want error analysis
+conducted and that data is in /data/images1/BURKITT/testdata/correct_treet 
+(change this as well as appropriate). The data is analysed by producing 2 
+histograms.
+
+-T1 and -T2 are mandatory when using -C. They specify the number of bins 
+the histogram will contain and the increment between them. The histograms are
+constructed by considering the error of the estimates versus the confidence 
+measure det(H) and the condition number of the matrix H. 
+
+-F n.n allows the user to preserve the estimates that show det(H) >= n.n
+only. 
+
+The program automatically generates the output filenames for the flow field
+and the histogram (if an histogram is requested). For the above example,
+the filename of the flow field would be:
+
+uras.treet.F-sg3.0-tg1.5-m9-r1-f0.5
+
+and the filename of the histogram:
+
+uras.treet.H-sg3.0-tg1.5-m9-r1-f0.5
+
+Note that the letters and numbers of the extension are the parameters 
+used when invoking the program.
+
+The program takes between 0:30 and 4:00 minutes to run on an IBM 6000,
+depending on the size of the images being processed. See the README for
+information about the output format for flows and use software in ../SOFTWARE 
+to print out the flow fields in postscript.
