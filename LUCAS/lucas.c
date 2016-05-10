@@ -141,7 +141,8 @@ float ave_error,st_dev,residual,density,min_angle,max_angle;
 float norm_ave_error1,norm_st_dev1,norm_density1,norm_min_angle1,norm_max_angle1;
 float norm_ave_error2,norm_st_dev2,norm_density2,norm_min_angle2,norm_max_angle2;
 float sigma,tau_D;
-unsigned char header[HEAD],path1[100],path2[100],path3[100];
+unsigned char header[HEAD];
+char path1[100],path2[100],path3[100];
 char name[100],full_name[100],norm_name[100],raw_name[100],correct_filename[100];
 
 
@@ -251,8 +252,8 @@ if(strcmp(correct_filename,"unknown")!=0)
 if((fd_correct = fopen(correct_filename,"rb"))==NULL)
 	{
 	printf("Fatal error in opening file %s\n",correct_filename);
-	printf("fd_correct: %d\n",fd_correct);
-	exit(1);
+	//printf("fd_correct: %d\n",fd_correct);
+	return EXIT_FAILURE;
 	}
 no_bytes = 0;
 no_bytes += (4*fread(&actual_y,4, 1, fd_correct));
@@ -742,10 +743,10 @@ int pic_x, int pic_y,
 int n)
 {
 float x,y;
-int i,j,bytes,no_novals,no_vals,NORMAL;
+int i,j,bytes,no_novals,no_vals;
 
-NORMAL = FALSE;
-if(strcmp(s,"Normal")==0) NORMAL = TRUE;
+//int NORMAL = FALSE;
+//if(strcmp(s,"Normal")==0) NORMAL = TRUE;
 if(fdf==NULL)
 	{
 	printf("\nFatal error: full velocity file not opened\n");
@@ -813,7 +814,10 @@ int j,iq,ip,i;
 float thresh,theta,tau,t,sm,s,h,g,c;
 float b[N],z[N],a[N][N];
 
-if(n!=N) { fprintf(stderr,"\nFatal error: n not N in jacobi\n",N); exit(1); }
+if(n!=N) { 
+    fprintf(stderr,"\nFatal error: n %d not N %d in jacobi\n",n,N); 
+    exit(EXIT_FAILURE); 
+    }
 for(ip=0;ip<n;ip++) /* Initialize to the identity matrix */
 	{
 	for(iq=0;iq<n;iq++) v[ip][iq] = 0.0;
@@ -1392,7 +1396,7 @@ for(i=start;i<=end;i++)
 	{
 	time++;
 	no_bytes = 0;
-	sprintf(fname,"%s/%s%d.ras",path,s,i);
+	sprintf(fname,"%s/%s%d",path,s,i);  //.ras
  	if((fp=fopen(fname,"rb")) != NULL)
 		{
 		if(!BINARY)
