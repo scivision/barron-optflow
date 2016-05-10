@@ -59,7 +59,7 @@ char **argv;
   if ((argc-argcount)!=2) usage(argv[0]);
   initialize(argv[argc-2],argv[argc-1]);
   execute();
-  close(fo);
+  fclose(fo);
 }
 
 void usage(s)
@@ -81,9 +81,8 @@ char *s;
 void initialize(in,out)
 char *in, *out ;
 /* Read raster files into internal 3-D array. */
-
-{ char fname[100] ;
-  int  i, j, k, fp, ok ;
+{
+  int  ok ;
 
   sub = sub*insub;
   if ((fo = fopen(out,"w")) ==NULL ) printf("Error creating file %s.\n",out);
@@ -146,13 +145,12 @@ char *in, *out ;
 }
 
 
-void execute()
-
-{ int i, j, ii, jj, x, y, iang, leftx, lefty ;
+void execute(){ 
+  int i, j, ii, jj, x, y ;
   float U, V, angle, arrow, mag ;
 	
-  leftx = totx - numx - offx ;
-  lefty = toty - numy - offy;
+  //int leftx = totx - numx - offx ;
+  //int lefty = toty - numy - offy;
 
   fprintf(fo,"newpath\n");
   fprintf(fo,"  %d %d  moveto\n",(int)offset,(int)offset);
@@ -232,12 +230,12 @@ void execute()
       if (mag>0.001) fprintf(fo,"  %5.2f rotate\n",-angle);
       fprintf(fo,"  %d  %d translate\n\n",-x,-y);
     }
-    if (!latex) fprintf(fo,"showpage\n",-x,-y);
+  if (!latex) fprintf(fo,"%d %d showpage\n",-x,-y);
 	
 }
 
 
-float getval(i,j)
+float getval(int i,int j)
 
 { float v ;
 
@@ -248,6 +246,6 @@ float getval(i,j)
 }
 
 
-flength()
-
-{ return(lseek(fi,0,3)); }
+int flength(){ 
+return(lseek(fi,0,3)); 
+}

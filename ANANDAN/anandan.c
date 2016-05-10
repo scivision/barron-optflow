@@ -1,7 +1,9 @@
-
+#include <string.h>
 #include <math.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 /* 
            NAME : const.h 
@@ -19,7 +21,6 @@
 
 #define TRUE      1
 #define FALSE     0
-#define PI        3.14159
 
 #define K1        150.0
 #define K2        1.0
@@ -58,6 +59,8 @@
 #define N_HISTO    2
 #define N_BINS     100
 
+
+void error(int);
 
 /* 
            NAME : type.h 
@@ -180,7 +183,7 @@ kernel_t kera, kerb ;
 
 */
 
-alloc_flow(p) 
+void alloc_flow(p) 
 qnode_ptr_t p ;
 
 {
@@ -217,7 +220,7 @@ qnode_ptr_t p ;
 
 */
 
-alloc_gauss(p)
+void alloc_gauss(p)
 qnode_ptr_t p ;
 
 {
@@ -255,7 +258,7 @@ qnode_ptr_t p ;
 
 */
 
-alloc_image(p)
+void alloc_image(p)
 qnode_ptr_t p ;
 
 {
@@ -300,7 +303,7 @@ qnode_ptr_t p ;
 
 */
 
-alloc_lap(p)
+void alloc_lap(p)
 qnode_ptr_t p ;
 
 {
@@ -336,7 +339,7 @@ qnode_ptr_t p ;
 
 */
 
-alloc_param(p) 
+void alloc_param(p) 
 qnode_ptr_t p ;
 
 {
@@ -372,7 +375,7 @@ qnode_ptr_t p ;
            DATE : June 25 1990
 */
 
-concat(s1,s2,s3)
+void concat(s1,s2,s3)
 string s1, s2, s3 ;
 
 { string t ;
@@ -426,7 +429,7 @@ int l, r, sx, sy ;
 
 */
 
-dealloc_flow(p) 
+void dealloc_flow(p) 
 qnode_ptr_t p ;
 
 {
@@ -462,7 +465,7 @@ qnode_ptr_t p ;
 
 */
 
-dealloc_gauss(p)
+void dealloc_gauss(p)
 qnode_ptr_t p ;
 
 { 
@@ -498,7 +501,7 @@ qnode_ptr_t p ;
 
 */
 
-dealloc_image(p)
+void dealloc_image(p)
 qnode_ptr_t p ;
 
 { 
@@ -541,7 +544,7 @@ qnode_ptr_t p ;
 
 */
 
-dealloc_lap(p)
+void dealloc_lap(p)
 qnode_ptr_t p ;
 
 { 
@@ -578,7 +581,7 @@ qnode_ptr_t p ;
 
 */
 
-dealloc_param(p) 
+void dealloc_param(p) 
 qnode_ptr_t p ;
 
 {
@@ -616,7 +619,7 @@ qnode_ptr_t p ;
 
 */
 
-delete_node(p,h,q)
+void delete_node(p,h,q)
 qnode_ptr_t p, *h, *q ;
 
 { qnode_ptr_t s, t ;
@@ -798,7 +801,7 @@ search_area_t *s ;
            DATE : January 21 1991 ;
 */
 
-filter(p,q,f_type,trsh)
+void filter(p,q,f_type,trsh)
 qnode_ptr_t p, q ;
 int f_type ;
 float trsh ;
@@ -842,7 +845,7 @@ float trsh ;
            DATE : April 10 1990
 */
 
-init_beaudet3(Ix,Ixx,Ixy)
+void init_beaudet3(Ix,Ixx,Ixy)
 beaudet_t *Ix, *Ixx, *Ixy ;
 
 {
@@ -879,7 +882,7 @@ beaudet_t *Ix, *Ixx, *Ixy ;
            DATE : September 13 1990
 */
 
-init_beaudet5(Ix,Ixx,Ixy)
+void init_beaudet5(Ix,Ixx,Ixy)
 beaudet_t *Ix, *Ixx, *Ixy ;
 
 {
@@ -937,7 +940,7 @@ beaudet_t *Ix, *Ixx, *Ixy ;
            DATE : September 13 1990
 */
 
-init_beaudet7(Ix,Ixx,Ixy)
+void init_beaudet7(Ix,Ixx,Ixy)
 beaudet_t *Ix, *Ixx, *Ixy ;
 
 {
@@ -1026,7 +1029,7 @@ beaudet_t *Ix, *Ixx, *Ixy ;
 
 */
 
-init_kernel_a(ker) 
+void init_kernel_a(ker) 
 kernel_t *ker ;
 
 {  
@@ -1051,7 +1054,7 @@ kernel_t *ker ;
 
 */
 
-init_kernel_b(ker) 
+void init_kernel_b(ker) 
 kernel_t *ker ;
 
 {  
@@ -1078,7 +1081,7 @@ kernel_t *ker ;
 
 */
 
-init_list(h,q)
+void init_list(h,q)
 qnode_ptr_t *h, *q ;
 
 { 
@@ -1102,7 +1105,7 @@ qnode_ptr_t *h, *q ;
 
 */
 
-insert_node(p,h,q) 
+void insert_node(p,h,q) 
 qnode_ptr_t p, *h, *q ;
 
 { qnode_ptr_t s, t ;
@@ -1162,7 +1165,7 @@ int x, y, rx, ry ;
 */
 
 
-itoa(n,s)
+void itoa(n,s)
 int n ;
 string s ; 
 
@@ -1241,14 +1244,16 @@ int n ;
 
 */
 
-pgetrast(fn,hd,bf,sx,sy,r) 
+void pgetrast(fn,hd,bf,sx,sy,r) 
 char *fn ;
 unsigned char hd[H] ;
 float bf[N1*N1] ;
 int sx, sy, r ;
 
-{ int fd, i, j ;
-  unsigned char c ;
+{ 
+  int fd;
+  int i, j;
+  unsigned char c;
 
   if ((fd = open(fn,O_RDONLY)) > 0) { 
     if (read(fd,hd,H) == H) { 
@@ -1287,7 +1292,7 @@ int sx, sy, r ;
 
 */
 
-Bpgetrast(fn,bf,sx,sy,r) 
+void Bpgetrast(fn,bf,sx,sy,r) 
 char *fn ;
 float bf[N1*N1] ;
 int sx, sy, r ;
@@ -1328,7 +1333,7 @@ int sx, sy, r ;
 
 */
 
-pputrast(fn,hd,bf,sx,sy,r) 
+void pputrast(fn,hd,bf,sx,sy,r) 
 char *fn ;
 unsigned char hd[H] ;
 float bf[N1*N1] ;
@@ -1405,7 +1410,7 @@ int r ;
            DATE : April 11 1990
 */
 
-rotate(x,y,t) 
+void rotate(x,y,t) 
 float *x, *y, t ;
 
 { float x1, y1 ;
@@ -1428,7 +1433,7 @@ float *x, *y, t ;
 
 */
 
-sample(p1,p2)
+void sample(p1,p2)
 qnode_ptr_t p1, p2 ;
 
 { int f, i, j ;
@@ -1533,7 +1538,7 @@ int x1, y1, x2, y2 ;
            DATE : June 25 1990
 */
 
-usage()
+void usage()
 
 { 
   fprintf(stderr,"Usage: anandan input-path output-path seq-name. -N n1 n2 [-W n] [-L n] [-I n] [-NR] [-P] [-F n.n] [-B cols rows] [-C corr-vel-file nbins increment]\n") ;
@@ -1597,7 +1602,7 @@ float t ;
            DATE : May 7 1990
 */
 
-write_velocity(fn,p,div)
+void write_velocity(fn,p,div)
 qnode_ptr_t p ;
 char *fn ;
 float div ;
@@ -1728,7 +1733,7 @@ int x, y, cx, cy ;
            DATE : April 9 1990
 */
 
-conf_measure(im1,im2,fl,prm,x,y,sp) 
+void conf_measure(im1,im2,fl,prm,x,y,sp) 
 qnode_ptr_t im1, im2, fl, prm ;
 int x, y, sp ;
 
@@ -1835,7 +1840,7 @@ int x, y, sp ;
 
 */
 
-convolve(p,ker) 
+void convolve(p,ker) 
 qnode_ptr_t p ;
 kernel_t ker ;
 
@@ -1909,7 +1914,7 @@ kernel_t ker ;
 
 */
 
-create_pyramid(h,q,n,r,sx,sy,f)
+void create_pyramid(h,q,n,r,sx,sy,f)
 qnode_ptr_t *h, *q ;
 int n, r, sx, sy, f ;
 
@@ -1940,7 +1945,7 @@ int n, r, sx, sy, f ;
 
 */
 
-delete_pyramid(h,q)
+void delete_pyramid(h,q)
 qnode_ptr_t *h, *q ;
 
 { qnode_ptr_t t ;
@@ -1968,13 +1973,12 @@ qnode_ptr_t *h, *q ;
            DATE : June 25 1990
 */
 
-dump_flow(h,q,f,div)
+void dump_flow(h,q,f,div)
 qnode_ptr_t *h, *q ;
 char *f ;
 float div ;
-
-{ qnode_ptr_t t ;
-  string s, fname ;
+{ 
+    qnode_ptr_t t ;
 
   /* while (*q != (qnode_ptr_t)NULL) {
     t = *q ;
@@ -2001,7 +2005,7 @@ float div ;
            DATE : June 25 1990
 */
 
-error(n)
+void error(n)
 int n ;
 
 { 
@@ -2083,7 +2087,7 @@ string fn, f1, f2 ;
 int n1, n2 ;
 float *div ;
 
-{ string tf0, tf1, tf2 ;
+{ string tf1, tf2 ;
 
   itoa(n1,tf1) ;
   itoa(n2,tf2) ;
@@ -2105,7 +2109,7 @@ float *div ;
 
 */
 
-laplacian(p)
+void laplacian(p)
 qnode_ptr_t p ;
 
 { extern kernel_t kerb ;
@@ -2166,7 +2170,7 @@ float div ;
   if ((v > 1.0) && (v < 1.0001)) {
     v = 1.0 ;
   }
-  return((float)(acos(v))*180.0/PI) ;
+  return((float)(acos(v))*180.0/M_PI) ;
 }
 
 /* 
@@ -2185,7 +2189,7 @@ float div ;
            DATE : April 22 1992
 */
 
-raster_size(fn,x,y,a)
+void raster_size(fn,x,y,a)
 char *fn ;
 int *x, *y, *a ;
 
@@ -2239,7 +2243,7 @@ int *x, *y, *a ;
            DATE : April 22 1992
 */
 
-binary_size(x,y,a)
+void binary_size(x,y,a)
 int x, y, *a ;
 
 { int max ;
@@ -2302,7 +2306,7 @@ int x, y, *a ;
            DATE : June 25 1990
 */
 
-valid_option(argc,argv,in_path,out_path,n1,n2,level,h_type,histo,sm,sp,sf,pyr,
+void valid_option(argc,argv,in_path,out_path,n1,n2,level,h_type,histo,sm,sp,sf,pyr,
 ssd,f_type,trsh,i_fname,v_fname,c_fname,h_fname,nbin,incr,iter,binary,row,col)
 char *argv[] ;
 int argc, *n1, *n2, *iter, *level, *h_type, *histo, *sm, *sp, *sf, *pyr, 
@@ -2520,7 +2524,7 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
            DATE : April 24 1992 ;
 */
 
-valid_size(x,y)
+void valid_size(x,y)
 int x[N_FRAME], y[N_FRAME] ;
 
 { if (x[0] != x[1] || y[0] != y[1]) {
@@ -2542,7 +2546,7 @@ int x[N_FRAME], y[N_FRAME] ;
            DATE : April 15 1990
 */
 
-relax(f,g,iter) 
+void relax(f,g,iter) 
 qnode_ptr_t f, g ;
 int iter ;
 
@@ -2665,13 +2669,13 @@ int iter ;
            DATE : April 9 1990
 */
 
-compute_flow(im1h,im1q,im2h,im2q,flh,flq,sm,sp,iter)
+void compute_flow(im1h,im1q,im2h,im2q,flh,flq,sm,sp,iter)
 qnode_ptr_t *im1h, *im1q, *im2h, *im2q, *flh, *flq ;
 int sm, sp, iter ;
 
 { disp_vect_t best_match(), project(), U[S], V ; 
   qnode_ptr_t fl ; 
-  int i, j, k, m, r, x, y, ip, jp, min ;
+  int i, j, k, m, r, ip, jp, min ;
   float ssd[S], min_ssd ;
 
   if ((*flq)->back == (qnode_ptr_t)NULL) {   /* single level, no projection */
@@ -2759,7 +2763,7 @@ int sm, sp, iter ;
 
 */
 
-cons_gauss(q)
+void cons_gauss(q)
 qnode_ptr_t q ;
 
 { extern kernel_t kera ;
@@ -2791,7 +2795,7 @@ qnode_ptr_t q ;
 
 */
 
-cons_lap(q)
+void cons_lap(q)
 qnode_ptr_t q ;
 
 { extern kernel_t kera ;
@@ -2831,7 +2835,7 @@ qnode_ptr_t q ;
            DATE : February 20 1992
 */
 
-prod_histo(f,c_fn,h_fn,nbin,incr,h_type,ttl_err,ttl_std,dens,div)
+void prod_histo(f,c_fn,h_fn,nbin,incr,h_type,ttl_err,ttl_std,dens,div)
 qnode_ptr_t f ;
 string c_fn, h_fn ;
 float incr, *ttl_err, *ttl_std, *dens, div ;
@@ -3002,7 +3006,7 @@ int nbin, h_type ;
            DATE : April 9 1990
 */
 
-main(argc,argv)
+int main(argc,argv)
 int argc ;
 char *argv[] ;
 

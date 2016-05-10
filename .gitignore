@@ -1,3 +1,6 @@
+out/
+bin/
+
 # Object files
 *.o
 *.ko

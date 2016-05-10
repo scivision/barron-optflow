@@ -58,7 +58,8 @@ char **argv;
 int fdf,offset,size,start,end,middle,i,j;
 int fd_correct,no_bytes,numpass,time;
 float ave_error,st_dev,density,min_angle,max_angle,sigma,tau;
-unsigned char header[HEAD],path1[100],path2[100],path3[100];
+unsigned char header[HEAD];
+char path1[100],path2[100],path3[100];
 char full_name[100],correct_filename[100];
 
 if(argc < 7 || argc > 19)
@@ -171,7 +172,7 @@ fflush(stdout);
 if(strcmp(correct_filename,"unknown")!=0)
 {
 /* Read the correct velocity data */
-if((fd_correct = open(correct_filename,O_RDONLY))==NULL)
+if((fd_correct = open(correct_filename,O_RDONLY))<1)
 	{
 	printf("Fatal error in opening file %s\n",correct_filename);
 	printf("fd_correct: %d\n",fd_correct);
@@ -337,7 +338,7 @@ if(strcmp(correct_filename,"unknown")!=0)
 	}
 if(THRESHOLD) threshold(full_vels,Ix,Iy,tau,pic_x,pic_y);
 
-if((fdf=creat(full_name,0644))!=NULL)
+if((fdf=creat(full_name,0644))>0)
 	output_velocities(fdf,"Full",full_vels,pic_x,pic_y,2*offset);
 else printf("Error in opening %s file\n\n",full_name);
 printf("\nVelocities computed and output\n");
@@ -734,7 +735,7 @@ for (i=start;i<=end;i++)
 	no_bytes = 0;
 	time++;
 	sprintf(fname,"%s/smoothed.%s%d-%3.1f",path,s,i,sigma);
- 	if((fp=creat(fname,0644))!=NULL)
+ 	if((fp=creat(fname,0644))>0)
 		{
 		no_bytes += write(fp,&header[0],HEAD); /* Write 32 byte raster header */
 		for(j=0;j<pic_x;j++)
@@ -919,7 +920,7 @@ int i,j,bytes,no_novals,no_vals;
 /*
 int NORMAL = FALSE;
 if(strcmp(s,"Normal")==0) NORMAL = TRUE; */
-if(fdf==NULL)
+if(fdf<1)
 	{
 	printf("\nFatal error: full velocity file not opened\n");
 	exit(1);
