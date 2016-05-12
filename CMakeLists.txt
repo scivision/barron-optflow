@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.8.12)
 project(optflow C Fortran)
 
-add_compile_options(-march=native -Wall -Wpedantic -Werror=array-bounds)
+add_compile_options(-march=native -Wall  -Werror=array-bounds)
 
 include_directories(SOFTWARE)
 link_libraries(m)
