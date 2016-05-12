@@ -8,6 +8,7 @@
       limit -h gives the hard limits of your system.
 ************************************************************/
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <fcntl.h>
 #include <time.h>
@@ -1012,7 +1013,7 @@ if((fd = creat(fname,0755)) != NULL)
      else
 	{
 	printf("Error creating file %s.\n",fname);
-	exit(1);
+	return EXIT_FAILURE;
 	}
 close(fd);
 } /* End of write_If_data */

@@ -59,7 +59,7 @@ int OFFSET_Y=10;
 typedef unsigned char cimages[NUMFILES][PIC_Y][PIC_X];
 typedef float fimages[NUMFILES][PIC_Y][PIC_X];
 
-float fmax(),cal_normal_angle_error(),cal_full_angle_error();
+float cal_normal_angle_error(),cal_full_angle_error();
 float dot(),PsiER(),PsiEN(),L2norm(),bigL2norm();
 int check_eigen_calc();
 
@@ -1446,7 +1446,7 @@ return fabs(v1);
 /* columns  contain, on output, the normalized eigenvectors of a. nrot    */
 /* returns the number of Jacobi rotations that were required.		  */
 /**************************************************************************/
-jacobi(aa,n,d,v,nrot)
+void jacobi(aa,n,d,v,nrot)
 float aa[DIM][DIM],d[DIM],v[DIM][DIM];
 int n,*nrot;
 {
