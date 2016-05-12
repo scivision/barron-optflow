@@ -11,14 +11,19 @@ target_compile_options(linpack PRIVATE -std=legacy)
 
 add_executable(flow2ps SOFTWARE/psflow.c)
 
-add_executable(horn HORN/horn.c)
-
-add_executable(lucas LUCAS/lucas.c)
 
 add_executable(anandan ANANDAN/anandan.c)
 
 add_executable(fleet FLEET/fleet.c)
 target_link_libraries(fleet linpack)
 
+add_executable(horn HORN/horn.c)
+
+add_executable(lucas LUCAS/lucas.c)
+
+add_executable(nagel NAGEL/nagel.c)
+
 add_executable(singh SINGH/singh.c)
 target_link_libraries(singh linpack)
+
+add_executable(uras URAS/uras.c)
