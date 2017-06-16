@@ -9,6 +9,8 @@
 ************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include <math.h>
 #include <fcntl.h>
 #include <time.h>
@@ -852,7 +854,7 @@ fflush(stdout);
 /* Read maxamp from file in current directory in case filtering is
    not done during this run (and hence maxamp has not been calculated) */
 sprintf(name,"%samp",s);
-if((fpa = fopen(name,"r"))==NULL)
+if((fpa = fopen(name,"r"))<0)
 	{
 	printf("Fatal error: %s does't exist\n",name);
 	exit(1);
@@ -882,7 +884,7 @@ if(!OLD_WAY)
 sprintf(fullname,"%s/fleet.%s%dF-%3.2f",path3,s,(int)(sigma*10),tau);
 else
 sprintf(fullname,"%s/fleet.%s%dF-%3.2f-%3.2f",path3,s,(int)(sigma*10),tauA,tauF);
-if((fdf = creat(fullname,0644))==NULL)
+if((fdf = creat(fullname,0644))<0)
 	{
         printf("Error creating file %s.\n",fullname);
         exit(1); 
@@ -893,7 +895,7 @@ if(!OLD_WAY)
 sprintf(normalname,"%s/fleet.%s%dN-%3.2f",path3,s,(int)(sigma*10),tau);
 else
 sprintf(normalname,"%s/fleet.%s%dN-%3.2f-%3.2f",path3,s,(int)(sigma*10),tauA,tauF);
-if((fdn = creat(normalname,0644))==NULL)
+if((fdn = creat(normalname,0644))<0)
 	{
         printf("Error creating file %s.\n",normalname);
         exit(1); 
@@ -986,7 +988,7 @@ int i,j,fd;
 
 sprintf(fname,"%s/%s%d",path,name,n);
 printf("Writing file: %s in write_If_data\n",fname);
-if((fd = creat(fname,0755)) != NULL)
+if((fd = creat(fname,0755)) >=0)
 	{
         for (i=0;i<NUMFILES-2*OFFSET_T;i++) 
 		{
@@ -1033,7 +1035,7 @@ int i,j,fd,read_re,read_im;
 sprintf(fname,"%s%d",s,n);
 printf("\nReading file: %s in read_If_data\n",fname);
 fflush(stdout);
-if((fd = open(fname,O_RDONLY,0644))!=NULL)
+if((fd = open(fname,O_RDONLY,0644))>=0)
 	{
         for(i=0;i<NUMFILES-2*OFFSET_T;i++) 
 		{
@@ -1733,7 +1735,7 @@ int fdf;
 float x,y;
 int i,j,bytes,no_novals,no_vals;
 
-if(fdf==NULL)
+if(fdf<0)
 	{
 	printf("\nFatal error: full velocity file not opened\n");
 	exit(1);
@@ -1803,7 +1805,7 @@ float x,y,last,data[5000];
 no_points = 0;
 no_normal_vels = 0;
 last = END_OF_VALUES;
-if(fdn==NULL)
+if(fdn<0)
 	{
 	printf("\nFatal error: normal velocity file not opened\n");
 	exit(1);
@@ -1949,10 +1951,7 @@ for(j=0;j<size;j++)
 job = 21;
 
 /* Call limpack double percision SVD routine */
-/* Fortran code is in svddouble.f            */
-/* Sun Fortran: dsvdc_(JT,&mdim,&m,&n,W,zero,UU,&mdim,VV,&n,temp,&job,&Ierr);*/
-/* IBM Fortran: dsvdc(JT,&mdim,&m,&n,W,zero,UU,&mdim,VV,&n,temp,&job,&Ierr);*/
-dsvdc_(JT,&mdim,&m,&n,W,zero,UU,&mdim,VV,&n,temp,&job,&Ierr);  
+dsvdc(JT,&mdim,&m,&n,W,zero,UU,&mdim,VV,&n,temp,&job,&Ierr);  
 
 /* Undo "Fortran" damage, i.e. transpose the data and convert to
    single percision.  */

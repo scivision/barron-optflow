@@ -1,7 +1,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <fcntl.h>
-
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 /* 
            NAME : const.h 
    PARAMETER(S) : none
@@ -959,13 +961,10 @@ int middle, s ;
            DATE : September 15 1990
 */
 
-free_cube(p,n)
-qnode_ptr_t p ;
-
-{ int i ;
-
-  for (i = 0 ; i < n ; i++) {
-    free((image512_t *)p->gauss_ptr[i]) ;
+void free_cube( qnode_ptr_t p, int n)
+{
+  for (int i = 0 ; i < n ; i++) {
+    free((image512_t *)p->gauss_ptr[i]);
   }
 }
 

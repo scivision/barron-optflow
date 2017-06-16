@@ -2107,7 +2107,7 @@ for(j=0;j<size;j++)
 	JT[i][j] = J[j][i];
 
 job = 21;
-dsvdc_(JT,&mdim,&m,&n,W,zero,UU,&mdim,VV,&n,temp,&job,&Ierr); 
+dsvdc(JT,&mdim,&m,&n,W,zero,UU,&mdim,VV,&n,temp,&job,&Ierr); 
 
 for(i=0;i<size;i++)
 for(j=0;j<NO_COLS;j++)
