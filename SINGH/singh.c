@@ -7,6 +7,9 @@
 **************************************************************/
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <time.h>
 #include <sys/types.h>
@@ -88,9 +91,7 @@ char inname[100],filename[100],path1[100],path2[100],outname[100];
 
 
 /******************************************************************/
-main(argc,argv)
-int argc;
-char **argv;
+int main(int argc, char **argv)
 {
 char command[100],correct_filename[100],name[100];
 float tau1,tau2,sigma;
@@ -327,7 +328,7 @@ if(STEP==1)
 sprintf(outname,"%s/singh.step1.%sF-n-%d-w-%d-N-%d",path2,argv[1],n,w,N);
 else
 sprintf(outname,"%s/singh.step1.%sF-n-%d-w-%d-N-%d-s-%d",path2,argv[1],n,w,N,STEP);
-if((fdf1 = creat(outname,0755))==NULL)
+if((fdf1 = creat(outname,0755))<0)
 	{
 	printf("Error creating file %s.\n",outname);
 	exit(1);
@@ -337,7 +338,7 @@ if(STEP==1)
 sprintf(outname,"%s/singh.step1.%sC-n-%d-w-%d-N-%d",path2,argv[1],n,w,N);
 else
 sprintf(outname,"%s/singh.step1.%sC-n-%d-w-%d-N-%d-s-%d",path2,argv[1],n,w,N,STEP);
-if((fdcov1 = creat(outname,0755))==NULL)
+if((fdcov1 = creat(outname,0755))<0)
 	{
 	printf("Error creating file %s.\n",outname);
 	exit(1);
@@ -350,7 +351,7 @@ if(STEP==1)
 sprintf(outname,"%s/singh.step1.%sF-n-%d-w-%d-N-%d",path2,argv[1],n,w,N);
 else
 sprintf(outname,"%s/singh.step1.%sF-n-%d-w-%d-N-%d-s-%d",path2,argv[1],n,w,N,STEP);
-if((fdf1 = open(outname,O_RDONLY))==NULL)
+if((fdf1 = open(outname,O_RDONLY))<0)
 	{
 	printf("Fatal error: file %s does not exit\n",outname);
 	exit(1);
@@ -360,7 +361,7 @@ if(STEP==1)
 sprintf(outname,"%s/singh.step1.%sC-n-%d-w-%d-N-%d",path2,argv[1],n,w,N);
 else
 sprintf(outname,"%s/singh.step1.%sC-n-%d-w-%d-N-%d-s-%d",path2,argv[1],n,w,N,STEP);
-if((fdcov1 = open(outname,O_RDONLY))==NULL)
+if((fdcov1 = open(outname,O_RDONLY))<0)
 	{
 	printf("Fatal error: file %s does not exist\n",outname);
 	exit(1);
@@ -375,7 +376,7 @@ if(STEP==1)
 sprintf(outname,"%s/singh.step2.%sF-n-%d-w-%d-N-%d",path2,argv[1],n,w,N);
 else
 sprintf(outname,"%s/singh.step2.%sF-n-%d-w-%d-N-%d-s-%d",path2,argv[1],n,w,N,STEP);
-if((fdf2 = creat(outname,0755))==NULL)
+if((fdf2 = creat(outname,0755))<0)
 	{
 	printf("Error creating file %s.\n",outname);
 	exit(1);
@@ -385,7 +386,7 @@ if(STEP==1)
 sprintf(outname,"%s/singh.step2.%sC-n-%d-w-%d-N-%d",path2,argv[1],n,w,N);
 else
 sprintf(outname,"%s/singh.step2.%sC-n-%d-w-%d-N-%d-s-%d",path2,argv[1],n,w,N,STEP);
-if((fdcov2 = creat(outname,0755))==NULL)
+if((fdcov2 = creat(outname,0755))<0)
 	{
 	printf("Error creating file %s.\n",outname);
 	exit(1);
@@ -399,7 +400,7 @@ if(STEP==1)
 sprintf(outname,"%s/singh.step2.%sF-n-%d-w-%d-N-%d",path2,argv[1],n,w,N);
 else
 sprintf(outname,"%s/singh.step2.%sF-n-%d-w-%d-N-%d-s-%d",path2,argv[1],n,w,N,STEP);
-if((fdf2 = open(outname,O_RDONLY))==NULL)
+if((fdf2 = open(outname,O_RDONLY))<0)
 	{
 	printf("Fatal error: file %s does not exit\n",outname);
 	exit(1);
@@ -409,7 +410,7 @@ if(STEP==1)
 sprintf(outname,"%s/singh.step2.%sC-n-%d-w-%d-N-%d",path2,argv[1],n,w,N);
 else
 sprintf(outname,"%s/singh.step2.%sC-n-%d-w-%d-N-%d-s-%d",path2,argv[1],n,w,N,STEP);
-if((fdcov2 = open(outname,O_RDONLY))==NULL)
+if((fdcov2 = open(outname,O_RDONLY))<0)
 	{
 	printf("Fatal error: file %s does not exist\n",outname);
 	exit(1);
@@ -555,7 +556,7 @@ if(threshold1)
 	if(PRINT_FLOWS1)
 	{
 	sprintf(outname,"%s/singh.step1.%sF-tau-%4.2f",path2,argv[1],tau1);
-	if((fd_vels = creat(outname,0755))==NULL)
+	if((fd_vels = creat(outname,0755))<0)
 	{
 	printf("Error creating file %s.\n",outname);
 	exit(1);
@@ -623,7 +624,7 @@ if(threshold2)
 	if(PRINT_FLOWS2)
 	{
 	sprintf(outname,"%s/singh.step2.%sF-tau-%4.2f",path2,argv[1],tau2);
-	if((fd_vels = creat(outname,0755))==NULL)
+	if((fd_vels = creat(outname,0755))<0)
 	{
 	printf("Error creating file %s.\n",outname);
 	exit(1);
@@ -728,7 +729,7 @@ ONCE = TRUE;
 for(i=0;i<NUMFILES;i++) 
 	{
 	sprintf(fname,"laplacian.%s%d",s,central_image+(i-1)*STEP);
- 	if((fd = creat(fname,0755)) != NULL)
+ 	if((fd = creat(fname,0755)) >= 0)
 		{
 		write(fd,header_ints,HEAD);
 		bytes = 32;
@@ -992,7 +993,7 @@ for(l=(-offset);l<=offset;l++)
 if(PRINT_ITERATIONS)
 {
 sprintf(outname,"%s/singh.iteration.step2.%sF-%d",path,name,iteration_number-1);
-if((fd = creat(outname,0755))==NULL)
+if((fd = creat(outname,0755))<0)
 	{
 	printf("Error creating file %s.\n",outname);
 	exit(1);
@@ -1108,7 +1109,7 @@ int fdf,pic_x,pic_y,SAMPLE;
 float x,y;
 int i,j,bytes,no_novals,no_vals;
 
-if(fdf==NULL)
+if(fdf<0)
 	{
 	printf("\nFatal error: full velocity file not opened\n");
 	exit(1);
@@ -1173,7 +1174,7 @@ int fdf,pic_x,pic_y;
 float x,y;
 int i,j,bytes,no_novals,no_vals;
 
-if(fdf==NULL)
+if(fdf<0)
 	{
 	printf("\nFatal error: covariance file not opened\n");
 	exit(1);
@@ -1223,7 +1224,7 @@ for(i=0;i<PIC_Y;i++)
 for(j=0;j<PIC_X;j++)
 	velocities[i][j][0] = velocities[i][j][1] = NO_VALUE; 
 
-if(fdf==NULL)
+if(fdf<0)
 	{
 	printf("\nFatal error: full velocity file not opened\n");
 	exit(1);
@@ -1263,7 +1264,7 @@ int fdf,pic_x,pic_y;
 float x,y;
 int i,j,bytes;
 
-if(fdf==NULL)
+if(fdf<0)
 	{
 	printf("\nFatal error: covariance file not opened\n");
 	exit(1);
@@ -1456,7 +1457,7 @@ float b[DIM],z[DIM],a[DIM][DIM];
 
 if(n!=DIM) 
 	{ 
-	fprintf(stderr,"\nFatal error: n not DIM in jacobi\n",DIM); 
+	fprintf(stderr,"\nFatal error: n not DIM %d in jacobi\n",DIM); 
 	exit(1); 
 	}
 for(ip=0;ip<n;ip++) /* Initialize to the identity matrix */
