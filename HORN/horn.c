@@ -832,7 +832,7 @@ sum = 0.0;
 if(sigma != 0.0)
 for(i=0;i<size;i++)
 	{
-	mask[i] = (1.0/(sqrt(2.0*3.141592654)*sigma))*
+	mask[i] = (1.0/(sqrt(2.0*M_PI)*sigma))*
 		exp(-(i-offset)*(i-offset)/(2.0*sigma*sigma));
 	sum = sum+mask[i];
 	}

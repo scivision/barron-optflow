@@ -1476,7 +1476,7 @@ float constant1,constant2,beta,base;
 float wavelength,b,mu,speed,lambdas,lambdat,k1,k2,k3,rho,theta,two_pi;
 int ii;
 
-two_pi = 2.0*3.14159;
+two_pi = 2.0*M_PI;
 mu = 1.0;
 beta = 0.8;
 base = 2.0;

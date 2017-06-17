@@ -11,7 +11,7 @@
 #include "rasterfile.h"
 
 #define N 2
-#define HALF_C 3.14159 
+#define HALF_C M_PI 
 #define PIC_X 512
 #define PIC_Y 512
 #define PIC_T 17
@@ -923,7 +923,7 @@ status = TRUE;
 /* Compute angle between two eigenvectors - should be orthogonal */
 (*angle)=acos((v[0][0]*v[0][1]+v[1][0]*v[1][1])/
 	 (sqrt(v[0][0]*v[0][0]+v[1][0]*v[1][0])*
-	  sqrt(v[0][1]*v[0][1]+v[1][1]*v[1][1])))*180.0/3.1415926535;
+	  sqrt(v[0][1]*v[0][1]+v[1][1]*v[1][1])))*180.0/M_PI;
 if((*angle) < 89.5 && (*angle) > 90.5) 
 	{
 	status = FALSE;
@@ -1300,7 +1300,7 @@ sum = 0.0;
 if(sigma != 0.0)
 for(i=0;i<size;i++)
 	{
-	mask[i] = (1.0/(sqrt(2.0*3.141592654)*sigma))*
+	mask[i] = (1.0/(sqrt(2.0*M_PI)*sigma))*
 		exp(-(i-offset)*(i-offset)/(2.0*sigma*sigma));
 	sum = sum+mask[i];
 	}

@@ -5,12 +5,11 @@
 	-- reads file containing velocities,
 		creates postscript file to draw flow field.
 ************************************************************/
-#include        <fcntl.h>
-#include        <stdio.h>
-#include        <math.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <math.h>
 
 #include <stdlib.h>
-#define M_PI 3.14159265358979323846
 
 #define SPACE 10
 

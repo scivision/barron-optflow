@@ -1,7 +1,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <fcntl.h>
-
+#include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
 /* 
            NAME : const.h 
    PARAMETER(S) : none
@@ -18,8 +20,6 @@
 
 #define TRUE        1
 #define FALSE       0
-
-#define PI          3.14159
 
 #define H           32
 #define SMSK        5
@@ -1010,12 +1010,9 @@ int middle, s ;
            DATE : September 15 1990
 */
 
-free_cube(p,n)
-qnode_ptr_t p ;
-
-{ int i ;
-
-  for (i = 0 ; i < n ; i++) {
+void free_cube(qnode_ptr_t p, int n)
+{ 
+  for (int i = 0 ; i < n ; i++) {
     free((image512_t *)p->gauss_ptr[i]) ;
   }
 }
@@ -1072,7 +1069,7 @@ float sig ;
   if (sig != 0.0) {
     for (i = -(int)(h/2.0) ; i <= (int)(h/2.0) ; i++) {
       (*ker).k[i+(int)(h/2.0)] = exp(-pow((float)i,2.0)/(2.0*pow(sig,2.0)))/
-      (sqrt(2.0*PI)*sig) ;
+      (sqrt(2.0*M_PI)*sig) ;
       (*ker).f += (*ker).k[i+(int)(h/2.0)] ;
     }
   }
@@ -1498,7 +1495,7 @@ disp_vect_t ve, va ;
   if ((v > 1.0) && (v < 1.0001)) {
     v = 1.0 ;
   }
-  return((float)(acos(v))*180.0/PI) ;
+  return((float)(acos(v))*180.0/M_PI) ;
 }
 
 /* 

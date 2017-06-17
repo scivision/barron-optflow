@@ -1709,7 +1709,7 @@ status = TRUE;
 /* Compute angle between two eigenvectors - should be orthogonal */
 (*angle)=acos((v[0][0]*v[0][1]+v[1][0]*v[1][1])/
 	 (sqrt(v[0][0]*v[0][0]+v[1][0]*v[1][0])*
-	  sqrt(v[0][1]*v[0][1]+v[1][1]*v[1][1])))*180.0/3.1415926535;
+	  sqrt(v[0][1]*v[0][1]+v[1][1]*v[1][1])))*180.0/M_PI;
 if((*angle) < 89.5 && (*angle) > 90.5) 
 	{
 	status = FALSE;

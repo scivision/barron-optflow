@@ -9,7 +9,7 @@ find_package(BLAS)
 
 add_library(linpack SOFTWARE/dsvdc.f)
 target_link_libraries(linpack blas)
-#target_compile_options(linpack PRIVATE -std=legacy)
+target_compile_options(linpack PRIVATE -Wall)
 
 add_executable(flow2ps SOFTWARE/psflow.c)
 target_link_libraries(flow2ps m)

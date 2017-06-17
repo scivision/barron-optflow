@@ -1,7 +1,12 @@
 ! http://www.netlib.org/linpack/dsvdc.f
       subroutine dsvdc(x,ldx,n,p,s,e,u,ldu,v,ldv,work,job,info) bind(c)
-      integer ldx,n,p,ldu,ldv,job,info
-      double precision x(ldx,1),s(1),e(1),u(ldu,1),v(ldv,1),work(1)
+
+      use,intrinsic:: iso_c_binding, only: c_int, c_double
+
+      integer(c_int),intent(in) :: ldx,n,p,ldu,ldv,job
+      integer(c_int), intent(out) :: info
+      real(c_double), intent(out) :: x(ldx,1),s(1),e(1),
+     &  u(ldu,1),v(ldv,1),work(1)
 c
 c
 c     dsvdc is a subroutine to reduce a double precision nxp matrix x

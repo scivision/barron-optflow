@@ -15,14 +15,14 @@
 #include <sys/types.h>
 
 
-#define PI M_PI
 #define PIC_X  325
 #define PIC_Y  325
 #define PMODE 0644
 #define TRUE 1
 #define FALSE 0
 #define HEAD 32
-#define TORAD (PI/180.0)
+#define TORAD (M_PI/180.)
+#define TODEG (180./M_PI)
 #define NO_VALUE 100.0
 #define ARRSIZE 9
 #define MAX_ARRSIZE 17
@@ -1391,7 +1391,7 @@ v =  (VE[0]*VA[0]+VE[1]*VA[1]+1.0)/(nva*nve);
 /**  sometimes roundoff error causes problems **/
 if(v>1.0 && v < 1.0001) v = 1.0;
 
-r = acos(v)*180.0/PI;
+r = acos(v)*TODEG;
 
 if(!(r>=0.0 && r< 180.0))
 {
@@ -1421,7 +1421,7 @@ n[0] = ve[0]/nve;
 n[1] = ve[1]/nve;
 v1 = (va[0]*n[0] + va[1]*n[1]-nve) ;
 v2 = v1/(sqrt((1+nva*nva))*sqrt((1+nve*nve)));
-v1 =  asin(v2)*180.0/PI;
+v1 =  asin(v2)*TODEG;
 
 if(!(v1>=-90.0 && v1<=90.0))
 	{
@@ -1730,7 +1730,7 @@ status = TRUE;
 /* Compute angle between two eigenvectors - should be orthogonal */
 (*angle)=acos((v[0][0]*v[0][1]+v[1][0]*v[1][1])/
 	 (sqrt(v[0][0]*v[0][0]+v[1][0]*v[1][0])*
-	  sqrt(v[0][1]*v[0][1]+v[1][1]*v[1][1])))*180.0/3.1415926535;
+	  sqrt(v[0][1]*v[0][1]+v[1][1]*v[1][1])))*180.0/M_PI;
 if((*angle) < 89.5 && (*angle) > 90.5) 
 	{
 	status = FALSE;

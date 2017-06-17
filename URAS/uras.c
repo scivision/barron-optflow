@@ -24,7 +24,6 @@
 #define NO_REG      0
 #define TR1         1
 #define TR2         2
-#define PI          3.14159
 
 #define H           32
 #define SMSK        5
@@ -1020,7 +1019,7 @@ float sig ;
   if (sig != 0.0) {
     for (i = -(int)(h/2.0) ; i <= (int)(h/2.0) ; i++) {
       (*ker).k[i+(int)(h/2.0)] = exp(-pow((float)i,2.0)/(2.0*pow(sig,2.0)))/
-      (sqrt(2.0*PI)*sig) ;
+      (sqrt(2.0*M_PI)*sig) ;
       (*ker).f += (*ker).k[i+(int)(h/2.0)] ;
     }
   }
@@ -1657,7 +1656,7 @@ disp_vect_t ve, va ;
   if ((v > 1.0) && (v < 1.0001)) {
     v = 1.0 ;
   }
-  return((float)(acos(v))*180.0/PI) ;
+  return((float)(acos(v))*180.0/M_PI) ;
 }
 
 /* 
