@@ -2086,16 +2086,17 @@ printf("\n");
 /*************************************************************************/
 /* Compute the pseudo-inverse of J using its SVD                         */
 /*************************************************************************/
-int inverse22(J,JI,print)
-float J[NO_ROWS][NO_COLS],JI[NO_COLS][NO_ROWS];
+int inverse22(J,JI, print)
+float J[NO_ROWS][NO_COLS], JI[NO_COLS][NO_ROWS];
 int print;
 {
+extern void dsvdc(double [], int* , int*, int*, double [], double [], double [], int*, double [], int* , double [], int*, int*); 
 int size;
 float VT[NO_COLS][NO_COLS];
 float U[NO_COLS][NO_ROWS],DI[NO_COLS][NO_COLS];
 float UT[NO_ROWS][NO_COLS],V[NO_COLS][NO_COLS];
 float D[NO_COLS][NO_COLS],I[NO_COLS][NO_COLS];
-double JT[NO_COLS][NO_ROWS],W[NO_ROWS+1],zero[NO_COLS];
+double JT[NO_COLS][NO_ROWS], W[NO_ROWS+1], zero[NO_COLS];
 double UU[NO_COLS][NO_ROWS],temp[NO_ROWS],VV[NO_COLS][NO_COLS];
 float min,max,cond,best,worst;
 int i,j,k,m,n,mdim,error,Ierr,job;

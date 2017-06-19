@@ -17,7 +17,6 @@
 #include <sys/types.h>
 
 
-#define PI M_PI
 #define PIC_X  325
 #define PIC_Y  325
 #define PIC_T  22
@@ -42,6 +41,8 @@
 #define REMOVE 0 /* Remove Previous Filtered Files? */
 #define PRINT 0
 
+
+const float twopi = sqrt((float)(2.0*M_PI));
 
 typedef unsigned char cimages[PIC_T][PIC_X][PIC_Y];
 typedef float images[NUMBER][PIC_X][PIC_Y];
@@ -74,13 +75,44 @@ int normal_ct[PIC_X][PIC_Y];
 double cal_inverse();
 int fdn,fdf,RUN1,RUN2,BINARY;
 
-
+void all_filters();
+void filter_images();
+void calc_maxamp();
+void calc_gaussian();
+void calc_gabors();
+void calc_DC();
+void convolve_gabors();
+void mult(images,float);
+void conv_t();
+void conv_x();
+void conv_y();
+void addpic();
+void subpic();
+void read_image_files();
+void set_dimensions();
+void coefficients_and_sums();
+void thresh_and_compute();
+void write_If_data();
+void read_If_data();
+void calc_complex_kernel();
+void apply_kernel_x();
+void apply_kernel_y();
+void apply_kernel_t();
+void Dphi();
+void initialize_thresholds();
+void threshold1();
+void threshold2();
+void initfilters();
+void produce_thesh_report();
+void calc_normal_velocities();
+void calc_full_velocities();
+void output_full_velocities();
+void output_normal_velocities();
+void calc_statistics();
 
 
 /******************************************************************/
-main(argc,argv)
-int argc;
-char **argv;
+int main(int argc, char **argv)
 {
 char command[100],correct_filename[100];
 char filename[100],path1[100],path2[100],path3[100];
@@ -112,7 +144,7 @@ if(argc < 6 || argc > 17)
 	printf("           Default:  -N 1.25\n");
 	printf("NOTE: non-minus arguments must be given in the specified order\n");
 	printf("%d arguments specified\n",argc);
-	exit(1);
+	return EXIT_FAILURE;
 	}
 else
 {
@@ -145,10 +177,10 @@ NUMFILES = size+4; /* Filter 5 adjacent images */
 pic_t = 5;
 if(NUMFILES > PIC_T || NUMBER > NUMFILES-2*OFFSET_T || NUMBER < pic_t) 
 	{ 
-	printf("Fatal error: not enough room for image data\n");
-	printf("NUMFILES: %d PIC_T: %d OFFSET_T: %d\n",
+	fprintf(stderr,"Fatal error: not enough room for image data\n");
+	fprintf(stderr,"NUMFILES: %d PIC_T: %d OFFSET_T: %d\n",
 		NUMFILES,PIC_T,OFFSET_T);
-	exit(1);
+	exit(EXIT_FAILURE);
 	}
 	
 STARTFILE = central_image-size/2-2;
@@ -200,14 +232,13 @@ while(i <= argc)
 if(RUN1==FALSE && RUN2==FALSE)
 	{
 	printf("Nothing is done - program quits\n");
-	exit(1);
+	return EXIT_FAILURE;
 	}
 if(OLD_WAY == UNDEFINED)
 	{
 	printf("Default threshold: tau=1.25 used\n");
 	tau = 1.25;
 	OLD_WAY = FALSE;
-	exit(1);
 	}
 if(RUN1) printf("Gabor filtering specified\n");
 else printf("No Gabor filtering - using previous results\n");
@@ -222,7 +253,7 @@ sprintf(filename,"fleet.%stime",argv[1]);
 fp = fopen(filename,"w");
 fprintf(fp,"The time data is in file: %s\n",filename);
 time1 = time(NULL);
-fprintf(fp,"Start time before convolution: %d\n",time1);
+fprintf(fp,"Start time before convolution: %ld\n",time1);
 fflush(fp);
 time2 = time1;
 time3 = time1;
@@ -243,8 +274,8 @@ filter_images(path1,path2,argv[1],sigma);
 time2 = time(NULL);
 if(time2 > time1+temporal_offset)
 {
-fprintf(fp,"\nEnd time for the convolution: %d\n",time2);
-fprintf(fp,"Time in seconds  needed for convolution: %d\n",
+fprintf(fp,"\nEnd time for the convolution: %ld\n",time2);
+fprintf(fp,"Time in seconds  needed for convolution: %ld\n",
 	(time2-time1));
 fprintf(fp,"Time in minutes needed for convolution: %f\n",
 	(time2-time1)*1.0/60.0);
@@ -271,10 +302,10 @@ thresh_and_compute(argv[1],path2,path3,correct_filename,sigma,
 	tau,tauA,tauF,percent_maxamp);
 
 time3 = time(NULL);
-if(time3 > time2+temporal_offset)
+if (time3 > time2+temporal_offset)
 {
-fprintf(fp,"\nEnd time for the thesholding: %d\n",time3);
-fprintf(fp,"Time in seconds  needed for thresholding: %d\n",
+fprintf(fp,"\nEnd time for the thesholding: %ld\n",time3);
+fprintf(fp,"Time in seconds  needed for thresholding: %ld\n",
 	(time3-time2));
 fprintf(fp,"Time in minutes needed for thresholding: %f\n",
 	(time3-time2)*1.0/60.0);
@@ -284,11 +315,11 @@ fflush(fp);
 }
 
 time4 = time(NULL);
-fprintf(fp,"\n\nStart time: %d\n",time1);
-fprintf(fp,"Convolution end time: %d\n",time2);
-fprintf(fp,"Thresholding and Image Velocity Calculation end time: %d\n",time3);
-fprintf(fp,"End time: %d\n",time4);
-fprintf(fp,"\n\nElasped time in seconds: %d\n",time4-time1);
+fprintf(fp,"\n\nStart time: %ld\n",time1);
+fprintf(fp,"Convolution end time: %ld\n",time2);
+fprintf(fp,"Thresholding and Image Velocity Calculation end time: %ld\n",time3);
+fprintf(fp,"End time: %ld\n",time4);
+fprintf(fp,"\n\nElasped time in seconds: %ld\n",time4-time1);
 fprintf(fp,"Elasped time in minutes: %f\n",(time4-time1)*1.0/60.0);
 fprintf(fp,"Elasped time in hours: %f\n",(time4-time1)*1.0/3600.0);
 fflush(fp);
@@ -296,13 +327,14 @@ fflush(fp);
 else { 
      fprintf(fp,"\nThresholding and Velocity Computation not performed\n");
      fflush(fp); 
-     }
-return(1);
+}
+
+return EXIT_SUCCESS;
 }
 
 /*********************************************************************/
 
-filter_images(path1,path2,s,sigma)
+void filter_images(path1,path2,s,sigma)
 char s[100],path1[100],path2[100];
 float sigma;
 {
@@ -328,7 +360,7 @@ printf("Max amplitude == %15.10f\n",maxamp);
 -Convolves images with each filter and computes amplitudes. 
 -writes files.
 ************************************************************/
-all_filters(name,path,maxamp,filter,sigma)
+void all_filters(name,path,maxamp,filter,sigma)
 float *maxamp,filter[23][3],sigma;
 char name[100],path[100];
 {
@@ -377,8 +409,7 @@ fclose(fpa);
   intermediate files. Saves a running maximum amplitude.
   USES GLOBALS images IfRe,IfIm;
 ************************************************************/
-calc_maxamp(maxamp)
-float *maxamp;
+void calc_maxamp(float* maxamp)
 {
 int i,j,k;
 float amplitude;
@@ -405,25 +436,23 @@ printf("Filter Max amplitude == %12.8f\n",filtmax);
 /*******************************************************************/
 /* Compute the Gaussian Coefficients 				   */
 /*******************************************************************/
-calc_gaussian(Gx,Gy,Gt,sigma)
+void calc_gaussian(Gx,Gy,Gt,sigma)
 float Gx[],Gy[],Gt[],sigma;
 {
 int i;
-float val,twopi;
-
-twopi = sqrt((float)(2.0*PI));
+float val;
 
 for(i=(-OFFSET_T);i<=OFFSET_T;i++) 
 	{
         val = i;
         Gt[i+OFFSET_T] = 1.0/(twopi*sigma) * exp(-(val*val/(2.0*sigma*sigma)));
-        }
+    }
  
 for(i=(-OFFSET_X);i<=OFFSET_X;i++) 
 	{
         val = i;
         Gx[i+OFFSET_X] = 1.0/(twopi*sigma) * exp(-(val*val/(2.0*sigma*sigma)));
-        }
+    }
  
 for(i=(-OFFSET_Y);i<=OFFSET_Y;i++) 
 	{
@@ -436,17 +465,16 @@ for(i=(-OFFSET_Y);i<=OFFSET_Y;i++)
 /************************************************************
   Compute values for the 1-D sine and cosine gabors. 
 ************************************************************/
-calc_gabors(Gsx,Gsy,Gst,Gcx,Gcy,Gct,wx,wy,wt,sigma)
+void calc_gabors(Gsx,Gsy,Gst,Gcx,Gcy,Gct,wx,wy,wt,sigma)
 float Gsx[],Gsy[],Gst[],Gcx[],Gcy[],Gct[];
 float wx,wy,wt,sigma;
 {
 int i;
-float val,twopi,constant;
+float val,constant;
 int SWITCH;
 
 SWITCH = 2; /* 0 or 2 to reverse the order of the coefficients */ 
 
-twopi = sqrt((float)(2.0*PI));
 constant = 1.0;
 
 printf("\n");
@@ -494,7 +522,7 @@ for(i=(-OFFSET_Y);i<=OFFSET_Y;i++)
 /***********************************************************************/
 /* Remove the DC component, i.e. 0.001 of the Gaussian		       */
 /***********************************************************************/
-calc_DC(Gx,Gy,Gt)
+void calc_DC(Gx,Gy,Gt)
 float Gx[],Gy[],Gt[]; 
 {
 printf("\n\nComputing DC component as 0.001G ...\n");
@@ -514,7 +542,7 @@ mult(DC,BETA);
 		images  IfRe,IfIm;
 		images 	savet, savex;
 ************************************************************/
-convolve_gabors(Gsx,Gsy,Gst,Gcx,Gcy,Gct)
+void convolve_gabors(Gsx,Gsy,Gst,Gcx,Gcy,Gct)
 float Gsx[],Gsy[],Gst[],Gcx[],Gcy[],Gct[];
 {
 /* Do 3D convolution as sums/products of 1D convolutions */
@@ -552,7 +580,7 @@ fflush(stdout);
 /************************************************************
   Convolve 1d gabor in time
 ************************************************************/
-conv_t(G,save,pic)
+void conv_t(G,save,pic)
 float G[];
 images save;
 cimages pic;
@@ -575,7 +603,7 @@ for(k=OFFSET_Y;k<pic_y-OFFSET_Y;k++)
 /************************************************************
   Convolve 1d gabor in x
 ************************************************************/
-conv_x(G,save,pic)
+void conv_x(G,save,pic)
 float G[];
 images save,pic;
 {
@@ -598,7 +626,7 @@ for(k=OFFSET_Y;k<pic_y-OFFSET_Y;k++)
 /************************************************************
   Convolve 1d gabor in y
 ************************************************************/
-conv_y(G,save,pic) 
+void conv_y(G,save,pic) 
 float G[]; 
 images save,pic;
 {
@@ -622,7 +650,7 @@ for(k=OFFSET_Y;k<pic_y-OFFSET_Y;k++)
   calculate res = res + data
       Used to add results of two convolutions.
 ************************************************************/
-addpic(res,data)
+void addpic(res,data)
 images res,data; 
 {
 register int i,j,k;
@@ -640,7 +668,7 @@ for(k=0;k<pic_y;k++)
   calculate res = res - data
       Used to subtract results of two convolutions.
 ************************************************************/
-subpic(res,data)
+void subpic(res,data)
 images res,data; 
 {
 register int i,j,k;
@@ -658,14 +686,12 @@ for(k=0;k<pic_y;k++)
 /************************************************************
    Multiply elements of 3D array by a constant
 ************************************************************/
-mult(pic,val)
-images pic;
-float val;
+void mult(images pic, float val)
 {
 register int i,j,k;
-for(i=0;i<NUMFILES-2*OFFSET_T;i++)    
-for(j=0;j<pic_x;j++)
-for(k=0;k<pic_y;k++)  
+for(i=0; i < NUMFILES-2*OFFSET_T; i++)    
+for(j=0; j < pic_x; j++)
+for(k=0; k < pic_y; k++)  
 	{
 	pic[i][j][k] = pic[i][j][k] * val; 
 	}
@@ -680,33 +706,33 @@ for(k=0;k<pic_y;k++)
    Also sets pic_x and pic_y (the actual picture dimensions)
    which are global
 ************************************************************/
-read_image_files(s)
-char *s;
+void read_image_files(char* s)
 {
 unsigned char header[HEAD];
 char fname[100];
-int i,j,fd,ints[8],ONCE,bytes;
+int fd,ints[8],ONCE,bytes;
 
 ONCE = TRUE;
 bytes = 0;
-for(i=0;i<NUMFILES;i++) 
+for(int i=0;i<NUMFILES;i++) 
 	{
 	sprintf(fname,"%s%d",s,i+STARTFILE);
- 	if((fd = open(fname,O_RDONLY)) >0)
+ 	if((fd = open(fname,O_RDONLY)) >=0)
 		{
 		if(!BINARY)
 		{
 		if(ONCE)
-			{
+			{ 
+            printf("opening %s\n",fname);
 			read(fd,ints,HEAD);
 			pic_y = ints[1];
 			pic_x = ints[2];
 			ONCE = FALSE;
 			if(pic_y > PIC_Y || pic_x > PIC_X)
 				{
-				printf("Fatal error - not enough room\n");
-				printf("Required size: %d times %d\n",pic_y,pic_x);
-				exit(1);
+				fprintf(stderr,"Fatal error - not enough room\n");
+				fprintf(stderr,"Required size: %d times %d\n",pic_y,pic_x);
+				exit(EXIT_FAILURE);
 				}
 			}
 		else read(fd,header,HEAD);
@@ -714,15 +740,15 @@ for(i=0;i<NUMFILES;i++)
 		}
 
 		/* Read row by row */
-		for(j=0;j<pic_x;j++)
+		for(int j=0;j<pic_x;j++)
 			bytes += read(fd,&pic[i][j][0],pic_y);
 		printf("File %s read -- %d bytes\n",fname,bytes);
 		fflush(stdout);
 		}
 	      else 
 		{
-		printf("File %s does not exist in read_image_files.\n",fname);
-		exit(1);
+		fprintf(stderr,"File %s does not exist in read_image_files.\n",fname);
+		exit(EXIT_FAILURE);
 		}
 	}
 printf("Size of input data: %d columns, %d rows\n",pic_y,pic_x);
@@ -731,8 +757,8 @@ printf("Size of input data: %d columns, %d rows\n",pic_y,pic_x);
 /***************************************************************/
 /* Given image n, read the width and height dimensions         */
 /***************************************************************/
-set_dimensions(path,name,n)
-char path[100],name[100];
+void set_dimensions(path,name,n)
+char path[100],name[100]; int n;
 {
 char fname[100];
 int fd,ints[8];
@@ -756,7 +782,7 @@ printf("Size data obtained from %s\n",fname);
 /* Print out the coefficients and their sums for each sine and cosine   */
 /* 1d gabor. Useful for debugging.					*/
 /************************************************************************/
-coefficients_and_sums(Gsx,Gsy,Gst,Gcx,Gcy,Gct,sigma)
+void coefficients_and_sums(Gsx,Gsy,Gst,Gcx,Gcy,Gct,sigma)
 float Gsx[],Gsy[],Gst[],Gcx[],Gcy[],Gct[],sigma;
 {
 int i;
@@ -834,7 +860,7 @@ fflush(stdout);
   Threshold the filter output and then compute image 
   velocities using the thresholded results
 *********************************************************/
-thresh_and_compute(s,path2,path3,correct_name,sigma,
+void thresh_and_compute(s,path2,path3,correct_name,sigma,
 		   tau,tauA,tauF,percent_maxamp)
 char s[100],path2[100],path3[100],correct_name[100];
 float tau,percent_maxamp,sigma,tauA,tauF;
@@ -977,7 +1003,7 @@ fflush(stdout);
 /************************************************************
    Write FLOATS from 3-D internal array into files.
 ************************************************************/
-write_If_data(name,path,n,Re,Im)   
+void write_If_data(name,path,n,Re,Im)   
 char name[100],path[100];
 int n;
 images Re,Im;
@@ -1014,8 +1040,8 @@ if((fd = creat(fname,0755)) >=0)
 	}
      else
 	{
-	printf("Error creating file %s.\n",fname);
-	return EXIT_FAILURE;
+	fprintf(stderr,"Error creating file %s.\n",fname);
+	exit(EXIT_FAILURE);
 	}
 close(fd);
 } /* End of write_If_data */
@@ -1024,10 +1050,7 @@ close(fd);
 /************************************************************
    Reads FLOATS from 3-D internal array into files.
 ************************************************************/
-read_If_data(s,n,Re,Im)
-char *s;
-int n;
-images Re,Im;
+void read_If_data(char *s, int n, images Re, images Im)
 {
 char fname[100];
 int i,j,fd,read_re,read_im;
@@ -1045,7 +1068,7 @@ if((fd = open(fname,O_RDONLY,0644))>=0)
 			!=pic_y*sizeof(float))
 			{
                         printf("Read error in read_If_data for Re: i=%d j=%d\n",i,j);
-			printf("%d bytes read - %d bytes required\n",read_re,
+			printf("%d bytes read - %ld bytes required\n",read_re,
 				pic_y*sizeof(float));
 			exit(1);
 			}
@@ -1056,7 +1079,7 @@ if((fd = open(fname,O_RDONLY,0644))>=0)
 			!=pic_y*sizeof(float))
 			{
                         printf("Read error in read_If_data for Im: i=%d j=%d\n",i,j);
-			printf("%d bytes read - %d bytes required\n",read_im,
+			printf("%d bytes read - %ld bytes required\n",read_im,
 				pic_y*sizeof(float));
 			exit(1);
 			}
@@ -1078,7 +1101,7 @@ fflush(stdout);
 /************************************************************
    Compute the complex 4 point demodulation difference kernel
 ************************************************************/
-calc_complex_kernel(DEL_If_Re,DEL_If_Im,k0)
+void calc_complex_kernel(DEL_If_Re,DEL_If_Im,k0)
 float DEL_If_Re[5],DEL_If_Im[5],k0;
 {
 DEL_If_Re[0] = -cos(2*k0)/12.0;
@@ -1098,7 +1121,7 @@ DEL_If_Im[4] = sin(2.0*k0)/12.0;
 /************************************************************
    Apply 1D complex kernel in the x direction
 ************************************************************/
-apply_kernel_x(Re,Im,Re_kernel,Im_kernel,x,y,t,Re_sum,Im_sum,kx)
+void apply_kernel_x(Re,Im,Re_kernel,Im_kernel,x,y,t,Re_sum,Im_sum,kx)
 images Re,Im;
 float Re_kernel[5],Im_kernel[5],kx;
 float *Re_sum,*Im_sum;
@@ -1120,7 +1143,7 @@ for(i=(-2);i<=2;i++)
 /************************************************************
    Apply 1D complex kernel in the y direction
 ************************************************************/
-apply_kernel_y(Re,Im,Re_kernel,Im_kernel,x,y,t,Re_sum,Im_sum,ky)
+void apply_kernel_y(Re,Im,Re_kernel,Im_kernel,x,y,t,Re_sum,Im_sum,ky)
 images Re,Im;
 float Re_kernel[5],Im_kernel[5];
 float *Re_sum,*Im_sum,ky;
@@ -1143,7 +1166,7 @@ for(i=(-2);i<=2;i++)
 /************************************************************
    Apply 1D complex kernel in the t direction.
 ************************************************************/
-apply_kernel_t(Re,Im,Re_kernel,Im_kernel,x,y,t,Re_sum,Im_sum,kt)
+void apply_kernel_t(Re,Im,Re_kernel,Im_kernel,x,y,t,Re_sum,Im_sum,kt)
 images Re,Im;
 float Re_kernel[5],Im_kernel[5];
 float *Re_sum,*Im_sum,kt;
@@ -1166,7 +1189,7 @@ for(i=(-2);i<=2;i++)
 /************************************************************
    Computes Del Phi 
 ************************************************************/
-Dphi(Re,Im,phi,kf,n)
+void Dphi(Re,Im,phi,kf,n)
 images Re,Im;
 float kf[3];
 float phi[PIC_X][PIC_Y][3];
@@ -1211,7 +1234,7 @@ fflush(stdout);
 /**********************************************************/
 /* Initialize the threshold array			  */
 /**********************************************************/
-initialize_thresholds(thresholded)
+void initialize_thresholds(thresholded)
 unsigned char thresholded[22][PIC_X][PIC_Y];
 {
 int i,j,k;
@@ -1234,7 +1257,7 @@ fflush(stdout);
   Threshold the filter results based on a single 
   amplitude/frequency constraint
 ************************************************************/
-threshold1(name,thresholded,maxamp,num_thresh,filter,percent_maxamp,tau)
+void threshold1(name,thresholded,maxamp,num_thresh,filter,percent_maxamp,tau)
 char name[100];
 unsigned char thresholded[22][PIC_X][PIC_Y];
 float maxamp,filter[23][3],percent_maxamp,tau;
@@ -1347,7 +1370,7 @@ fflush(stdout);
   frequency constaints
   The old way of doing things, i.e. use two thresholds
 ************************************************************/
-threshold2(name,thresholded,maxamp,num_thresh,filter,percent_maxamp,tauA,tauF)
+void threshold2(name,thresholded,maxamp,num_thresh,filter,percent_maxamp,tauA,tauF)
 char name[100];
 unsigned char thresholded[22][PIC_X][PIC_Y];
 float maxamp,filter[23][3],percent_maxamp,tauA,tauF;
@@ -1467,7 +1490,7 @@ fflush(stdout);
 /*****************************************************************/
 /* Initialize the filters and tuning information for each filter */
 /*****************************************************************/
-initfilters(filter,tuning_info,sigma)
+void initfilters(filter,tuning_info,sigma)
 float3 filter[];
 float tuning_info[22][2],sigma;
 {
@@ -1553,7 +1576,7 @@ fflush(stdout);
 /******************************************************************/
 /* Produce thresholding report 					  */
 /******************************************************************/
-produce_thesh_report(num_thresh,filter,tuning_info)
+void produce_thesh_report(num_thresh,filter,tuning_info)
 int num_thresh[22];
 float filter[23][3],tuning_info[22][2];
 {
@@ -1598,7 +1621,7 @@ return(sum);
    Compute normal velocities for filter n output using
    Del Phi data.
 ************************************************************/
-calc_normal_velocities(phi,normal_velocities,n,thresholded)
+void calc_normal_velocities(phi,normal_velocities,n,thresholded)
 float phi[PIC_X][PIC_Y][3];
 float normal_velocities[22][PIC_X][PIC_Y][2];
 unsigned char thresholded[22][PIC_X][PIC_Y];
@@ -1639,7 +1662,7 @@ printf("%d normal velocities computed\n",count);
    Compute all full velocities from 5*5 neighbourhoods of
    normal velocities.
 ************************************************************/
-calc_full_velocities(normal_velocities,full_velocities,E)
+void calc_full_velocities(normal_velocities,full_velocities,E)
 float normal_velocities[22][PIC_X][PIC_Y][2],E[PIC_X][PIC_Y];
 float full_velocities[PIC_X][PIC_Y][2];
 {
@@ -1728,7 +1751,7 @@ printf("Number of image positions where image velocity calculation was not attem
 /************************************************************
    Output full velocities using Burkitt format
 ************************************************************/
-output_full_velocities(fdf,full_velocities)
+void output_full_velocities(fdf, full_velocities)
 float full_velocities[PIC_X][PIC_Y][2];
 int fdf;
 {
@@ -1795,7 +1818,7 @@ fflush(stdout);
 /************************************************************
    Output normal velocities
 ************************************************************/
-output_normal_velocities(fdn,normal_velocities)
+void output_normal_velocities(fdn,normal_velocities)
 float normal_velocities[22][PIC_X][PIC_Y][2];
 int fdn;
 {
@@ -1926,6 +1949,8 @@ double J[NO_NORM_VEL][NO_UNKNOWNS];
 double JI[NO_UNKNOWNS][NO_NORM_VEL];
 int r;
 {
+extern void dsvdc(double [][NO_NORM_VEL], int* , int*, int*, double [], double [], double [][NO_NORM_VEL], int*, double [][NO_UNKNOWNS], int* , double [], int*, int*); 
+
 int size;
 double 	VT[NO_UNKNOWNS][NO_UNKNOWNS],
 	VV[NO_UNKNOWNS][NO_UNKNOWNS],
@@ -1951,7 +1976,7 @@ for(j=0;j<size;j++)
 job = 21;
 
 /* Call limpack double percision SVD routine */
-dsvdc(JT,&mdim,&m,&n,W,zero,UU,&mdim,VV,&n,temp,&job,&Ierr);  
+dsvdc(JT,&mdim,&m,&n, W, zero, UU,&mdim,VV,&n,temp,&job,&Ierr);  
 
 /* Undo "Fortran" damage, i.e. transpose the data and convert to
    single percision.  */
@@ -2043,7 +2068,7 @@ return(condnum);
 /* Compute average angle, standard deviation, density (as a percentage) */
 /* and average residual error density as a percentage	     		*/
 /************************************************************************/
-calc_statistics(correct_vels,int_size_x,int_size_y,full_vels,E,pic_x,pic_y,n,
+void calc_statistics(correct_vels,int_size_x,int_size_y,full_vels,E,pic_x,pic_y,n,
 		ave_error,st_dev,density,residual,min_angle,max_angle,
 		norm_vels,norm_err,norm_st_dev,min_norm_angle,max_norm_angle)
 float full_vels[PIC_X][PIC_Y][2],*ave_error,*density,*st_dev,*residual;
@@ -2140,7 +2165,7 @@ v =  (VE[0]*VA[0]+VE[1]*VA[1]+1.0)/(nva*nve);
 /**  sometimes roundoff error causes problems **/
 if(v>1.0 && v < 1.0001) v = 1.0;
 
-r = acos(v)*180.0/PI;
+r = acos(v)*180.0/M_PI;
 
 if (!(r>=0.0 && r< 180.0))
 {
@@ -2168,7 +2193,7 @@ n[0] = ve[0]/nve;
 n[1] = ve[1]/nve;
 v1 = (va[0]*n[0] + va[1]*n[1]-nve) ;
 v2 = v1/(sqrt((1+nva*nva))*sqrt((1+nve*nve)));
-v1 =  asin(v2)*180.0/PI;
+v1 =  asin(v2)*180.0/M_PI;
 
 if(!(v1>=-90.0 && v1<=90.0))
 	{
