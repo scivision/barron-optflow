@@ -42,8 +42,6 @@
 #define PRINT 0
 
 
-const float twopi = sqrt((float)(2.0*M_PI));
-
 typedef unsigned char cimages[PIC_T][PIC_X][PIC_Y];
 typedef float images[NUMBER][PIC_X][PIC_Y];
 typedef float imageplane[PIC_X][PIC_Y]; 
@@ -441,6 +439,8 @@ float Gx[],Gy[],Gt[],sigma;
 {
 int i;
 float val;
+float twopi = sqrt((float)(2.0*M_PI));
+
 
 for(i=(-OFFSET_T);i<=OFFSET_T;i++) 
 	{
@@ -472,6 +472,8 @@ float wx,wy,wt,sigma;
 int i;
 float val,constant;
 int SWITCH;
+
+float twopi = sqrt((float)(2.0*M_PI));
 
 SWITCH = 2; /* 0 or 2 to reverse the order of the coefficients */ 
 
