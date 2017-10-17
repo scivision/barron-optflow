@@ -8,6 +8,13 @@ Barron Optical Flow Code
 
 Build
 =====
+
+Prereq
+------
+
+* Linux: ``apt install libopenblas-dev``
+* Mac: ``brew install homebrew/science/openblas``
+
 ::
 
     cd bin

@@ -3,10 +3,10 @@ language: c
 os:
   - linux
   - osx
-  
+
 env: FC=gfortran
 
-dist: trusty  
+dist: trusty
 group: edge
 
 notifications:
@@ -19,17 +19,19 @@ addons:
   apt:
     packages:
       - gfortran
+      - libopenblas-dev
 
 before_install:
   - if [[ $TRAVIS_OS_NAME == osx ]]; then
       brew update;
       brew install gcc;
+      brew install homebrew/science/openblas
     fi
 
-install: 
-    - cd bin
-    - cmake ..
-    
+install:
+  - cd bin
+  - cmake ..
+
 script:
     - make
 

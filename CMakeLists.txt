@@ -1,11 +1,14 @@
 cmake_minimum_required (VERSION 2.8.12)
 project(optflow C Fortran)
 
-add_compile_options(-march=native -g -rdynamic -fexceptions -Werror=array-bounds)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+add_compile_options(-O3 -march=native -g -fexceptions -Werror=array-bounds)
 
 include_directories(SOFTWARE)
 
-find_package(BLAS)
+find_package(BLAS REQUIRED)
 
 add_library(linpack SOFTWARE/dsvdc.f)
 target_link_libraries(linpack blas)
