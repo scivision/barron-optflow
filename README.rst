@@ -12,8 +12,8 @@ Build
 Prereq
 ------
 
-* Linux: ``apt install libopenblas-dev``
-* Mac: ``brew install homebrew/science/openblas``
+* Linux: ``apt install gcc gfortran libopenblas-dev``
+* Mac: ``brew install gcc openblas``
 
 ::
 
