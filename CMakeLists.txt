@@ -26,6 +26,10 @@ if(BLAS_FOUND)
   
   add_executable(fleet FLEET/fleet.c)
   target_link_libraries(fleet linpack m)
+  add_test(NAME Fleet
+           COMMAND fleet new2rastertreet. 2. 9 0.05 
+           ${CMAKE_SOURCE_DIR}/TESTDATA/TREE_DATA/TRANS 
+           ${CMAKE_SOURCE_DIR}/out ${CMAKE_SOURCE_DIR}/out)
   
   add_executable(singh SINGH/singh.c)
   target_link_libraries(singh linpack)
