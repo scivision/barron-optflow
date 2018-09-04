@@ -1152,54 +1152,6 @@ int x, y, rx, ry ;
   return(((x >= 0) && (x < rx) && (y >= 0) && (y < ry))) ;
 }
 
-/* 
-           NAME : itoa(n,s)
-   PARAMETER(S) : n : integer value ;
-                  s : output string.
- 
-        PURPOSE : Converts integer into string.
-
-         AUTHOR : Steven Beauchemin
-             AT : University of Western Ontario
-           DATE : June 25 1990
-*/
-
-
-void itoa(n,s)
-int n ;
-string s ; 
-
-{ int i, j, digit, neg ;
-  string t ;
-
-  if (n < 0) { 
-    neg = TRUE ;
-  }
-  else {
-    neg = FALSE ;
-  }
-  if (n == 0) {
-    s[0] = '0' ;
-    s[1] = '\0' ;
-  }
-  else {
-    i = 0 ;
-    while (abs(n) > 0) {
-      digit = abs(n) % 10 ;
-      t[i] = (char)((int)'0' + digit) ;
-      n = n / 10 ;
-      i++ ;
-    }
-    if (neg) {
-      t[i] = '-' ; 
-      i++ ;
-    }
-    for (j = 0 ; j < i ; j++) {
-      s[j] = t[i - j - 1] ;
-    }
-    s[i] = '\0' ;
-  }
-}
 
 /* 
            NAME : norm(V,n)
@@ -2089,8 +2041,8 @@ float *div ;
 
 { string tf1, tf2 ;
 
-  itoa(n1,tf1) ;
-  itoa(n2,tf2) ;
+  sprintf(tf1,"%d",n1);
+  sprintf(tf2,"%d",n2);
   concat(fn,tf1,f1) ;
   concat(fn,tf2,f2) ;
   *div = n2 - n1 ;
@@ -2469,19 +2421,19 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
   concat(in_path,argv[3],i_fname) ;
   
   strcpy(ext,"-n") ;
-  itoa(*n1,t0) ;
+  sprintf(t0,"%d",*n1);
   concat(ext,t0,ext) ;
   concat(ext,"-",ext) ;
-  itoa(*n2,t0) ;
+  sprintf(t0,"%d",*n2);
   concat(ext,t0,ext) ;
   concat(ext,"-w",ext) ;
-  itoa(*ssd,t0) ;
+  sprintf(t0,"%d",*ssd);
   concat(ext,t0,ext) ;
   concat(ext,"-l",ext) ;
-  itoa(*level,t0) ; 
+  sprintf(t0,"%d",*level);
   concat(ext,t0,ext) ;
   concat(ext,"-i",ext) ;
-  itoa(*iter,t0) ;
+  sprintf(t0,"%d",*iter);
   concat(ext,t0,ext) ;
   if (!(*sm)) {
     concat(ext,"-r",ext) ;

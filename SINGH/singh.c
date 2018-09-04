@@ -14,7 +14,7 @@
 #include <time.h>
 #include <sys/types.h>
 
-
+#define HUGE HUGE_VAL
 #define PIC_X  325
 #define PIC_Y  325
 #define PMODE 0644

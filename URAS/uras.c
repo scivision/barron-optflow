@@ -1225,54 +1225,6 @@ qnode_ptr_t p, *h, *q ;
 
 
 /* 
-           NAME : itoa(n,s)
-   PARAMETER(S) : n : integer value ;
-                  s : output string.
- 
-        PURPOSE : Converts integer into string.
-
-         AUTHOR : Steven Beauchemin
-             AT : University of Western Ontario
-           DATE : June 25 1990
-*/
-
-itoa(n,s)
-int n ;
-string s ; 
-
-{ int i, j, digit, neg ;
-  string t ;
-
-  if (n < 0) { 
-    neg = TRUE ;
-  }
-  else {
-    neg = FALSE ;
-  }
-  if (n == 0) {
-    s[0] = '0' ;
-    s[1] = '\0' ;
-  }
-  else {
-    i = 0 ;
-    while (abs(n) > 0) {
-      digit = abs(n) % 10 ;
-      t[i] = (char)((int)'0' + digit) ;
-      n = n / 10 ;
-      i++ ;
-    }
-    if (neg) {
-      t[i] = '-' ; 
-      i++ ;
-    }
-    for (j = 0 ; j < i ; j++) {
-      s[j] = t[i - j - 1] ;
-    }
-    s[i] = '\0' ;
-  }
-}
-
-/* 
            NAME : mag(u)
    PARAMETER(S) : u : 2D flow vector.
  
@@ -1682,7 +1634,7 @@ int num, *x, *y ;
   string s1, s2 ;
   int fd ;
 
-  itoa(num,s1) ;
+  sprintf(s1,"%d",num);
   concat(fn,s1,s2) ;
   if ((fd = open(s2,O_RDONLY)) > 0) {
     if (read(fd,&hd,sizeof(hd)) == sizeof(hd)) {
@@ -2095,7 +2047,7 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
   concat(ext,"-tg",ext) ;
   concat(ext,str_tg,ext) ;
   concat(ext,"-m",ext) ;
-  itoa(*n_frame,t0) ;
+  sprintf(t0,"%d",*n_frame);
   concat(ext,t0,ext) ;
   concat(ext,"-r",ext) ;
   if (*re == TR1) {
@@ -2384,7 +2336,7 @@ qnode_ptr_t cub ;
   int i ;
 
   for (i = 0 ; i < n_frame ; i++) {
-    itoa(start,s1) ;
+    sprintf(s1,"%d",start);
     concat(fn,s1,s2) ;
     if (!bin) {
       pgetrast(s2,hd,cub->gauss_ptr[i],x,y,X) ;
