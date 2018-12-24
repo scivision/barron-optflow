@@ -8,6 +8,6 @@ else()
 endif()
 
 if(CMAKE_Fortran_COMPILER_ID STREQUAL GNU)
-  add_compile_options(-march=native -fexceptions -Werror=array-bounds -Wno-unused-variable)
+  add_compile_options(-march=native -Werror=array-bounds -Wno-unused-variable)
   list(APPEND CFLAGS -Wno-unused-result -Wno-implicit-int)
 endif()
