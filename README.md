@@ -17,7 +17,7 @@ Windows users should consider
 -   Mac: `brew install gcc openblas`
 
 ```sh
-cd bin
+cd build
 
 cmake ..
 cmake --build .

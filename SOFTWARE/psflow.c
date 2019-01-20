@@ -60,6 +60,8 @@ char **argv;
   initialize(argv[argc-2],argv[argc-1]);
   execute();
   fclose(fo);
+  
+  return EXIT_SUCCESS;
 }
 
 void usage(s)

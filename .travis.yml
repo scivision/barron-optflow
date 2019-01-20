@@ -22,15 +22,14 @@ matrix:
     - brew install gcc > /dev/null
     - brew install openblas > /dev/null
   - os: windows
-    language: sh
     install: 
-    - cd bin
+    - cd build
     - cmake -G "MinGW Makefiles" -DCMAKE_SH="CMAKE_SH-NOTFOUND" ..
     - cmake --build .
     script: ctest -E HornSchunck --output-on-failure
 
 install:
-- cd bin
+- cd build
 - cmake ..
 - cmake --build .
 
