@@ -1,5 +1,5 @@
 /**************************************************************
-   singh.c 
+   singh.c
    -- Written by John Barron, 1992
    -- Implementation of Ajit Singh, ICCV, 1990, pp168-177.
    -- See also "Optic Flow Computation: A Unified Perspective"
@@ -57,10 +57,35 @@ int PRINT11=0;
 int OFFSET_X=10;
 int OFFSET_Y=10;
 
-
-
 typedef unsigned char cimages[NUMFILES][PIC_Y][PIC_X];
 typedef float fimages[NUMFILES][PIC_Y][PIC_X];
+
+void add21(float a[2], float b[2], float c[2]);
+void add22(float S1[2][2], float S2[2][2], float S3[2][2]);
+void mult21(float A[2][2], float b[2], float x[2]);
+void comp_eigen(float A[DIM][DIM], float value[DIM], float vector1[DIM], float vector2[DIM]);
+void rotate(float a[DIM][DIM], int i, int j, int k, int l, float*h, float*g, float s, float tau);
+void compute_SSD_surface(fimages fpic, int x, int y, int n, int N, float SSDdata[ARRSIZE][ARRSIZE],int*max_a, int*max_b);
+void calc_mean_and_covariance1(float calc[ARRSIZE][ARRSIZE], float mean[2], float covariance[2][2],float u_low, float u_high, float v_low, float v_high,	float eigenvalues[2], float eigenvector1[2], float eigenvector2[2], int*vel_type, int N);
+void calc_statistics(float correct_vels[PIC_Y][PIC_X][2], float full_vels[PIC_Y][PIC_X][2], int pic_x, int pic_y, float*ave_error, float*st_dev, float*density, float*min_angle, float*max_angle, int SAMPLE);
+void calc_mean_and_covariance2(float weights[WEIGHTSIZE][WEIGHTSIZE], float velocities[WEIGHTSIZE][WEIGHTSIZE][2], int weighted_size, float mean[2], float covariance[2][2]);
+void read_image_files(char *s, cimages pic, int*pic_x, int*pic_y, int header_ints[8], int central_image, int STEP);
+void laplacian(cimages cpic, fimages fpic, float sigma, int pic_x, int pic_y);
+void write_image_files(char*s, cimages pic, int pic_x, int pic_y, int header_ints[8], int central_image, int STEP);
+void output_velocities(int fdf, float velocities[PIC_Y][PIC_X][2], int pic_x, int pic_y, char type[100], int SAMPLE);
+void input_covariances(int fdf, float covariances[PIC_Y][PIC_X][2][2], int pic_x, int pic_y);
+void output_covariances(int fdf, float covariances[PIC_Y][PIC_X][2][2], int pic_x, int pic_y);
+void input_velocities(int fdf,float velocities[PIC_Y][PIC_X][2], int pic_x, int pic_y);
+void threshold_velocities(float input_velocity[PIC_Y][PIC_X][2], float covariances[PIC_Y][PIC_X][2][2], float full_velocity[PIC_Y][PIC_X][2], int pic_x, int pic_y, float tau);
+void make_float(cimages cpic, fimages fpic, int pic_x, int pic_y);
+void compute_weights(float weights[WEIGHTSIZE][WEIGHTSIZE], int w);
+void compute_n_minimums(float data[ARRSIZE][ARRSIZE], int N, int n);
+void comp1(fimages fpic, int pic_x, int pic_y,float Ucc[PIC_Y][PIC_X][2], float Scc[PIC_Y][PIC_X][2][2], int n, int N, int STEP, int old_pic_x, int old_pic_y);
+void comp2(unsigned char path[100],unsigned char name[100], float Ucc[PIC_Y][PIC_X][2], float Scc[PIC_Y][PIC_X][2][2], float S[PIC_Y][PIC_X][2][2], int pic_x, int pic_y, float full_velocity[PIC_Y][PIC_X][2], unsigned char correct_filename[100], int w, int old_pic_x, int old_pic_y);
+void compute_big_n_minimums(float data[MAX_ARRSIZE][MAX_ARRSIZE], int N, int n);
+
+
+
 
 float cal_normal_angle_error(),cal_full_angle_error();
 float dot(),PsiER(),PsiEN(),L2norm(),bigL2norm();
@@ -152,8 +177,8 @@ else
 
 
 sscanf(argv[2],"%d",&central_image);
-strcpy(path1,argv[3]); 
-strcpy(path2,argv[4]); 
+strcpy(path1,argv[3]);
+strcpy(path2,argv[4]);
 printf("<input path>: %s\n<output path>: %s\n",path1,path2);
 
 printf("SMALL: %f\n",SMALL);
@@ -169,24 +194,24 @@ PRINT_FLOWS1 = FALSE;
 PRINT_FLOWS2 = FALSE;
 PRINT_ITERATIONS = FALSE;
 PRINT_LAPLACIAN = FALSE;
-strcpy(correct_filename,"unknown"); 
-i = 6; 
+strcpy(correct_filename,"unknown");
+i = 6;
 threshold1 = threshold2 = FALSE;
 STEP2 = TRUE;
 w = 1;
 n = 2;
 N = 4;
 MAX_NUMBER_OF_ITERATIONS = 10;
-while(i <= argc) 
+while(i <= argc)
 	{
-	if(strcmp(argv[i-1],"-S1")==0) 
+	if(strcmp(argv[i-1],"-S1")==0)
 		{
 		sscanf(argv[i],"%d",&SAMPLE);
 		STEP2 = FALSE;
 		i++;
 		}
 	else
-	if(strcmp(argv[i-1],"-T1")==0) 
+	if(strcmp(argv[i-1],"-T1")==0)
 		{
 		sscanf(argv[i],"%f",&low_tau1);
 		sscanf(argv[i+1],"%f",&high_tau1);
@@ -204,7 +229,7 @@ while(i <= argc)
 		i+=3;
 		}
 	else
-	if(strcmp(argv[i-1],"-T2")==0) 
+	if(strcmp(argv[i-1],"-T2")==0)
 		{
 		sscanf(argv[i],"%f",&low_tau2);
 		sscanf(argv[i+1],"%f",&high_tau2);
@@ -457,7 +482,7 @@ sprintf(filename,"%s.%stime-n-%d-w-%d",argv[0],argv[1],n,w);
 fp = fopen(filename,"w");
 fprintf(fp,"The time data is in file: %s\n",filename);
 time1 = time(NULL);
-fprintf(fp,"Start time: %d\n",time1);
+fprintf(fp,"Start time: %ld\n",time1);
 fflush(fp);
 time2 = time1;
 
@@ -472,7 +497,7 @@ old_pic_x = pic_x; old_pic_y = pic_y;
 if(SUBSET)
 {
 printf("\n");
-pic_x = EXTRA_OFFSET_X+CUT_X+OFFSET_X; 
+pic_x = EXTRA_OFFSET_X+CUT_X+OFFSET_X;
 pic_y = EXTRA_OFFSET_Y+CUT_Y+OFFSET_Y;
 EXTRA_OFFSET_X -= OFFSET_X;
 EXTRA_OFFSET_Y -= OFFSET_Y;
@@ -498,9 +523,9 @@ printf("Size: %d * %d\n",CUT_X,CUT_Y);
 }
 
 /* Compute laplacian images */
-if(LAPLACIAN && !PREVIOUS1) 
+if(LAPLACIAN && !PREVIOUS1)
 	{
-	laplacian(inpic,fpic,1.0,pic_x,pic_y); 
+	laplacian(inpic,fpic,1.0,pic_x,pic_y);
 	if(PRINT_LAPLACIAN) write_image_files(argv[1],inpic,pic_x,pic_y,header_ints,central_image,STEP);
 	}
 else make_float(inpic,fpic,pic_x,pic_y);
@@ -577,7 +602,7 @@ if(!STEP2) exit(1);
 /**********************************************/
 if(!PREVIOUS2)
 {
-comp2(path2,argv[1],Ucc,Scc,S,pic_x,pic_y,full_velocities,correct_filename,w,old_pic_x,old_pic_y); 
+comp2(path2,argv[1],Ucc,Scc,S,pic_x,pic_y,full_velocities,correct_filename,w,old_pic_x,old_pic_y);
 
 
 /* Output velocities for step 2 computation  */
@@ -589,7 +614,7 @@ else
 {
 offset = (2*w+1)/2;
 OFFSET_X += offset;
-OFFSET_Y += offset; 
+OFFSET_Y += offset;
 input_velocities(fdf2,full_velocities,old_pic_x,old_pic_y);
 input_covariances(fdcov2,S,old_pic_x,old_pic_y);
 }
@@ -644,8 +669,8 @@ fflush(stdout);
 time2 = time(NULL);
 if(time2 > time1+temporal_offset)
 {
-fprintf(fp,"\nEnd time: %d\n",time2);
-fprintf(fp,"End Time in seconds: %d\n",(time2-time1));
+fprintf(fp,"\nEnd time: %ld\n",time2);
+fprintf(fp,"End Time in seconds: %ld\n",(time2-time1));
 fprintf(fp,"End Time in minutes: %f\n",(time2-time1)*1.0/60.0);
 fprintf(fp,"End Time in hours: %f\n",(time2-time1)*1.0/3600.0);
 fflush(fp);
@@ -659,17 +684,14 @@ fflush(fp);
    Also sets pic_x and pic_y (the actual picture dimensions)
    which are global
 ************************************************************/
-read_image_files(s,pic,pic_x,pic_y,header_ints,central_image,STEP)
-char *s;
-cimages pic;
-int header_ints[8],*pic_x,*pic_y,central_image,STEP;
+void read_image_files(char *s, cimages pic, int*pic_x, int*pic_y, int header_ints[8], int central_image, int STEP)
 {
 char fname[100];
 int i,j,fd,ints[8],ONCE,bytes;
 unsigned char header[HEAD];
 
 ONCE = TRUE;
-for(i=0;i<NUMFILES;i++) 
+for(i=0;i<NUMFILES;i++)
 	{
 	sprintf(fname,"%s%d",s,central_image+(i-1)*STEP);
  	if((fd = open(fname,O_RDONLY)) >0)
@@ -701,7 +723,7 @@ for(i=0;i<NUMFILES;i++)
 		bytes = 0;
 		fflush(stdout);
 		}
-	      else 
+	      else
 		{
 		printf("File %s does not exist in read_image_files.\n",fname);
 		exit(1);
@@ -716,17 +738,14 @@ for(i=0;i<NUMFILES;i++)
    Also sets pic_x and pic_y (the actual picture dimensions)
    which are global
 ************************************************************/
-write_image_files(s,pic,pic_x,pic_y,header_ints,central_image,STEP)
-char *s;
-cimages pic;
-int header_ints[8],pic_x,pic_y,central_image,STEP;
+void write_image_files(char*s, cimages pic, int pic_x, int pic_y, int header_ints[8], int central_image, int STEP)
 {
 char fname[100];
 int i,j,fd,ints[8],ONCE,bytes;
 unsigned char header[HEAD];
 
 ONCE = TRUE;
-for(i=0;i<NUMFILES;i++) 
+for(i=0;i<NUMFILES;i++)
 	{
 	sprintf(fname,"laplacian.%s%d",s,central_image+(i-1)*STEP);
  	if((fd = creat(fname,0755)) >= 0)
@@ -740,7 +759,7 @@ for(i=0;i<NUMFILES;i++)
 		printf("File %s written -- %d bytes\n",fname,bytes);
 		fflush(stdout);
 		}
-	      else 
+	      else
 		{
 		printf("File %s does not exist in write_image_files.\n",fname);
 		exit(1);
@@ -754,17 +773,14 @@ for(i=0;i<NUMFILES;i++)
 /*****************************************************************/
 /* Compute velocities						 */
 /*****************************************************************/
-comp1(fpic,pic_x,pic_y,Ucc,Scc,n,N,STEP,old_pic_x,old_pic_y)
-float Ucc[PIC_Y][PIC_X][2],Scc[PIC_Y][PIC_X][2][2];
-fimages fpic;
-int pic_x,pic_y,n,N,STEP,old_pic_x,old_pic_y;
+void comp1(fimages fpic, int pic_x, int pic_y,float Ucc[PIC_Y][PIC_X][2], float Scc[PIC_Y][PIC_X][2][2], int n, int N, int STEP, int old_pic_x, int old_pic_y)
 {
 int i,j,vel_type,SKIP,ct,max_a,max_b;
 float vx,vy,step_size;
 float uve[2],uva[2],N2;
 float SSDdata[ARRSIZE][ARRSIZE],SI[2][2],condition_number;
 float covariance[2][2],mean[2],eigenvalues[2],eigenvector1[2],eigenvector2[2];
-	
+
 printf("\nComputing Velocity Information via step 1...\n");
 
 for(i=0;i<PIC_Y;i++)
@@ -781,13 +797,13 @@ step_size = 1.0*STEP;
 /* Compute velocity for every location */
 printf("Processing rows for step 1:\n");
 ct = 0;
-for(i=OFFSET_Y+EXTRA_OFFSET_Y;i<pic_y-OFFSET_Y;i++) 
+for(i=OFFSET_Y+EXTRA_OFFSET_Y;i<pic_y-OFFSET_Y;i++)
 {
 printf("%3d ",i);
 ct++;
 if((ct % 15) == 0) printf("\n");
 fflush(stdout);
-for(j=OFFSET_X+EXTRA_OFFSET_X;j<pic_x-OFFSET_X;j++) 
+for(j=OFFSET_X+EXTRA_OFFSET_X;j<pic_x-OFFSET_X;j++)
 {
 if(i%SAMPLE==0 && j%SAMPLE==0)
 	{
@@ -809,16 +825,12 @@ if(i%SAMPLE==0 && j%SAMPLE==0)
 }
 }
 }
- 
+
 /*************************************************************/
 /* Smooth velocity field using velocities computed in step 1 */
 /* Step 2 Neighbourhood Information			     */
 /*************************************************************/
-comp2(path,name,Ucc,Scc,S,pic_x,pic_y,full_velocity,correct_filename,w,old_pic_x,old_pic_y)
-float Ucc[PIC_Y][PIC_X][2],Scc[PIC_Y][PIC_X][2][2];
-int pic_x,pic_y,w,old_pic_x,old_pic_y;
-float full_velocity[PIC_Y][PIC_X][2],S[PIC_Y][PIC_X][2][2];
-unsigned char correct_filename[100],name[100],path[100];
+void comp2(unsigned char path[100],unsigned char name[100], float Ucc[PIC_Y][PIC_X][2], float Scc[PIC_Y][PIC_X][2][2], float S[PIC_Y][PIC_X][2][2], int pic_x, int pic_y, float full_velocity[PIC_Y][PIC_X][2], unsigned char correct_filename[100], int w, int old_pic_x, int old_pic_y)
 {
 int fd,i,j,k,l,FIRST,SECOND,weighted_size,RELAXATION,temp,ct;
 float neighbour_velocities[WEIGHTSIZE][WEIGHTSIZE][2];
@@ -855,7 +867,7 @@ printf("Average Error: %f Standard Deviation: %f Density: %f\n",
 	ave_error,st_dev,density);
 printf("Minimum Angle Error: %f Maximum Angle Error: %f\n\n",min_angle,max_angle);
 fflush(stdout);
-} 
+}
 
 compute_weights(weights,w);
 weighted_size = 2*w+1;
@@ -869,9 +881,9 @@ OFFSET_Y += offset;
 
 printf("Computing velocity information via step 2\n");
 printf("Performing Initialization...\n");
-for(i=OFFSET_Y+EXTRA_OFFSET_Y;i<pic_y-OFFSET_Y;i++) 
+for(i=OFFSET_Y+EXTRA_OFFSET_Y;i<pic_y-OFFSET_Y;i++)
 {
-for(j=OFFSET_X+EXTRA_OFFSET_X;j<pic_x-OFFSET_X;j++) 
+for(j=OFFSET_X+EXTRA_OFFSET_X;j<pic_x-OFFSET_X;j++)
 	{
 	/* Compute the inverse of Scc and multiply by Ucc */
 	SINGULAR=inverse22(&Scc[i][j][0][0],&SccI[i][j][0][0],SVD_PRINT);
@@ -915,9 +927,9 @@ printf("Iteration %d\n",iteration_number);
 iteration_number++;
 RELAXATION = FALSE;
 size = 0.0;
-for(i=OFFSET_Y+EXTRA_OFFSET_Y;i<pic_y-OFFSET_Y;i++) 
+for(i=OFFSET_Y+EXTRA_OFFSET_Y;i<pic_y-OFFSET_Y;i++)
 {
-for(j=OFFSET_X+EXTRA_OFFSET_X;j<pic_x-OFFSET_X;j++) 
+for(j=OFFSET_X+EXTRA_OFFSET_X;j<pic_x-OFFSET_X;j++)
 	/* Perform an iteration */
 	{
 	SINGULAR = inverse22(&Sn[FIRST][i][j][0][0],SnI,SVD_PRINT);
@@ -929,13 +941,13 @@ for(j=OFFSET_X+EXTRA_OFFSET_X;j<pic_x-OFFSET_X;j++)
 	/*
 	if(i==32 && j==74)
 	{
-	printf("SsumI[32][74]:\n"); 
+	printf("SsumI[32][74]:\n");
 	printf(" %f %f\n",SsumI[32][74][0][0],SsumI[32][74][0][1]);
 	printf(" %f %f\n",SsumI[32][74][1][0],SsumI[32][74][1][1]);
-	printf("SccI[32][74]:\n"); 
+	printf("SccI[32][74]:\n");
 	printf(" %f %f\n",SccI[32][74][0][0],SccI[32][74][0][1]);
 	printf(" %f %f\n",SccI[32][74][1][0],SccI[32][74][1][1]);
-	printf("SnI:\n"); 
+	printf("SnI:\n");
 	printf(" %f %f\n",SnI[0][0],SnI[0][1]);
 	printf(" %f %f\n",SnI[1][0],SnI[1][1]);
 	printf("vec1: %f %f\n",vec1[0],vec1[1]);
@@ -961,15 +973,15 @@ if(!RELAXATION) printf("\nConvergence detected - iterative calculations are stop
 /* Prepare for next iteration */
 if(RELAXATION)
 {
-for(i=OFFSET_Y+EXTRA_OFFSET_Y;i<pic_y-OFFSET_Y;i++) 
+for(i=OFFSET_Y+EXTRA_OFFSET_Y;i<pic_y-OFFSET_Y;i++)
 {
-for(j=OFFSET_X+EXTRA_OFFSET_X;j<pic_x-OFFSET_X;j++) 
+for(j=OFFSET_X+EXTRA_OFFSET_X;j<pic_x-OFFSET_X;j++)
 {
 /* Compute neighbourhood velocities for initialization */
 for(k=(-offset);k<=offset;k++)
 for(l=(-offset);l<=offset;l++)
 	{
-	if(Un[SECOND][i+k][j+l][0] != NO_VALUE && 
+	if(Un[SECOND][i+k][j+l][0] != NO_VALUE &&
 	   Un[SECOND][i+k][j+l][1] != NO_VALUE)
 	   {
 	   neighbour_velocities[k+offset][l+offset][0] = Un[SECOND][i+k][j+l][0];
@@ -982,7 +994,7 @@ for(l=(-offset);l<=offset;l++)
 	   for(l=(-offset);l<=offset;l++)
 		printf("vel for k=%d l=%d: %f,%f\n",k,l,Un[SECOND][i+k][j+l][0],Un[SECOND][i+k][j+l][1]);
 	   printf("\nFatal error: computed velocity undefined during iteration %d\n",iteration_number);
-	   exit(1); 
+	   exit(1);
 	   }
 	calc_mean_and_covariance2(weights,neighbour_velocities,weighted_size,
 			  &Ua[i][j][0],&Sn[SECOND][i][j][0][0]);
@@ -1014,8 +1026,8 @@ printf("Minimum Angle Error: %f Maximum Angle Error: %f\n",min_angle,max_angle);
 printf("L2norm of difference: %14.9f\n",bigL2norm(bigdiff,pic_x));
 printf("Maximum individual velocity difference: %f\n\n",max_diff);
 fflush(stdout);
-} 
-} 
+}
+}
 /* Switch the values of FIRST and SECOND before next iteration */
 temp = FIRST;
 FIRST = SECOND;
@@ -1043,10 +1055,7 @@ for(j=OFFSET_X+EXTRA_OFFSET_X;j<pic_x-OFFSET_X;j++)
 /************************************************************************/
 /* Threshold the velocities based of eigenvalues of covariance matrices */
 /************************************************************************/
-threshold_velocities(input_velocity,covariances,full_velocity,pic_x,pic_y,tau)
-float input_velocity[PIC_Y][PIC_X][2],covariances[PIC_Y][PIC_X][2][2];
-float full_velocity[PIC_Y][PIC_X][2],tau;
-int pic_x,pic_y;
+void threshold_velocities(float input_velocity[PIC_Y][PIC_X][2], float covariances[PIC_Y][PIC_X][2][2], float full_velocity[PIC_Y][PIC_X][2], int pic_x, int pic_y, float tau)
 {
 int i,j;
 float eigenvalues[2],eigenvector1[2],eigenvector2[2];
@@ -1059,11 +1068,11 @@ for(j=0;j<PIC_X;j++)
 for(i=OFFSET_Y+EXTRA_OFFSET_Y;i<pic_y-OFFSET_Y;i++)
 for(j=OFFSET_X+EXTRA_OFFSET_X;j<pic_x-OFFSET_X;j++)
 	{
-	if(!(input_velocity[i][j][0] == NO_VALUE && 
+	if(!(input_velocity[i][j][0] == NO_VALUE &&
 	     input_velocity[i][j][1] == NO_VALUE))
 	{
 	comp_eigen(&covariances[i][j][0][0],eigenvalues,eigenvector1,eigenvector2);
-	if(fabs(eigenvalues[0]) < tau) 
+	if(fabs(eigenvalues[0]) < tau)
 		{
 		full_velocity[i][j][0] = input_velocity[i][j][0];
 		full_velocity[i][j][1] = input_velocity[i][j][1];
@@ -1085,13 +1094,11 @@ for(j=OFFSET_X+EXTRA_OFFSET_X;j<pic_x-OFFSET_X;j++)
 /************************************************************
    Returns the norm of a vector v of length n.
 ************************************************************/
-float L2norm(v,n)
-float v[];
-int n;
+float L2norm(float v[], int n)
 {
 int i;
 float sum = 0.0;
-for (i=0;i<n; i++) 
+for (i=0;i<n; i++)
 	sum += (float)(v[i]*v[i]);
 sum = sqrt(sum);
 return(sum);
@@ -1101,10 +1108,7 @@ return(sum);
 /************************************************************
    Output full velocities using Burkitt format
 ************************************************************/
-output_velocities(fdf,velocities,pic_x,pic_y,type,SAMPLE)
-float velocities[PIC_Y][PIC_X][2];
-char type[100];
-int fdf,pic_x,pic_y,SAMPLE;
+void output_velocities(int fdf, float velocities[PIC_Y][PIC_X][2], int pic_x, int pic_y, char type[100], int SAMPLE)
 {
 float x,y;
 int i,j,bytes,no_novals,no_vals;
@@ -1127,8 +1131,8 @@ write(fdf,&x,4);
 write(fdf,&y,4);
 
 /* Offset to start of data */
-x = OFFSET_Y; 
-y = OFFSET_X; 
+x = OFFSET_Y;
+y = OFFSET_X;
 write(fdf,&x,4);
 write(fdf,&y,4);
 bytes = 24;
@@ -1139,7 +1143,7 @@ for(i=OFFSET_Y;i<pic_y-OFFSET_Y;i++)
 for(j=OFFSET_X;j<pic_x-OFFSET_X;j++)
 if(i%SAMPLE==0 && j%SAMPLE==0)
 	{
-	if(velocities[i][j][0] != NO_VALUE && 
+	if(velocities[i][j][0] != NO_VALUE &&
 	   velocities[i][j][1] != NO_VALUE)
 		{
 		no_vals++;
@@ -1167,9 +1171,7 @@ fflush(stdout);
 /************************************************************
    Output full velocities using Burkitt format
 ************************************************************/
-output_covariances(fdf,covariances,pic_x,pic_y)
-float covariances[PIC_Y][PIC_X][2][2];
-int fdf,pic_x,pic_y;
+void output_covariances(int fdf, float covariances[PIC_Y][PIC_X][2][2], int pic_x, int pic_y)
 {
 float x,y;
 int i,j,bytes,no_novals,no_vals;
@@ -1192,8 +1194,8 @@ write(fdf,&x,4);
 write(fdf,&y,4);
 
 /* Offset to start of data */
-x = OFFSET_Y; 
-y = OFFSET_X; 
+x = OFFSET_Y;
+y = OFFSET_X;
 write(fdf,&x,4);
 write(fdf,&y,4);
 bytes = 24;
@@ -1213,16 +1215,14 @@ fflush(stdout);
 /************************************************************
    Input full velocities using Burkitt format
 ************************************************************/
-input_velocities(fdf,velocities,pic_x,pic_y)
-float velocities[PIC_Y][PIC_X][2];
-int fdf,pic_x,pic_y;
+void input_velocities(int fdf,float velocities[PIC_Y][PIC_X][2], int pic_x, int pic_y)
 {
 float x,y;
 int i,j,bytes;
 
 for(i=0;i<PIC_Y;i++)
 for(j=0;j<PIC_X;j++)
-	velocities[i][j][0] = velocities[i][j][1] = NO_VALUE; 
+	velocities[i][j][0] = velocities[i][j][1] = NO_VALUE;
 
 if(fdf<0)
 	{
@@ -1257,9 +1257,7 @@ fflush(stdout);
 /************************************************************
    Output full velocities using Burkitt format
 ************************************************************/
-input_covariances(fdf,covariances,pic_x,pic_y)
-float covariances[PIC_Y][PIC_X][2][2];
-int fdf,pic_x,pic_y;
+void input_covariances(int fdf, float covariances[PIC_Y][PIC_X][2][2], int pic_x, int pic_y)
 {
 float x,y;
 int i,j,bytes;
@@ -1299,11 +1297,7 @@ fflush(stdout);
 /***************************************************************************/
 /* Compute average angle, standard deviation and density (as a percentage) */
 /***************************************************************************/
-calc_statistics(correct_vels,full_vels,pic_x,pic_y,
-		ave_error,st_dev,density,min_angle,max_angle,SAMPLE)
-float full_vels[PIC_Y][PIC_X][2],*ave_error,*density,*st_dev;
-float correct_vels[PIC_Y][PIC_X][2],*min_angle,*max_angle;
-int pic_x,pic_y,SAMPLE;
+void calc_statistics(float correct_vels[PIC_Y][PIC_X][2], float full_vels[PIC_Y][PIC_X][2], int pic_x, int pic_y, float*ave_error, float*st_dev, float*density, float*min_angle, float*max_angle, int SAMPLE)
 {
 int count,no_count,i,j;
 float sumX2,temp,uva[2],uve[2],sum2,temp1,sum1;
@@ -1325,7 +1319,7 @@ if(i%SAMPLE==0 && j%SAMPLE==0)
 		no_count++;
 		error[i][j] = NO_VALUE;
 		}
-	else 
+	else
 	  {
 	  count++;
 	  uve[0] = full_vels[i][j][0]; uve[1] = full_vels[i][j][1];
@@ -1340,7 +1334,7 @@ if(i%SAMPLE==0 && j%SAMPLE==0)
 	}
 }
 if(count != 0) (*ave_error) = (*ave_error)/(count*1.0);
-if(count > 1) 
+if(count > 1)
 	{
 	sum1 = 0.0;
 	for(i=OFFSET_Y;i<pic_y-OFFSET_Y;i++)
@@ -1433,7 +1427,7 @@ if(!(v1>=-90.0 && v1<=90.0))
 	}
 }
 else v1 = NO_VALUE;
-	
+
 return fabs(v1);
 }
 
@@ -1455,10 +1449,10 @@ int j,iq,ip,i;
 float thresh,theta,tau,t,sm,s,h,g,c;
 float b[DIM],z[DIM],a[DIM][DIM];
 
-if(n!=DIM) 
-	{ 
-	fprintf(stderr,"\nFatal error: n not DIM %d in jacobi\n",DIM); 
-	exit(1); 
+if(n!=DIM)
+	{
+	fprintf(stderr,"\nFatal error: n not DIM %d in jacobi\n",DIM);
+	exit(1);
 	}
 for(ip=0;ip<n;ip++) /* Initialize to the identity matrix */
 	{
@@ -1502,7 +1496,7 @@ for(i=0;i<100;i++)
 				{
 				h = d[iq]-d[ip];
 				if(fabs(h)+g==fabs(h)) t=(a[ip][iq])/h;
-				else 
+				else
 				  {
 				  theta = 0.5*h/(a[ip][iq]);
 				  t = 1.0/(fabs(theta)+sqrt(1.0+theta*theta));
@@ -1542,10 +1536,7 @@ for(i=0;i<100;i++)
 /*********************************************************************/
 /* Do rotations required by Jacobi Transformation		     */
 /*********************************************************************/
-rotate(a,i,j,k,l,h,g,s,tau)
-float a[DIM][DIM],s,tau;
-int i,j,k,l;
-float *h,*g;
+void rotate(float a[DIM][DIM], int i, int j, int k, int l, float*h, float*g, float s, float tau)
 {
 (*g) = a[i][j];
 (*h) = a[k][l];
@@ -1558,18 +1549,13 @@ a[k][l] = (*h)+s*((*g)-(*h)*tau);
 /* Compute the normalized mean and convariance matrix		     */
 /* Step1: Recovery of Conservation Information.			     */
 /*********************************************************************/
-calc_mean_and_covariance1(calc,mean,covariance,u_low,u_high,v_low,v_high,
-	eigenvalues,eigenvector1,eigenvector2,vel_type,N)
-float calc[ARRSIZE][ARRSIZE]; 
-float mean[2],covariance[2][2],u_low,v_low,u_high,v_high,eigenvalues[2];
-float eigenvector1[2],eigenvector2[2];
-int *vel_type,N;
+void calc_mean_and_covariance1(float calc[ARRSIZE][ARRSIZE], float mean[2], float covariance[2][2],float u_low, float u_high, float v_low, float v_high, float eigenvalues[2], float eigenvector1[2], float eigenvector2[2], int*vel_type, int N)
 {
 int i,j,k,Q,fdr,a,b,c,d,size;
 float inc[2],f_sum,uv[2],min,max,vx,vy,af,bf,est[2],temp[2][2],u,v,av,bv;
 unsigned char raster[ARRSIZE][ARRSIZE],name[100],path[100],command[100];
 
-/* Compute normalized weighted mean */ 
+/* Compute normalized weighted mean */
 (*vel_type) = FULL;
 max = -HUGE;
 min = HUGE;
@@ -1633,8 +1619,7 @@ comp_eigen(temp,eigenvalues,eigenvector1,eigenvector2);
 /************************************************************************/
 /* Compute eigenvalues and eigenvectors of the covariance matrix	*/
 /************************************************************************/
-comp_eigen(A,value,vector1,vector2)
-float A[DIM][DIM],value[DIM],vector1[DIM],vector2[DIM];
+void comp_eigen(float A[DIM][DIM], float value[DIM], float vector1[DIM], float vector2[DIM])
 {
 float v[2][2],temp,diff1[2],diff2[2],length1,length2,angle;
 float eigenvalues2[2],eigenvectors2[2][2];
@@ -1642,9 +1627,9 @@ int nrot,SWAP;
 
 SWAP = FALSE;
 jacobi(A,2,value,v,&nrot);
-/* if(value[0] < 0.0) 
+/* if(value[0] < 0.0)
 	{ value[0] = -value[0]; v[0][0] = -v[0][0]; v[1][0] = -v[1][0]; }
-if(value[1] < 0.0) 
+if(value[1] < 0.0)
 	{ value[1] = -value[1]; v[0][1] = -v[0][1]; v[1][1] = -v[1][1]; } */
 /* The largest eigenvalue should be the first */
 if(fabs(value[0]) > fabs(value[1]))
@@ -1686,7 +1671,7 @@ if(check_eigen_calc(A,value,v,nrot,diff1,diff2,&length1,&length2,&angle)==FALSE)
 
 	/* Check eigenvalues/eigenvectors for 2*2 matrix using
 	   Anandan's method outlined in his thesis. */
-	eigenvalues2[0] = 0.5*((A[0][0]+A[1][1]) - 
+	eigenvalues2[0] = 0.5*((A[0][0]+A[1][1]) -
 	  sqrt((A[0][0]-A[1][1])*(A[0][0]-A[1][1])+4.0*A[0][1]*A[1][0]));
 	eigenvalues2[1] = 0.5*((A[0][0]+A[1][1]) +
 	  sqrt((A[0][0]-A[1][1])*(A[0][0]-A[1][1])+4.0*A[0][1]*A[1][0]));
@@ -1731,7 +1716,7 @@ status = TRUE;
 (*angle)=acos((v[0][0]*v[0][1]+v[1][0]*v[1][1])/
 	 (sqrt(v[0][0]*v[0][0]+v[1][0]*v[1][0])*
 	  sqrt(v[0][1]*v[0][1]+v[1][1]*v[1][1])))*180.0/M_PI;
-if((*angle) < 89.5 && (*angle) > 90.5) 
+if((*angle) < 89.5 && (*angle) > 90.5)
 	{
 	status = FALSE;
 	}
@@ -1741,7 +1726,7 @@ diff1[0] = mm[0][0]*v[0][0]+mm[0][1]*v[1][0];
 diff1[1] = mm[1][0]*v[0][0]+mm[1][1]*v[1][0];
 diff1[0] = diff1[0] - d[0]*v[0][0];
 diff1[1] = diff1[1] - d[0]*v[1][0];
-if(((*length1)=sqrt(diff1[0]*diff1[0]+diff1[1]*diff1[1])) > 0.1) 
+if(((*length1)=sqrt(diff1[0]*diff1[0]+diff1[1]*diff1[1])) > 0.1)
 	{
 	status = FALSE;
 	}
@@ -1749,11 +1734,11 @@ diff2[0] = mm[0][0]*v[0][1]+mm[0][1]*v[1][1];
 diff2[1] = mm[1][0]*v[0][1]+mm[1][1]*v[1][1];
 diff2[0] = diff2[0] - d[1]*v[0][1];
 diff2[1] = diff2[1] - d[1]*v[1][1];
-if(((*length2)=sqrt(diff2[0]*diff2[0]+diff2[1]*diff2[1])) > 0.1) 
+if(((*length2)=sqrt(diff2[0]*diff2[0]+diff2[1]*diff2[1])) > 0.1)
 	{
 	status = FALSE;
 	}
-if(n > 50) 
+if(n > 50)
 	{
 	status = FALSE;
 	}
@@ -1763,10 +1748,7 @@ return(status);
 /*****************************************************************/
 /* Compute the SSD surface for point (a,b)			 */
 /*****************************************************************/
-compute_SSD_surface(fpic,x,y,n,N,SSDdata,max_a,max_b)
-fimages fpic;
-int x,y,n,N,*max_a,*max_b;
-float SSDdata[ARRSIZE][ARRSIZE];
+void compute_SSD_surface(fimages fpic, int x, int y, int n, int N, float SSDdata[ARRSIZE][ARRSIZE],int*max_a, int*max_b)
 {
 int u,v,u_index,v_index,i,j,a,b,fdr,pixel,size,c,d;
 float term1,term2,k,sum1,sum2,constant,sum_min,sum_max,max,min;
@@ -1795,12 +1777,12 @@ for(v=(-size);v<=size;v++)
 	for(j=(-n);j<=n;j++)
 		{
 		term1 = (fpic[1][x+i][y+j]-fpic[2][x+i+u][y+j+v]);
-		term2 = (fpic[1][x+i][y+j]-fpic[0][x+i+u][y+j+v]); 
+		term2 = (fpic[1][x+i][y+j]-fpic[0][x+i+u][y+j+v]);
 		sum1 += term1*term1;
-		sum2 += term2*term2; 
+		sum2 += term2*term2;
 		}
 	SSDvalues1[u_index][v_index] = sum1;
-	SSDvalues2[2*size-u_index][2*size-v_index] = sum2; 
+	SSDvalues2[2*size-u_index][2*size-v_index] = sum2;
 	}
 
 
@@ -1826,12 +1808,12 @@ for(v=(-size);v<=size;v++)
 	{
 	if((fabs(SSDvalues[u_index][v_index]-sum_min) <= SMALL && (u*u+v*v) < SSDmag) ||
 	   ((sum_min-SSDvalues[u_index][v_index]) > SMALL))
-		{ 
-		sum_min=SSDvalues[u_index][v_index]; 
-		a=u; b=v; 
+		{
+		sum_min=SSDvalues[u_index][v_index];
+		a=u; b=v;
 		SSDmag = (u*u+v*v);
 		}
-	if(SSDvalues[u_index][v_index] > sum_max) 
+	if(SSDvalues[u_index][v_index] > sum_max)
 		{ sum_max=SSDvalues[u_index][v_index]; }
 	}
 	if(SSDvalues[u_index][v_index] > SSDmax) SSDmax = SSDvalues[u_index][v_index];
@@ -1848,7 +1830,7 @@ if((x>=PT_X1-2 && x<= PT_X1+2&& y>=PT_Y1-2 && y<=PT_Y1+2) ||
 {
 printf("\nBig Minimum data at image point: %d,%d\n",x,y);
 printf("max_a: %d max_b: %d\n",*max_a,*max_b);
-compute_big_n_minimums(SSDvalues,size,20); 
+compute_big_n_minimums(SSDvalues,size,20);
 }
 }
 
@@ -1865,8 +1847,8 @@ for(v=(-N);v<=N;v++)
 	v_index = v+N;
 	SSDdata[u_index][v_index] = SSDvalues[u_index+a+N][v_index+b+N];
 	/* Compute minimum non-zero SSD value */
-	if(SSDdata[u_index][v_index] < sum_min && 
-	   SSDdata[u_index][v_index] != 0.0) 
+	if(SSDdata[u_index][v_index] < sum_min &&
+	   SSDdata[u_index][v_index] != 0.0)
 		{ sum_min=SSDdata[u_index][v_index]; c=u_index; d=v_index;}
 	}
 
@@ -1880,7 +1862,7 @@ if((x>=PT_X1-2 && x<= PT_X1+2&& y>=PT_Y1-2 && y<=PT_Y1+2) ||
    (x>=PT_X2-2 && x<= PT_X2+2&& y>=PT_Y2-2 && y<=PT_Y2+2))
 {
 printf("\nMinimum data at image point: %d,%d about: %d %d\n",x,y,a,b);
-compute_n_minimums(SSDdata,N,20); 
+compute_n_minimums(SSDdata,N,20);
 }
 }
 /**********************************************************************/
@@ -1901,16 +1883,13 @@ for(v=(-N);v<=N;v++)
 	if(SSDdata[u_index][v_index] < min) min = SSDdata[u_index][v_index];
 	}
 
-} 
+}
 
-/*********************************************************************/ 
-/* Compute the normalized mean and convariance matrix		     */ 
-/* Step2: Recovery of Neighbourhood Information.		     */ 
 /*********************************************************************/
-calc_mean_and_covariance2(weights,velocities,weighted_size,mean,covariance)
-float weights[WEIGHTSIZE][WEIGHTSIZE],velocities[WEIGHTSIZE][WEIGHTSIZE][2]; 
-float mean[2],covariance[2][2];
-int weighted_size;
+/* Compute the normalized mean and convariance matrix		     */
+/* Step2: Recovery of Neighbourhood Information.		     */
+/*********************************************************************/
+void calc_mean_and_covariance2(float weights[WEIGHTSIZE][WEIGHTSIZE], float velocities[WEIGHTSIZE][WEIGHTSIZE][2], int weighted_size, float mean[2], float covariance[2][2])
 {
 int i,j,k,Q,fdr,a,b;
 float vx,vy,w_sum;
@@ -1992,8 +1971,7 @@ return(TRUE); /* Singular */
 /***********************************************************************/
 /* Add two vectors, a and b, and place result in c		       */
 /***********************************************************************/
-add21(a,b,c)
-float a[2],b[2],c[2];
+void add21(float a[2], float b[2], float c[2])
 {
 c[0] = a[0] + b[0];
 c[1] = a[1] + b[1];
@@ -2002,8 +1980,7 @@ c[1] = a[1] + b[1];
 /***********************************************************************/
 /* Add two 2*2 matrices S1 and S2 and save the result in 2*2 matrix s3 */
 /***********************************************************************/
-add22(S1,S2,S3)
-float S1[2][2],S2[2][2],S3[2][2];
+void add22(float S1[2][2], float S2[2][2], float S3[2][2])
 {
 S3[0][0] = S1[0][0] + S2[0][0];
 S3[1][0] = S1[1][0] + S2[1][0];
@@ -2014,8 +1991,7 @@ S3[1][1] = S1[1][1] + S2[1][1];
 /***********************************************************************/
 /* Multiple a 2*2 matrix and a 2*1 vector			       */
 /***********************************************************************/
-mult21(A,b,x)
-float A[2][2],b[2],x[2];
+void mult21(float A[2][2], float b[2], float x[2])
 {
 x[0] = A[0][0]*b[0]+A[0][1]*b[1];
 x[1] = A[1][0]*b[0]+A[1][1]*b[1];
@@ -2024,9 +2000,7 @@ x[1] = A[1][0]*b[0]+A[1][1]*b[1];
 /**********************************************************************/
 /* Compute 2D Gaussian weights					      */
 /**********************************************************************/
-compute_weights(weights,w)
-float weights[WEIGHTSIZE][WEIGHTSIZE];
-int w;
+void compute_weights(float weights[WEIGHTSIZE][WEIGHTSIZE], int w)
 {
 int i,j,offset,weighted_size;
 float kernel[WEIGHTSIZE],term1,term2,sum;
@@ -2090,7 +2064,7 @@ int inverse22(J,JI, print)
 float J[NO_ROWS][NO_COLS], JI[NO_COLS][NO_ROWS];
 int print;
 {
-extern void dsvdc(double [], int* , int*, int*, double [], double [], double [], int*, double [], int* , double [], int*, int*); 
+extern void dsvdc(double [], int* , int*, int*, double [], double [], double [], int*, double [], int* , double [], int*, int*);
 int size;
 float VT[NO_COLS][NO_COLS];
 float U[NO_COLS][NO_ROWS],DI[NO_COLS][NO_COLS];
@@ -2108,7 +2082,7 @@ for(j=0;j<size;j++)
 	JT[i][j] = J[j][i];
 
 job = 21;
-dsvdc(JT,&mdim,&m,&n,W,zero,UU,&mdim,VV,&n,temp,&job,&Ierr); 
+dsvdc(JT,&mdim,&m,&n,W,zero,UU,&mdim,VV,&n,temp,&job,&Ierr);
 
 for(i=0;i<size;i++)
 for(j=0;j<NO_COLS;j++)
@@ -2170,7 +2144,7 @@ error = FALSE;
 for(i=0;i<NO_COLS;i++)
 for(j=0;j<NO_COLS;j++)
 	{
-	if(i==j) 
+	if(i==j)
 		{
 		if(fabs(I[i][i])<0.9999 || fabs(I[i][i])>1.0001) error=TRUE;
 		}
@@ -2192,7 +2166,7 @@ if(error==TRUE)
 else /* Set inverse elements over 10 to 10 and compute inverse */
 {
 if(DI[0][0] > 10.0) DI[0][0] = 10.0;
-if(DI[1][1] > 10.0) DI[1][1] = 10.0; 
+if(DI[1][1] > 10.0) DI[1][1] = 10.0;
 COUNT_SINGULAR++;
 /*
 JI[0][0] = 10.0; JI[0][1] = 0.0;
@@ -2228,13 +2202,9 @@ return(FALSE); /* The inverse matrix is guaranteed to be non-singular */
 
 /************************************************************
   Convolve images with center surround filter, i.e. a DOG
-  (Difference of Gaussians) 
+  (Difference of Gaussians)
 ************************************************************/
-laplacian(cpic,fpic,sigma,pic_x,pic_y)
-int pic_x,pic_y;
-cimages cpic;
-fimages fpic;
-float sigma;
+void laplacian(cimages cpic, fimages fpic, float sigma, int pic_x, int pic_y)
 {
 int i,j,k,l,m,OFFSET,count,no_count;
 float sigma2,begin,end;
@@ -2247,7 +2217,7 @@ float pic22[PIC_Y][PIC_X],min,max;
 sigma2 = sigma;
 const2 = 1.0/(sqrt(2.0*M_PI)*sigma2);
 OFFSET = (int) (6*sigma2+1)/2.0;
-for(i=0,x1=(-OFFSET),x2=(-OFFSET);i<=2*OFFSET;i++,x1++,x2++) 
+for(i=0,x1=(-OFFSET),x2=(-OFFSET);i<=2*OFFSET;i++,x1++,x2++)
 	{
 	h2[i] = const2 * exp((-x2*x2)/(2.0*sigma2*sigma2));
 	}
@@ -2263,13 +2233,13 @@ for(i=0;i<NUMFILES; i++)
                 for(k=OFFSET;k<pic_x-OFFSET;k++)
 			{
 			val2 = 0.0;
-	        	for(l=(-OFFSET);l<=OFFSET;l++) 
+        for(l=(-OFFSET);l<=OFFSET;l++)
 				{
               			val2 += cpic[i][j][k+l]*h2[l+OFFSET];
-				} 	 
+				}
        			pic2[j][k] = val2;
 			}
-		}  
+		}
 	printf("Image #%d - column convolution completed\n",i);
 	fflush(stdout);
         for(j=OFFSET;j<pic_y-OFFSET;j++)
@@ -2277,13 +2247,13 @@ for(i=0;i<NUMFILES; i++)
                 for(k=OFFSET;k<pic_x-OFFSET;k++)
 			{
 			val2 = 0.0;
-	        	for(m=(-OFFSET);m<=OFFSET;m++) 
+        for(m=(-OFFSET);m<=OFFSET;m++)
 				{
               			val2 += pic2[j+m][k]*h2[m+OFFSET];
-				} 	 
+				}
        			pic22[j][k] = val2;
 			}
-		}  
+		}
 	printf("Image #%d - row convolution completed\n",i);
 	fflush(stdout);
 
@@ -2311,10 +2281,7 @@ for(i=0;i<NUMFILES; i++)
 /* Make the image grayvalues stored in cpic as unsigned characters into  */
 /* float numbers stored in fpic.					 */
 /*************************************************************************/
-make_float(cpic,fpic,pic_x,pic_y)
-int pic_x,pic_y;
-cimages cpic;
-fimages fpic;
+void make_float(cimages cpic, fimages fpic, int pic_x, int pic_y)
 {
 int i,j,k;
 for(k=0;k<3;k++)
@@ -2326,9 +2293,7 @@ for(j=0;j<pic_x;j++)
 /*************************************************************************/
 /* Compute the n maximum data values and their locations in the array.   */
 /*************************************************************************/
-compute_n_minimums(data,N,n)
-int N,n;
-float data[ARRSIZE][ARRSIZE];
+void compute_n_minimums(float data[ARRSIZE][ARRSIZE], int N, int n)
 {
 int i,j,u,v,u_index,v_index,u_min,v_min;
 float min_value;
@@ -2368,9 +2333,7 @@ printf("%dth minimum: %f at %d,%d\n",i,min_value,u_min,v_min);
 /*************************************************************************/
 /* Compute the n maximum data values and their locations in the array.   */
 /*************************************************************************/
-compute_big_n_minimums(data,N,n)
-int N,n;
-float data[MAX_ARRSIZE][MAX_ARRSIZE];
+void compute_big_n_minimums(float data[MAX_ARRSIZE][MAX_ARRSIZE], int N, int n)
 {
 int i,j,u,v,u_index,v_index,u_min,v_min;
 float min_value;
@@ -2394,7 +2357,7 @@ for(v=(-N);v<=N;v++)
 	{
 	u_index = u+N;
 	v_index = v+N;
-	if((fabs(SSD[u_index][v_index]-min_value) <= SMALL && (u*u+v*v < SSDmag)) || 
+	if((fabs(SSD[u_index][v_index]-min_value) <= SMALL && (u*u+v*v < SSDmag)) ||
 	   (min_value-SSD[u_index][v_index] > SMALL))
 		{
 		min_value = SSD[u_index][v_index];
@@ -2408,9 +2371,7 @@ printf("%dth minimum: %f at %d,%d SSDmag: %d\n",i,min_value,u_min,v_min,u_min*u_
 }
 }
 
-float bigL2norm(bigdiff,n)
-float bigdiff[PIC_X][PIC_Y][2];
-int n;
+float bigL2norm(float bigdiff[PIC_X][PIC_Y][2], int n)
 {
 int i,j,ct;
 float sum;

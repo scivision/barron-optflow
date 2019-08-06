@@ -22,7 +22,7 @@ matrix:
     - brew install gcc > /dev/null
     - brew install openblas > /dev/null
   - os: windows
-    install: 
+    install:
     - cd build
     - cmake -G "MinGW Makefiles" -DCMAKE_SH="CMAKE_SH-NOTFOUND" ..
     - cmake --build .
@@ -34,4 +34,3 @@ install:
 - cmake --build .
 
 script: ctest --output-on-failure
-

@@ -1,38 +1,31 @@
-[![Build Status](https://travis-ci.org/scivision/barron-optflow.svg?branch=master)](https://travis-ci.org/scivision/barron-optflow)
 [![Build status](https://ci.appveyor.com/api/projects/status/y45eymwuq53pgnsa?svg=true)](https://ci.appveyor.com/project/scivision/barron-optflow)
 
 # Barron Optical Flow Code
 
-[Original code](http://www.csd.uwo.ca/faculty/barron/FTP/) 
+[Original code](http://www.csd.uwo.ca/faculty/barron/FTP/)
 modified to run with modern compilers.
 
-[Examples](https://scivision.co/barron1994opticalflow/)
+[Examples](https://scivision.dev/barron1994opticalflow/)
 
 ## Build
 
-Windows users should consider 
-[Windows Subsystem for Linux](https://www.scivision.co/install-windows-subsystem-for-linux/)
+A C compiler is required.
+Some of the programs require a Fortran compiler and/or BLAS library.
 
 -   Linux: `apt install gcc gfortran libopenblas-dev`
 -   Mac: `brew install gcc openblas`
 
 ```sh
-cd build
+meson build
 
-cmake ..
-cmake --build .
-```
-
-optional quick check:
-```sh
-ctest -V
+meson test -C build
 ```
 
 ## Horn-Schunck
 
 1. Run Horn-Schunck optical flow on Tree image set
    ```sh
-   ./horn new2binarytreet. 0.5 1.5 20 100 ../TESTDATA/TREE_DATA/TRANS out/ -B 150 150 -MH -T 5.0 
+   ./horn new2binarytreet. 0.5 1.5 20 100 ../TESTDATA/TREE_DATA/TRANS out/ -B 150 150 -MH -T 5.0
    ```
 2. convert output to Postscript and view (can use other viewer beside Evince)
    ```sh
