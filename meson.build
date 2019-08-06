@@ -14,28 +14,32 @@ blas = dependency('blas', required: false)
 if not blas.found()
   blas = fc.find_library('blas', required: false)
 endif
-
-if blas.found()
-  linpack = library('linpack', 'SOFTWARE/dsvdc.f',
-    dependencies: blas)
-
-  fleet_exe = executable('fleet', 'FLEET/fleet.c',
-    dependencies: libm,
-    link_with: linpack)
-  test('Fleet', fleet_exe,
-    args: ['new2rastertreet.', '2.', '9', '0.05', meson.source_root() / 'TESTDATA/TREE_DATA/TRANS', meson.source_root() / 'out', meson.source_root() / 'out'],
-    timeout: 30,
-    is_parallel: false)
-
-  singh_exe = executable('singh', 'SINGH/singh.c',
-    link_with: linpack,
-    dependencies: libm,
-    include_directories: 'SOFTWARE')
-
-  test('Singh', singh_exe,
-    args: ['new2binarytreet.', '20', meson.source_root() / 'TESTDATA/TREE_DATA/TRANS', meson.source_root() /'out', '-B', '150', '150', '-i', '25', '-n', '2', '-w', '2', '-N', '4'],
-    timeout: 60)
+if not blas.found()
+  blas_proj = subproject('blas')
+  blas = declare_dependency(link_with: blas_proj.get_variable('blas'))
 endif
+
+
+linpack = library('linpack', 'SOFTWARE/dsvdc.f',
+  dependencies: blas)
+
+fleet_exe = executable('fleet', 'FLEET/fleet.c',
+  dependencies: libm,
+  link_with: linpack)
+test('Fleet', fleet_exe,
+  args: ['new2rastertreet.', '2.', '9', '0.05', meson.source_root() / 'TESTDATA/TREE_DATA/TRANS', meson.source_root() / 'out', meson.source_root() / 'out'],
+  timeout: 30,
+  is_parallel: false)
+
+singh_exe = executable('singh', 'SINGH/singh.c',
+  link_with: linpack,
+  dependencies: libm,
+  include_directories: 'SOFTWARE')
+
+test('Singh', singh_exe,
+  args: ['new2binarytreet.', '20', meson.source_root() / 'TESTDATA/TREE_DATA/TRANS', meson.source_root() /'out', '-B', '150', '150', '-i', '25', '-n', '2', '-w', '2', '-N', '4'],
+  timeout: 60)
+
 
 flow2ps_exe = executable('flow2ps', 'SOFTWARE/psflow.c',
   dependencies: libm)
