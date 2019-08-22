@@ -1,7 +1,8 @@
 #include <fcntl.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#define _USE_MATH_DEFINES  // needed for Windows
 #include <math.h>
 
 #define SPACE 10
@@ -15,7 +16,7 @@ int numx, numy, totx, toty, offx, offy, x1, x2, yl, y2 ;
 float width, getval() ;
 float multiply= 0.5, numinch = 7.5, pixwidth = 2250.0 ;
 float scale ;
-float offset ; 
+float offset ;
 void usage(), initialize(), execute();
 
 
@@ -27,9 +28,9 @@ char **argv;
 
   while (argcount < argc && argv[argcount][0] == '-') {
     switch (argv[argcount][1]) {
-      case 'c': cut = 1;           
+      case 'c': cut = 1;
                 break;
-      case 'm': sscanf(argv[argcount]+2,"%f",&multiply);  
+      case 'm': sscanf(argv[argcount]+2,"%f",&multiply);
                 break;
       case 'l': pixwidth = 810.0;
                 numinch = 2.7;
@@ -42,25 +43,25 @@ char **argv;
                 latex = 1;
                 break;
       case 'S': insubsamp = 1;
-                sscanf(argv[argcount]+2,"%d",&insub);  
+                sscanf(argv[argcount]+2,"%d",&insub);
                 break;
       case 's': subsamp = 1;
-                sscanf(argv[argcount]+2,"%d",&sub);  
+                sscanf(argv[argcount]+2,"%d",&sub);
                 break;
-      case 'o': sscanf(argv[argcount]+2,"%d",&suboffset);  
+      case 'o': sscanf(argv[argcount]+2,"%d",&suboffset);
                 break;
       case 'n': caption = 0;
                 break;
       default : printf("Invalid option\n");
 	        usage(argv[0]);
-    }		
+    }
     argcount++;
   }
   if ((argc-argcount)!=2) usage(argv[0]);
   initialize(argv[argc-2],argv[argc-1]);
   execute();
   fclose(fo);
-  
+
   return EXIT_SUCCESS;
 }
 
@@ -71,12 +72,12 @@ char *s;
 
   printf("Usage:  %s [-c] [-l] [-f] [-sN] [-mN.N] [-n] <data-filename>  <postscript-outfile>\n",s);
   printf("\t-c    : cut  - prompts for corners of box to limit flow field.\n");
-  printf("\t-l    : output for latex 2.7in.\n"); 
-  printf("\t-f    : output for latex 6.0in.\n"); 
+  printf("\t-l    : output for latex 2.7in.\n");
+  printf("\t-f    : output for latex 6.0in.\n");
   printf("\t-sN   : subsample - N is integer - uses every Nth point in x & y.\n");
   printf("\t-mN.N : multiply (scale) - multiplies all vectors by N.N\n");
   printf("\t-n    : no caption printed.\n");
-  printf("\t-oN   : choose which pixel to use when subsampling\n"); 
+  printf("\t-oN   : choose which pixel to use when subsampling\n");
   exit(-1);
 }
 
@@ -103,37 +104,37 @@ char *in, *out ;
   if (cut) {
     printf("Offset : in X: %d  in Y: %d\n",offx,offy);
     ok = 1;
-    while (ok) { 
+    while (ok) {
       printf("Low X Value (%d - %d) :",offx,totx-offx);
       scanf("%d",&x1);
       if (x1 >= offx && x1 <= totx - offx) ok = 0;
     }
     ok = 1;
-    while (ok) { 
+    while (ok) {
       printf("High X Value (%d - %d):",x1,totx-offx);
       scanf("%d",&x2);
-      if (x2 > x1 && x2 <= totx - offx) ok = 0;	
+      if (x2 > x1 && x2 <= totx - offx) ok = 0;
     }
     ok = 1;
-    while (ok) { 
+    while (ok) {
       printf("Low Y Value (%d - %d) :",offy,toty-offy);
       scanf("%d",&yl);
-      if (yl >= offy && yl <= toty - offy) 
-      ok = 0;	
+      if (yl >= offy && yl <= toty - offy)
+      ok = 0;
     }
     ok = 1;
-    while (ok) { 
+    while (ok) {
       printf("High Y Value (%d - %d):",yl,toty-offy);
       scanf("%d",&y2);
-      if (y2 > yl && y2 <= toty - offy) ok = 0;	
+      if (y2 > yl && y2 <= toty - offy) ok = 0;
     }
-  } 
+  }
   scale = numinch*72.0/((float)(totx+2*sub+1)*SPACE);
   width = (float)2.0*(totx+2*sub+1)*SPACE/pixwidth;
 
   fprintf(fo,"%%! Input file name: %s\n",in) ;
-  fprintf(fo,"%%! subsampled by %d scaled by %f\n",sub,multiply); 
-  fprintf(fo,"%%! image size is %d in X and %d in Y\n",totx,toty); 
+  fprintf(fo,"%%! subsampled by %d scaled by %f\n",sub,multiply);
+  fprintf(fo,"%%! image size is %d in X and %d in Y\n",totx,toty);
   fprintf(fo,"%%! offset in X is %d and %d in Y\n",offx,offy) ;
   if (cut) {
     fprintf(fo,"%%! flow printed is from %d to %d in X and from %d to %d in Y\n", x1,x2,yl,y2) ;
@@ -142,15 +143,15 @@ char *in, *out ;
     fprintf(fo,"%%! flow printed is from %d to %d in X and from %d to %d in Y\n", offx,totx-offx,offy,toty-offy) ;
   }
   fprintf(fo,"%%!\n") ;
-  fprintf(fo,"%5.3f %5.3f scale\n", scale,scale);		
+  fprintf(fo,"%5.3f %5.3f scale\n", scale,scale);
   if (latex) offset = 0.0; else offset = 30.0/scale;
 }
 
 
-void execute(){ 
+void execute(){
   int i, j, ii, jj, x, y ;
   float U, V, angle, arrow, mag ;
-	
+
   //int leftx = totx - numx - offx ;
   //int lefty = toty - numy - offy;
 
@@ -167,7 +168,7 @@ void execute(){
     printf("Enter Name for caption:\n");
     fgets(name, sizeof(name), stdin);
     printf("Enter Experiment for caption:\n");
-    fgets(exp, sizeof(exp), stdin);	
+    fgets(exp, sizeof(exp), stdin);
     fprintf(fo,"/Times-Roman findfont\n"); fprintf(fo,"  %6.2f scalefont\n  setfont\n",1.0/scale*12.0);
     fprintf(fo,"  %6.2f %6.2f  moveto\n",1.0/scale*72,1.0/scale*72*10.5);
     fprintf(fo,"  (%s --- %s) show\n",name,exp);
@@ -180,34 +181,34 @@ void execute(){
       if (insubsamp) {
         i = ii*insub;
         j = jj*insub;
-      } 
+      }
       else {
         i = ii,j = jj;
       }
       U = getval(i,j);
       V = getval(i,j);
 
-      if (U == 100.0 && V == 100.0) continue; 
+      if (U == 100.0 && V == 100.0) continue;
       if (cut && (i+offy<yl || i+yl>y2 || j+offx<x1 || j+x1>x2)) continue;
       if (subsamp && ((i+offx-suboffset)%sub != 0 || (j+offy-suboffset)%sub != 0)) continue;
       if (cut) {
         x = (j+x1+sub+1)*SPACE;
         y = (toty-(i+yl)+sub)*SPACE ;
-      } 
+      }
       else {
         x = (j+offx+sub+1)*SPACE;
-        y = (toty-(i+offy)+sub)*SPACE;  
+        y = (toty-(i+offy)+sub)*SPACE;
       }
       if (U == 0.0) {
         if (V>0.0) {
-          angle = 90.0; 
+          angle = 90.0;
         }
         else {
          angle = -90.0;
         }
       }
       else {
-        angle = atan(V/U);  
+        angle = atan(V/U);
         if (U<0.0) {
           angle += M_PI;
         }
@@ -222,7 +223,7 @@ void execute(){
       fprintf(fo,"  0 0  moveto\n");
       if (mag<=0.001) fprintf(fo,"  %5.2f 0 rlineto\n",width);
       else {
-        fprintf(fo,"  %5.2f 0 rlineto\n",mag); 
+        fprintf(fo,"  %5.2f 0 rlineto\n",mag);
         fprintf(fo,"  %5.2f %5.2f rlineto\n",-arrow,arrow);
         fprintf(fo,"  %5.2f %5.2f rlineto\n",arrow,-arrow);
         fprintf(fo,"  %5.2f %5.2f rlineto\n",-arrow,-arrow);
@@ -233,7 +234,7 @@ void execute(){
       fprintf(fo,"  %d  %d translate\n\n",-x,-y);
     }
   if (!latex) fprintf(fo,"%d %d showpage\n",-x,-y);
-	
+
 }
 
 
@@ -248,6 +249,6 @@ float getval(int i,int j)
 }
 
 
-int flength(){ 
-return(lseek(fi,0,3)); 
+int flength(){
+return(lseek(fi,0,3));
 }

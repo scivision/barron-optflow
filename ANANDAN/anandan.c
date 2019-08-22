@@ -1,16 +1,17 @@
 #include <string.h>
+#define _USE_MATH_DEFINES  // needed for Windows
 #include <math.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#include <unistd.h>
+//#include <unistd.h>
 
-/* 
-           NAME : const.h 
+/*
+           NAME : const.h
    PARAMETER(S) : none
- 
-        PURPOSE : Definition of the constants for the 
-                  implementation of Anandan's hierarchical 
+
+        PURPOSE : Definition of the constants for the
+                  implementation of Anandan's hierarchical
                   motion detection approach.
 
          AUTHOR : Steven Beauchemin
@@ -38,7 +39,7 @@
 #define RELAXITER 10
 #define MAXLEVEL  4
 #define DEFLEVEL  1
-#define GAUSS     1 
+#define GAUSS     1
 #define LAP       2
 #define MAXSSD    2340901.0
 #define SSDVAL    S*S
@@ -49,7 +50,7 @@
 #define N4        64
 #define N5        32
 #define N6        16
-#define N7        8 
+#define N7        8
 
 #define KERNEL_X  8
 #define KERNEL_Y  8
@@ -62,10 +63,10 @@
 
 void error(int);
 
-/* 
-           NAME : type.h 
+/*
+           NAME : type.h
    PARAMETER(S) : none
- 
+
         PURPOSE : Type definitions for pyramids
                   and related data structures.
 
@@ -92,7 +93,7 @@ typedef struct t_beaudet {
                          } beaudet_t ;
 
 typedef struct t_disp_vect {
-                             float x, y ;  
+                             float x, y ;
                            } disp_vect_t ;
 
 typedef struct t_param {
@@ -125,11 +126,11 @@ typedef float image128_t[N3*N3] ;
 typedef float image64_t[N4*N4] ;
 typedef float image32_t[N5*N5] ;
 typedef float image16_t[N6*N6] ;
-typedef float image8_t[N7*N7] ; 
+typedef float image8_t[N7*N7] ;
 
 typedef struct t_qnode {
                          int             res, sizx, sizy, level ;
-                         image512_t      *gauss_ptr, *lap_ptr ; 
+                         image512_t      *gauss_ptr, *lap_ptr ;
                          param512_t      *param_ptr ;
                          disp_field512_t *flow_ptr ;
                          struct t_qnode  *forth, *back ;
@@ -140,11 +141,11 @@ typedef struct t_histo {
                          int freq ;
                        } histo_t ;
 
-/* 
+/*
            NAME : str.h
    PARAMETER(S) : none
- 
-        PURPOSE : Definitions of constants and types for 
+
+        PURPOSE : Definitions of constants and types for
                   string manipulation.
 
          AUTHOR : Steven Beauchemin
@@ -156,10 +157,10 @@ typedef struct t_histo {
 
 typedef char string[STRLENGTH] ;
 
-/* 
+/*
            NAME : extvar.h
    PARAMETER(S) : none
- 
+
         PURPOSE : declaration of external variables; all
                   masks are external.
 
@@ -171,10 +172,10 @@ typedef char string[STRLENGTH] ;
 beaudet_t Ix, Ixx, Ixy ;
 kernel_t kera, kerb ;
 
-/* 
+/*
            NAME : alloc_flow(p)
    PARAMETER(S) : p : pointer on a node.
- 
+
         PURPOSE : Allocates a vector field of size p->res to p->flow_ptr.
 
          AUTHOR : Steven Beauchemin
@@ -183,7 +184,7 @@ kernel_t kera, kerb ;
 
 */
 
-void alloc_flow(p) 
+void alloc_flow(p)
 qnode_ptr_t p ;
 
 {
@@ -207,10 +208,10 @@ qnode_ptr_t p ;
   }
 }
 
-/* 
+/*
            NAME : alloc_gauss(p)
    PARAMETER(S) : p : pointer on a node.
- 
+
         PURPOSE : Allocates an image of size p->res by p->res
                   and attaches it to p->gauss_ptr.
 
@@ -226,9 +227,9 @@ qnode_ptr_t p ;
 {
   switch(p->res) {
     case N1 : p->gauss_ptr = (image512_t *)malloc(sizeof(image512_t)) ;
-              break ; 
+              break ;
     case N2 : p->gauss_ptr = (image512_t *)malloc(sizeof(image256_t)) ;
-              break ; 
+              break ;
     case N3 : p->gauss_ptr = (image512_t *)malloc(sizeof(image128_t)) ;
               break ;
     case N4 : p->gauss_ptr = (image512_t *)malloc(sizeof(image64_t)) ;
@@ -241,13 +242,13 @@ qnode_ptr_t p ;
               break ;
     default:  error(11) ;
               break ;
-  }     
-} 
+  }
+}
 
-/* 
+/*
            NAME : alloc_image(p)
    PARAMETER(S) : p : pointer on a node.
- 
+
         PURPOSE : Allocates two images of size p->res by p->res
                   and attaches it to p->gauss_ptr and
                   p->lap_ptr.
@@ -265,10 +266,10 @@ qnode_ptr_t p ;
   switch(p->res) {
     case N1 : p->gauss_ptr = (image512_t *)malloc(sizeof(image512_t)) ;
               p->lap_ptr = (image512_t *)malloc(sizeof(image512_t)) ;
-              break ; 
+              break ;
     case N2 : p->gauss_ptr = (image512_t *)malloc(sizeof(image256_t)) ;
               p->lap_ptr = (image512_t *)malloc(sizeof(image256_t)) ;
-              break ; 
+              break ;
     case N3 : p->gauss_ptr = (image512_t *)malloc(sizeof(image128_t)) ;
               p->lap_ptr = (image512_t *)malloc(sizeof(image128_t)) ;
               break ;
@@ -286,14 +287,14 @@ qnode_ptr_t p ;
               break ;
     default:  error(11) ;
               break ;
-  }     
-} 
+  }
+}
 
 
-/* 
+/*
            NAME : alloc_lap(p)
    PARAMETER(S) : p : pointer on a node.
- 
+
         PURPOSE : Allocates an image of size p->res by p->res
                   and attaches it to p->lap_ptr.
 
@@ -309,9 +310,9 @@ qnode_ptr_t p ;
 {
   switch(p->res) {
     case N1 : p->lap_ptr = (image512_t *)malloc(sizeof(image512_t)) ;
-              break ; 
+              break ;
     case N2 : p->lap_ptr = (image512_t *)malloc(sizeof(image256_t)) ;
-              break ; 
+              break ;
     case N3 : p->lap_ptr = (image512_t *)malloc(sizeof(image128_t)) ;
               break ;
     case N4 : p->lap_ptr = (image512_t *)malloc(sizeof(image64_t)) ;
@@ -324,13 +325,13 @@ qnode_ptr_t p ;
               break ;
     default:  error(11) ;
               break ;
-  }     
-} 
+  }
+}
 
-/* 
+/*
            NAME : alloc_param(p)
    PARAMETER(S) : p : pointer on a node.
- 
+
         PURPOSE : Allocates a parameter field of size p->res to p->param_ptr.
 
          AUTHOR : Steven Beauchemin
@@ -339,7 +340,7 @@ qnode_ptr_t p ;
 
 */
 
-void alloc_param(p) 
+void alloc_param(p)
 qnode_ptr_t p ;
 
 {
@@ -363,11 +364,11 @@ qnode_ptr_t p ;
   }
 }
 
-/* 
+/*
            NAME : concat(s1,s2,s3) ;
    PARAMETER(S) : s1, s2 : strings to concat;
                       s3 : output string.
- 
+
         PURPOSE : Concats s1 and s2 into s3.
 
          AUTHOR : Steven Beauchemin
@@ -389,13 +390,13 @@ string s1, s2, s3 ;
   }
 }
 
-/* 
-           NAME : qnode_ptr_t create_node(l,r,sx,sy) 
+/*
+           NAME : qnode_ptr_t create_node(l,r,sx,sy)
    PARAMETER(S) : l      : level in the pyramid;
                   r      : resolution at level l;
                   sx, sy : size of the image at level l.
- 
-        PURPOSE : Creation of a node with 
+
+        PURPOSE : Creation of a node with
                   level l.
 
          AUTHOR : Steven Beauchemin
@@ -407,8 +408,8 @@ string s1, s2, s3 ;
 qnode_ptr_t create_node(l,r,sx,sy)
 int l, r, sx, sy ;
 
-{ qnode_ptr_t p ; 
-  
+{ qnode_ptr_t p ;
+
   p = (qnode_ptr_t)malloc(sizeof(qnode_t)) ;
   p->res = r ;
   p->sizx = sx ;
@@ -417,10 +418,10 @@ int l, r, sx, sy ;
   return(p) ;
 }
 
-/* 
+/*
            NAME : dealloc_flow(p)
    PARAMETER(S) : p : pointer on a node.
- 
+
         PURPOSE : deallocates the vector field attached to p.
 
          AUTHOR : Steven Beauchemin
@@ -429,7 +430,7 @@ int l, r, sx, sy ;
 
 */
 
-void dealloc_flow(p) 
+void dealloc_flow(p)
 qnode_ptr_t p ;
 
 {
@@ -456,9 +457,9 @@ qnode_ptr_t p ;
 /*
            NAME : dealloc_gauss(p)
    PARAMETER(S) : p : pointer on a node.
- 
+
         PURPOSE : Deallocates the Gaussian image attached to p.
-                  
+
          AUTHOR : Steven Beauchemin
              AT : University of Western Ontario
            DATE : April 30 1990
@@ -468,17 +469,17 @@ qnode_ptr_t p ;
 void dealloc_gauss(p)
 qnode_ptr_t p ;
 
-{ 
+{
   switch(p->res) {
-    case N1 : free((image512_t *)p->gauss_ptr) ;  
+    case N1 : free((image512_t *)p->gauss_ptr) ;
               break ;
-    case N2 : free((image256_t *)p->gauss_ptr) ;  
+    case N2 : free((image256_t *)p->gauss_ptr) ;
               break ;
-    case N3 : free((image128_t *)p->gauss_ptr) ;   
+    case N3 : free((image128_t *)p->gauss_ptr) ;
               break ;
     case N4 : free((image64_t *)p->gauss_ptr) ;
               break ;
-    case N5 : free((image32_t *)p->gauss_ptr) ; 
+    case N5 : free((image32_t *)p->gauss_ptr) ;
               break ;
     case N6 : free((image16_t *)p->gauss_ptr) ;
               break ;
@@ -489,12 +490,12 @@ qnode_ptr_t p ;
   }
 }
 
-/* 
+/*
            NAME : dealloc_image(p)
    PARAMETER(S) : p : pointer on a node.
- 
+
         PURPOSE : Deallocates the images attached to p.
-                  
+
          AUTHOR : Steven Beauchemin
              AT : University of Western Ontario
            DATE : March 13 1990
@@ -504,21 +505,21 @@ qnode_ptr_t p ;
 void dealloc_image(p)
 qnode_ptr_t p ;
 
-{ 
+{
   switch(p->res) {
     case N1 : free((image512_t *)p->gauss_ptr) ;
-              free((image512_t *)p->lap_ptr) ; 
+              free((image512_t *)p->lap_ptr) ;
               break ;
     case N2 : free((image256_t *)p->gauss_ptr) ;
-              free((image256_t *)p->lap_ptr) ; 
+              free((image256_t *)p->lap_ptr) ;
               break ;
-    case N3 : free((image128_t *)p->gauss_ptr) ; 
+    case N3 : free((image128_t *)p->gauss_ptr) ;
               free((image128_t *)p->lap_ptr) ;
               break ;
     case N4 : free((image64_t *)p->gauss_ptr) ;
               free((image64_t *)p->lap_ptr) ;
               break ;
-    case N5 : free((image32_t *)p->gauss_ptr) ; 
+    case N5 : free((image32_t *)p->gauss_ptr) ;
               free((image32_t *)p->lap_ptr) ;
               break ;
     case N6 : free((image16_t *)p->gauss_ptr) ;
@@ -535,9 +536,9 @@ qnode_ptr_t p ;
 /*
            NAME : dealloc_lap(p)
    PARAMETER(S) : p : pointer on a node.
- 
+
         PURPOSE : Deallocates the Laplacian image attached to p.
-                  
+
          AUTHOR : Steven Beauchemin
              AT : University of Western Ontario
            DATE : April 30 1990
@@ -547,17 +548,17 @@ qnode_ptr_t p ;
 void dealloc_lap(p)
 qnode_ptr_t p ;
 
-{ 
+{
   switch(p->res) {
-    case N1 : free((image512_t *)p->lap_ptr) ;  
+    case N1 : free((image512_t *)p->lap_ptr) ;
               break ;
-    case N2 : free((image256_t *)p->lap_ptr) ;  
+    case N2 : free((image256_t *)p->lap_ptr) ;
               break ;
-    case N3 : free((image128_t *)p->lap_ptr) ;   
+    case N3 : free((image128_t *)p->lap_ptr) ;
               break ;
     case N4 : free((image64_t *)p->lap_ptr) ;
               break ;
-    case N5 : free((image32_t *)p->lap_ptr) ; 
+    case N5 : free((image32_t *)p->lap_ptr) ;
               break ;
     case N6 : free((image16_t *)p->lap_ptr) ;
               break ;
@@ -568,11 +569,11 @@ qnode_ptr_t p ;
   }
 }
 
-/* 
+/*
            NAME : dealloc_param(p)
    PARAMETER(S) : p : pointer on a node.
- 
-        PURPOSE : Deallocates the parameter field of size p->res 
+
+        PURPOSE : Deallocates the parameter field of size p->res
                   at p->param_ptr.
 
          AUTHOR : Steven Beauchemin
@@ -581,7 +582,7 @@ qnode_ptr_t p ;
 
 */
 
-void dealloc_param(p) 
+void dealloc_param(p)
 qnode_ptr_t p ;
 
 {
@@ -605,11 +606,11 @@ qnode_ptr_t p ;
   }
 }
 
-/* 
+/*
            NAME : delete_node(p,h,q)
    PARAMETER(S) : p : pointer on the node to be deleted;
                   h : head list pointer;
-                  q : tail list pointer. 
+                  q : tail list pointer.
 
         PURPOSE : Deletion of the node pointed by p.
 
@@ -641,10 +642,10 @@ qnode_ptr_t p, *h, *q ;
   free(p) ;
 }
 
-/* 
+/*
            NAME : dx(s)
    PARAMETER(S) : s : ssd surface.
- 
+
         PURPOSE : Computes 1st order partial derivative with
                   respect to x, locally located at the center
                   of the ssd surface.
@@ -654,7 +655,7 @@ qnode_ptr_t p, *h, *q ;
            DATE : April 10 1990
 */
 
-float dx(s) 
+float dx(s)
 search_area_t *s ;
 
 { extern beaudet_t Ix ;
@@ -670,10 +671,10 @@ search_area_t *s ;
   return(d/Ix.f) ;
 }
 
-/* 
+/*
            NAME : dxx(s)
    PARAMETER(S) : s : ssd surface.
- 
+
         PURPOSE : Computes 2nd order partial derivative with
                   respect to x, locally located at the center
                   of the ssd surface.
@@ -683,7 +684,7 @@ search_area_t *s ;
            DATE : April 10 1990
 */
 
-float dxx(s) 
+float dxx(s)
 search_area_t *s ;
 
 { extern beaudet_t Ixx ;
@@ -699,10 +700,10 @@ search_area_t *s ;
   return(d/Ixx.f) ;
 }
 
-/* 
+/*
            NAME : dxy(s)
    PARAMETER(S) : s : ssd surface.
- 
+
         PURPOSE : Computes 2nd order partial derivative with
                   respect to x and y, locally located at the center
                   of the ssd surface.
@@ -712,7 +713,7 @@ search_area_t *s ;
            DATE : April 10 1990
 */
 
-float dxy(s) 
+float dxy(s)
 search_area_t *s ;
 
 { extern beaudet_t Ixy ;
@@ -728,10 +729,10 @@ search_area_t *s ;
   return(d/Ixy.f) ;
 }
 
-/* 
+/*
            NAME : dy(s)
    PARAMETER(S) : s : ssd surface.
- 
+
         PURPOSE : Computes 1st order partial derivative with
                   respect to y, locally located at the center
                   of the ssd surface (uses the transpose of Ix).
@@ -741,7 +742,7 @@ search_area_t *s ;
            DATE : April 10 1990
 */
 
-float dy(s) 
+float dy(s)
 search_area_t *s ;
 
 { extern beaudet_t Ix ;
@@ -757,10 +758,10 @@ search_area_t *s ;
   return(d/Ix.f) ;
 }
 
-/* 
+/*
            NAME : dyy(s)
    PARAMETER(S) : s : ssd surface.
- 
+
         PURPOSE : Computes 2nd order partial derivative with
                   respect to y, locally located at the center
                   of the ssd surface (uses the transpose of Ixx).
@@ -770,7 +771,7 @@ search_area_t *s ;
            DATE : April 10 1990
 */
 
-float dyy(s) 
+float dyy(s)
 search_area_t *s ;
 
 { extern beaudet_t Ixx ;
@@ -786,13 +787,13 @@ search_area_t *s ;
   return(d/Ixx.f) ;
 }
 
-/* 
+/*
            NAME : filter(p,q,f_type,tresh)
    PARAMETER(S) : p : pointer on a flow node ;
                   q : pointer on a parameter node ;
                   f_type : type of filtering (on Cmax or Cmin) ;
                   tresh : confidence measure thresholding value.
- 
+
         PURPOSE : Cancels out displacement estimates with conf.
                   measure magnitude lower than tresh.
 
@@ -806,7 +807,7 @@ qnode_ptr_t p, q ;
 int f_type ;
 float trsh ;
 
-{ param_t P ; 
+{ param_t P ;
   disp_vect_t Uerr ;
   int i, j ;
 
@@ -831,12 +832,12 @@ float trsh ;
 }
 
 
-/* 
+/*
            NAME : init_beaudet3(Ix,Ixx,Ixy)
    PARAMETER(S) :  Ix : 3 by 3 operator for 1st order x derivative;
                   Ixx : 3 by 3 operator for 2nd order x derivative;
                   Ixy : 3 by 3 operator for partial x and y derivatives.
- 
+
         PURPOSE : Initialize the image operators defined by Beaudet
                   to obtain numerical derivatives.
 
@@ -868,12 +869,12 @@ beaudet_t *Ix, *Ixx, *Ixy ;
   (*Ixy).m = 3 ;
 }
 
-/* 
+/*
            NAME : init_beaudet5(Ix,Ixx,Ixy)
    PARAMETER(S) :  Ix : operator for 1st order x derivative;
                   Ixx : operator for 2nd order x derivative;
                   Ixy : operator for partial x and y derivatives.
- 
+
         PURPOSE : Initialize the image operators defined by Beaudet
                   to obtain numerical derivatives.
 
@@ -886,52 +887,52 @@ void init_beaudet5(Ix,Ixx,Ixy)
 beaudet_t *Ix, *Ixx, *Ixy ;
 
 {
-  (*Ix).g[0][0] = -2 ; (*Ix).g[1][0] = -1 ; (*Ix).g[2][0] = 0 ; 
+  (*Ix).g[0][0] = -2 ; (*Ix).g[1][0] = -1 ; (*Ix).g[2][0] = 0 ;
   (*Ix).g[3][0] = 1 ;  (*Ix).g[4][0] = 2 ;
-  (*Ix).g[0][1] = -2 ; (*Ix).g[1][1] = -1 ; (*Ix).g[2][1] = 0 ; 
+  (*Ix).g[0][1] = -2 ; (*Ix).g[1][1] = -1 ; (*Ix).g[2][1] = 0 ;
   (*Ix).g[3][1] = 1 ;  (*Ix).g[4][1] = 2 ;
-  (*Ix).g[0][2] = -2 ; (*Ix).g[1][2] = -1 ; (*Ix).g[2][2] = 0 ; 
+  (*Ix).g[0][2] = -2 ; (*Ix).g[1][2] = -1 ; (*Ix).g[2][2] = 0 ;
   (*Ix).g[3][2] = 1 ;  (*Ix).g[4][2] = 2 ;
-  (*Ix).g[0][3] = -2 ; (*Ix).g[1][3] = -1 ; (*Ix).g[2][3] = 0 ; 
+  (*Ix).g[0][3] = -2 ; (*Ix).g[1][3] = -1 ; (*Ix).g[2][3] = 0 ;
   (*Ix).g[3][3] = 1 ;  (*Ix).g[4][3] = 2 ;
-  (*Ix).g[0][4] = -2 ; (*Ix).g[1][4] = -1 ; (*Ix).g[2][4] = 0 ; 
+  (*Ix).g[0][4] = -2 ; (*Ix).g[1][4] = -1 ; (*Ix).g[2][4] = 0 ;
   (*Ix).g[3][4] = 1 ;  (*Ix).g[4][4] = 2 ;
   (*Ix).f = 50.0 ;
   (*Ix).m = 5 ;
-      
-  (*Ixx).g[0][0] = 2 ;  (*Ixx).g[1][0] = -1 ;  (*Ixx).g[2][0] = -2 ; 
+
+  (*Ixx).g[0][0] = 2 ;  (*Ixx).g[1][0] = -1 ;  (*Ixx).g[2][0] = -2 ;
   (*Ixx).g[3][0] = -1 ;  (*Ixx).g[4][0] = 2 ;
-  (*Ixx).g[0][1] = 2 ; (*Ixx).g[1][1] = -1 ; (*Ixx).g[2][1] = -2; 
+  (*Ixx).g[0][1] = 2 ; (*Ixx).g[1][1] = -1 ; (*Ixx).g[2][1] = -2;
   (*Ixx).g[3][1] = -1 ; (*Ixx).g[4][1] = 2 ;
-  (*Ixx).g[0][2] = 2 ; (*Ixx).g[1][2] = -1 ; (*Ixx).g[2][2] = -2 ; 
+  (*Ixx).g[0][2] = 2 ; (*Ixx).g[1][2] = -1 ; (*Ixx).g[2][2] = -2 ;
   (*Ixx).g[3][2] = -1 ; (*Ixx).g[4][2] = 2 ;
-  (*Ixx).g[0][3] = 2 ; (*Ixx).g[1][3] = -1 ; (*Ixx).g[2][3] = -2 ; 
+  (*Ixx).g[0][3] = 2 ; (*Ixx).g[1][3] = -1 ; (*Ixx).g[2][3] = -2 ;
   (*Ixx).g[3][3] = -1 ; (*Ixx).g[4][3] = 2 ;
-  (*Ixx).g[0][4] = 2 ;  (*Ixx).g[1][4] = -1 ;  (*Ixx).g[2][4] = -2 ; 
+  (*Ixx).g[0][4] = 2 ;  (*Ixx).g[1][4] = -1 ;  (*Ixx).g[2][4] = -2 ;
   (*Ixx).g[3][4] = -1 ;  (*Ixx).g[4][4] = 2 ;
   (*Ixx).f = 35.0 ;
   (*Ixx).m = 5 ;
 
-  (*Ixy).g[0][0] = 4 ;  (*Ixy).g[1][0] = 2 ;  (*Ixy).g[2][0] = 0 ; 
+  (*Ixy).g[0][0] = 4 ;  (*Ixy).g[1][0] = 2 ;  (*Ixy).g[2][0] = 0 ;
   (*Ixy).g[3][0] = -2 ; (*Ixy).g[4][0] = -4 ;
-  (*Ixy).g[0][1] = 2 ;  (*Ixy).g[1][1] = 1 ;  (*Ixy).g[2][1] = 0 ; 
+  (*Ixy).g[0][1] = 2 ;  (*Ixy).g[1][1] = 1 ;  (*Ixy).g[2][1] = 0 ;
   (*Ixy).g[3][1] = -1 ; (*Ixy).g[4][1] = -2 ;
-  (*Ixy).g[0][2] = 0 ;  (*Ixy).g[1][2] = 0 ;  (*Ixy).g[2][2] = 0 ; 
+  (*Ixy).g[0][2] = 0 ;  (*Ixy).g[1][2] = 0 ;  (*Ixy).g[2][2] = 0 ;
   (*Ixy).g[3][2] = 0 ;  (*Ixy).g[4][2] = 0 ;
-  (*Ixy).g[0][3] = -2 ; (*Ixy).g[1][3] = -1 ; (*Ixy).g[2][3] = 0 ; 
+  (*Ixy).g[0][3] = -2 ; (*Ixy).g[1][3] = -1 ; (*Ixy).g[2][3] = 0 ;
   (*Ixy).g[3][3] = 1 ;  (*Ixy).g[4][3] = 2 ;
-  (*Ixy).g[0][4] = -4 ; (*Ixy).g[1][4] = -2 ; (*Ixy).g[2][4] = 0 ; 
+  (*Ixy).g[0][4] = -4 ; (*Ixy).g[1][4] = -2 ; (*Ixy).g[2][4] = 0 ;
   (*Ixy).g[3][4] = 2 ;  (*Ixy).g[4][4] = 4 ;
   (*Ixy).f = 100.0 ;
   (*Ixy).m = 5 ;
 }
 
-/* 
+/*
            NAME : init_beaudet7(Ix,Ixx,Ixy)
    PARAMETER(S) :  Ix : operator for 1st order x derivative;
                   Ixx : operator for 2nd order x derivative;
                   Ixy : operator for partial x and y derivatives.
- 
+
         PURPOSE : Initialize the image operators defined by Beaudet
                   to obtain numerical derivatives.
 
@@ -944,19 +945,19 @@ void init_beaudet7(Ix,Ixx,Ixy)
 beaudet_t *Ix, *Ixx, *Ixy ;
 
 {
-  (*Ix).g[0][0] = -3 ; (*Ix).g[1][0] = -2 ; (*Ix).g[2][0] = -1 ; 
+  (*Ix).g[0][0] = -3 ; (*Ix).g[1][0] = -2 ; (*Ix).g[2][0] = -1 ;
   (*Ix).g[3][0] = 0 ;  (*Ix).g[4][0] = 1 ;  (*Ix).g[5][0] = 2 ;
   (*Ix).g[6][0] = 3 ;
-  (*Ix).g[0][1] = -3 ; (*Ix).g[1][1] = -2 ; (*Ix).g[2][1] = -1 ; 
+  (*Ix).g[0][1] = -3 ; (*Ix).g[1][1] = -2 ; (*Ix).g[2][1] = -1 ;
   (*Ix).g[3][1] = 0 ;  (*Ix).g[4][1] = 1 ;  (*Ix).g[5][1] = 2 ;
   (*Ix).g[6][1] = 3 ;
-  (*Ix).g[0][2] = -3 ; (*Ix).g[1][2] = -2 ; (*Ix).g[2][2] = -1 ; 
+  (*Ix).g[0][2] = -3 ; (*Ix).g[1][2] = -2 ; (*Ix).g[2][2] = -1 ;
   (*Ix).g[3][2] = 0 ;  (*Ix).g[4][2] = 1 ;  (*Ix).g[5][2] = 2 ;
   (*Ix).g[6][2] = 3 ;
-  (*Ix).g[0][3] = -3 ; (*Ix).g[1][3] = -2 ; (*Ix).g[2][3] = -1 ; 
+  (*Ix).g[0][3] = -3 ; (*Ix).g[1][3] = -2 ; (*Ix).g[2][3] = -1 ;
   (*Ix).g[3][3] = 0 ;  (*Ix).g[4][3] = 1 ;  (*Ix).g[5][3] = 2 ;
   (*Ix).g[6][3] = 3 ;
-  (*Ix).g[0][4] = -3 ; (*Ix).g[1][4] = -2 ; (*Ix).g[2][4] = -1 ; 
+  (*Ix).g[0][4] = -3 ; (*Ix).g[1][4] = -2 ; (*Ix).g[2][4] = -1 ;
   (*Ix).g[3][4] = 0 ;  (*Ix).g[4][4] = 1 ;  (*Ix).g[5][4] = 2 ;
   (*Ix).g[6][4] = 3 ;
   (*Ix).g[0][5] = -3 ; (*Ix).g[1][5] = -2 ; (*Ix).g[2][5] = -1 ;
@@ -967,60 +968,60 @@ beaudet_t *Ix, *Ixx, *Ixy ;
   (*Ix).g[6][6] = 3 ;
   (*Ix).f = 196.0 ;
   (*Ix).m = 7 ;
-      
-  (*Ixx).g[0][0] = 5 ;  (*Ixx).g[1][0] = 0 ;  (*Ixx).g[2][0] = -3 ; 
+
+  (*Ixx).g[0][0] = 5 ;  (*Ixx).g[1][0] = 0 ;  (*Ixx).g[2][0] = -3 ;
   (*Ixx).g[3][0] = -4 ; (*Ixx).g[4][0] = -3 ; (*Ixx).g[5][0] = 0 ;
   (*Ixx).g[6][0] = 5 ;
-  (*Ixx).g[0][1] = 5 ;  (*Ixx).g[1][1] = 0 ;  (*Ixx).g[2][1] = -3 ; 
+  (*Ixx).g[0][1] = 5 ;  (*Ixx).g[1][1] = 0 ;  (*Ixx).g[2][1] = -3 ;
   (*Ixx).g[3][1] = -4 ; (*Ixx).g[4][1] = -3 ; (*Ixx).g[5][1] = 0 ;
   (*Ixx).g[6][1] = 5 ;
-  (*Ixx).g[0][2] = 5 ;  (*Ixx).g[1][2] = 0 ;  (*Ixx).g[2][2] = -3 ; 
+  (*Ixx).g[0][2] = 5 ;  (*Ixx).g[1][2] = 0 ;  (*Ixx).g[2][2] = -3 ;
   (*Ixx).g[3][2] = -4 ; (*Ixx).g[4][2] = -3 ; (*Ixx).g[5][2] = 0 ;
   (*Ixx).g[6][2] = 5 ;
-  (*Ixx).g[0][3] = 5 ;  (*Ixx).g[1][3] = 0 ;  (*Ixx).g[2][3] = -3 ; 
+  (*Ixx).g[0][3] = 5 ;  (*Ixx).g[1][3] = 0 ;  (*Ixx).g[2][3] = -3 ;
   (*Ixx).g[3][3] = -4 ; (*Ixx).g[4][3] = -3 ; (*Ixx).g[5][3] = 0 ;
   (*Ixx).g[6][3] = 5 ;
-  (*Ixx).g[0][4] = 5 ;  (*Ixx).g[1][4] = 0 ;  (*Ixx).g[2][4] = -3 ; 
+  (*Ixx).g[0][4] = 5 ;  (*Ixx).g[1][4] = 0 ;  (*Ixx).g[2][4] = -3 ;
   (*Ixx).g[3][4] = -4 ; (*Ixx).g[4][4] = -3 ; (*Ixx).g[5][4] = 0 ;
   (*Ixx).g[6][4] = 5 ;
-  (*Ixx).g[0][5] = 5 ;  (*Ixx).g[1][5] = 0 ;  (*Ixx).g[2][5] = -3 ; 
+  (*Ixx).g[0][5] = 5 ;  (*Ixx).g[1][5] = 0 ;  (*Ixx).g[2][5] = -3 ;
   (*Ixx).g[3][5] = -4 ; (*Ixx).g[4][5] = -3 ; (*Ixx).g[5][5] = 0 ;
   (*Ixx).g[6][5] = 5 ;
-  (*Ixx).g[0][6] = 5 ;  (*Ixx).g[1][6] = 0 ;  (*Ixx).g[2][6] = -3 ; 
+  (*Ixx).g[0][6] = 5 ;  (*Ixx).g[1][6] = 0 ;  (*Ixx).g[2][6] = -3 ;
   (*Ixx).g[3][6] = -4 ; (*Ixx).g[4][6] = -3 ; (*Ixx).g[5][6] = 0 ;
   (*Ixx).g[6][6] = 5 ;
   (*Ixx).f = 294.0 ;
   (*Ixx).m = 7 ;
 
-  (*Ixy).g[0][0] = 9 ;  (*Ixy).g[1][0] = 6 ;  (*Ixy).g[2][0] = 3 ; 
+  (*Ixy).g[0][0] = 9 ;  (*Ixy).g[1][0] = 6 ;  (*Ixy).g[2][0] = 3 ;
   (*Ixy).g[3][0] = 0 ;  (*Ixy).g[4][0] = -3 ; (*Ixy).g[5][0] = -6 ;
   (*Ixy).g[6][0] = -9 ;
-  (*Ixy).g[0][1] = 6 ;  (*Ixy).g[1][1] = 4 ;  (*Ixy).g[2][1] = 2 ; 
+  (*Ixy).g[0][1] = 6 ;  (*Ixy).g[1][1] = 4 ;  (*Ixy).g[2][1] = 2 ;
   (*Ixy).g[3][1] = 0 ;  (*Ixy).g[4][1] = -2 ; (*Ixy).g[5][1] = -4 ;
   (*Ixy).g[6][1] = -6 ;
-  (*Ixy).g[0][2] = 3 ;  (*Ixy).g[1][2] = 2 ;  (*Ixy).g[2][2] = 1 ; 
+  (*Ixy).g[0][2] = 3 ;  (*Ixy).g[1][2] = 2 ;  (*Ixy).g[2][2] = 1 ;
   (*Ixy).g[3][2] = 0 ;  (*Ixy).g[4][2] = -1 ; (*Ixy).g[5][2] = -2 ;
   (*Ixy).g[6][2] = -3 ;
-  (*Ixy).g[0][3] = 0 ;  (*Ixy).g[1][3] = 0 ;  (*Ixy).g[2][3] = 0 ; 
+  (*Ixy).g[0][3] = 0 ;  (*Ixy).g[1][3] = 0 ;  (*Ixy).g[2][3] = 0 ;
   (*Ixy).g[3][3] = 0 ;  (*Ixy).g[4][3] = 0 ;  (*Ixy).g[5][3] = 0 ;
   (*Ixy).g[6][3] = 0 ;
-  (*Ixy).g[0][4] = -3 ; (*Ixy).g[1][4] = -2 ; (*Ixy).g[2][4] = -1 ; 
+  (*Ixy).g[0][4] = -3 ; (*Ixy).g[1][4] = -2 ; (*Ixy).g[2][4] = -1 ;
   (*Ixy).g[3][4] = 0 ;  (*Ixy).g[4][4] = 1 ;  (*Ixy).g[5][4] = 2 ;
   (*Ixy).g[6][4] = 3 ;
-  (*Ixy).g[0][5] = -6 ; (*Ixy).g[1][5] = -4 ; (*Ixy).g[2][5] = -2 ; 
+  (*Ixy).g[0][5] = -6 ; (*Ixy).g[1][5] = -4 ; (*Ixy).g[2][5] = -2 ;
   (*Ixy).g[3][5] = 0 ;  (*Ixy).g[4][5] = 2 ;  (*Ixy).g[5][5] = 4 ;
   (*Ixy).g[6][5] = 6 ;
-  (*Ixy).g[0][6] = -9 ; (*Ixy).g[1][6] = -6 ; (*Ixy).g[2][6] = -3 ; 
+  (*Ixy).g[0][6] = -9 ; (*Ixy).g[1][6] = -6 ; (*Ixy).g[2][6] = -3 ;
   (*Ixy).g[3][6] = 0 ;  (*Ixy).g[4][6] = 3 ;  (*Ixy).g[5][6] = 6 ;
   (*Ixy).g[6][6] = 9 ;
   (*Ixy).f = 784.0 ;
   (*Ixy).m = 7 ;
 }
 
-/* 
+/*
            NAME : init_kernel_a(ker)
    PARAMETER(S) : ker : the kernel.
- 
+
         PURPOSE : Inits the kernel values.
 
          AUTHOR : Steven Beauchemin
@@ -1029,10 +1030,10 @@ beaudet_t *Ix, *Ixx, *Ixy ;
 
 */
 
-void init_kernel_a(ker) 
+void init_kernel_a(ker)
 kernel_t *ker ;
 
-{  
+{
   (*ker).k[0] = 1.0 ;
   (*ker).k[1] = 5.0;
   (*ker).k[2] = 8.0 ;
@@ -1042,10 +1043,10 @@ kernel_t *ker ;
   (*ker).f = 20.0 ;
 }
 
-/* 
+/*
            NAME : init_kernel_b(ker)
    PARAMETER(S) : ker : the kernel.
- 
+
         PURPOSE : Inits the kernel values.
 
          AUTHOR : Steven Beauchemin
@@ -1054,10 +1055,10 @@ kernel_t *ker ;
 
 */
 
-void init_kernel_b(ker) 
+void init_kernel_b(ker)
 kernel_t *ker ;
 
-{  
+{
   (*ker).k[0] = 1.0 ;
   (*ker).k[1] = 5.0 ;
   (*ker).k[2] = 8.0 ;
@@ -1067,11 +1068,11 @@ kernel_t *ker ;
   (*ker).f = 10.0 ;
 }
 
-/* 
-           NAME : init_list(h,q) 
+/*
+           NAME : init_list(h,q)
    PARAMETER(S) : h : head list pointer;
                   q : tail list pointer.
- 
+
         PURPOSE : Initialization of the head
                   and tail pointers to NULL.
 
@@ -1084,18 +1085,18 @@ kernel_t *ker ;
 void init_list(h,q)
 qnode_ptr_t *h, *q ;
 
-{ 
+{
   *h = (qnode_ptr_t)NULL ;
   *q = (qnode_ptr_t)NULL ;
 }
 
-/* 
-           NAME : insert_node(p,h,q) 
+/*
+           NAME : insert_node(p,h,q)
    PARAMETER(S) : p : pointer on the node to insert;
                   h : head pointer of the list;
                   q : tail pointer of the list.
- 
-        PURPOSE : Insertion of the node p in a doubly 
+
+        PURPOSE : Insertion of the node p in a doubly
                   linked list in order of the level
                   numbers (p->level).
 
@@ -1105,7 +1106,7 @@ qnode_ptr_t *h, *q ;
 
 */
 
-void insert_node(p,h,q) 
+void insert_node(p,h,q)
 qnode_ptr_t p, *h, *q ;
 
 { qnode_ptr_t s, t ;
@@ -1136,8 +1137,8 @@ qnode_ptr_t p, *h, *q ;
            NAME : inside(x,y,rx,ry)
    PARAMETER(S) : x,y   : image coordinates;
                   rx,ry : image size.
- 
-        PURPOSE : Returns the truth value of (x,y) in image 
+
+        PURPOSE : Returns the truth value of (x,y) in image
                   of size rx*ry.
 
          AUTHOR : Steven Beauchemin
@@ -1153,11 +1154,11 @@ int x, y, rx, ry ;
 }
 
 
-/* 
+/*
            NAME : norm(V,n)
    PARAMETER(S) : V : vector;
                   n : length of V.
- 
+
         PURPOSE : returns L2 norm of V
 
          AUTHOR : Steven Beauchemin
@@ -1165,12 +1166,12 @@ int x, y, rx, ry ;
            DATE : November 7 1990
 */
 
-float norm(V,n) 
+float norm(V,n)
 float V[] ;
 int n ;
 
 { int i ;
-  float sum ; 
+  float sum ;
 
   sum = 0.0 ;
   for (i = 0 ; i < n ; i++) {
@@ -1179,8 +1180,8 @@ int n ;
   return(sqrt(sum)) ;
 }
 
-/* 
-           NAME : pgetrast(fn,hd,bf,sx,sy,r) 
+/*
+           NAME : pgetrast(fn,hd,bf,sx,sy,r)
    PARAMETER(S) : fn    : filename;
                   hd    : image header (raster file);
                   bf    : Pointer on a 2D array containing the image;
@@ -1196,19 +1197,19 @@ int n ;
 
 */
 
-void pgetrast(fn,hd,bf,sx,sy,r) 
+void pgetrast(fn,hd,bf,sx,sy,r)
 char *fn ;
 unsigned char hd[H] ;
 float bf[N1*N1] ;
 int sx, sy, r ;
 
-{ 
+{
   int fd;
   int i, j;
   unsigned char c;
 
-  if ((fd = open(fn,O_RDONLY)) > 0) { 
-    if (read(fd,hd,H) == H) { 
+  if ((fd = open(fn,O_RDONLY)) > 0) {
+    if (read(fd,hd,H) == H) {
       for (i = 0 ; i < sy ; i++) {
         for (j = 0 ; j < sx ; j++) {
           if (read(fd,&c,sizeof(c)) != 1) {
@@ -1228,8 +1229,8 @@ int sx, sy, r ;
   close(fd) ;
 }
 
-/* 
-           NAME : Bpgetrast(fn,bf,sx,sy,r) 
+/*
+           NAME : Bpgetrast(fn,bf,sx,sy,r)
    PARAMETER(S) : fn    : filename;
                   bf    : Pointer on a 2D array containing the image;
                   sx,sy : image size;
@@ -1244,7 +1245,7 @@ int sx, sy, r ;
 
 */
 
-void Bpgetrast(fn,bf,sx,sy,r) 
+void Bpgetrast(fn,bf,sx,sy,r)
 char *fn ;
 float bf[N1*N1] ;
 int sx, sy, r ;
@@ -1252,7 +1253,7 @@ int sx, sy, r ;
 { int fd, i, j ;
   unsigned char c ;
 
-  if ((fd = open(fn,O_RDONLY)) > 0) { 
+  if ((fd = open(fn,O_RDONLY)) > 0) {
     for (i = 0 ; i < sy ; i++) {
       for (j = 0 ; j < sx ; j++) {
         if (read(fd,&c,sizeof(c)) != 1) {
@@ -1268,15 +1269,15 @@ int sx, sy, r ;
   close(fd) ;
 }
 
-/* 
-           NAME : pputrast(fn,hd,bf,sx,sy,r) 
+/*
+           NAME : pputrast(fn,hd,bf,sx,sy,r)
    PARAMETER(S) : fn     : filename;
                   hd     : image header (raster file);
                   bf     : Pointer on a 2D array containing the image;
                   sx, sy : image size;
                    r     : resolution of the array.
- 
-        PURPOSE : Writes the contents of bf into a 
+
+        PURPOSE : Writes the contents of bf into a
                   rasterfile specified by fn.
 
          AUTHOR : Steven Beauchemin
@@ -1285,7 +1286,7 @@ int sx, sy, r ;
 
 */
 
-void pputrast(fn,hd,bf,sx,sy,r) 
+void pputrast(fn,hd,bf,sx,sy,r)
 char *fn ;
 unsigned char hd[H] ;
 float bf[N1*N1] ;
@@ -1295,9 +1296,9 @@ int sx, sy, r ;
   unsigned char c ;
 
   if ((fd = creat(fn,0600)) > 0) { ;
-    if (write(fd,hd,H) == H) { 
-      for (i = 0 ; i < sy ; i++) { 
-        for (j = 0 ; j < sx ; j++) { 
+    if (write(fd,hd,H) == H) {
+      for (i = 0 ; i < sy ; i++) {
+        for (j = 0 ; j < sx ; j++) {
           c = (unsigned char)bf[r*i + j] ;
           if (write(fd,&c,sizeof(c)) != 1) {
             error(8) ;
@@ -1306,7 +1307,7 @@ int sx, sy, r ;
       }
     }
     else {
-      error(9) ; 
+      error(9) ;
     }
   }
   else {
@@ -1315,12 +1316,12 @@ int sx, sy, r ;
   close(fd) ;
 }
 
-/* 
+/*
            NAME : project(U,r)
    PARAMETER(s) : U : vector from next coarser level;
-                  r : resolution reduction ratio. 
+                  r : resolution reduction ratio.
 
-        PURPOSE : Projects down the 2D vector U to the next finer 
+        PURPOSE : Projects down the 2D vector U to the next finer
                   level as an initial estimate for the match criterion.
 
          AUTHOR : Steven Beauchemin
@@ -1332,7 +1333,7 @@ disp_vect_t project(U,r)
 disp_vect_t U ;
 int r ;
 
-{  
+{
   U.x = U.x*r ;
   U.y = U.y*r ;
   if (U.x > 0.0) {
@@ -1350,11 +1351,11 @@ int r ;
   return(U) ;
 }
 
-/* 
+/*
            NAME : rotate(x,y,t)
    PARAMETER(S) : x,y : vector points;
                     t : rotational angle (radians).
- 
+
         PURPOSE : Rotates the vector (x,y) of t radians.
 
          AUTHOR : Steven Beauchemin
@@ -1362,7 +1363,7 @@ int r ;
            DATE : April 11 1990
 */
 
-void rotate(x,y,t) 
+void rotate(x,y,t)
 float *x, *y, t ;
 
 { float x1, y1 ;
@@ -1372,11 +1373,11 @@ float *x, *y, t ;
   *y = -x1*sin(t) + y1*cos(t) ;
 }
 
-/* 
-           NAME : sample(p1,p2) 
+/*
+           NAME : sample(p1,p2)
    PARAMETER(S) : p1 : pointer on an arbitrary node of the pyramid;
                   p2 : pointer on the next coarser level to p1.
- 
+
         PURPOSE : Subsamples from finer to coarser resolution.
 
          AUTHOR : Steven Beauchemin
@@ -1389,21 +1390,21 @@ void sample(p1,p2)
 qnode_ptr_t p1, p2 ;
 
 { int f, i, j ;
-  
+
   f = p1->res/p2->res ;
   for (i = 0 ; i < p2->sizy ; i++) {
     for (j = 0 ; j < p2->sizx ; j++) {
-      (*p2->gauss_ptr)[p2->res*i + j] = 
+      (*p2->gauss_ptr)[p2->res*i + j] =
       (*p1->lap_ptr)[p1->res*(i*f + 1) + j*f + 1] ;
     }
   }
 }
 
-/* 
+/*
            NAME : ssd(f,g,x1,y1,x2,y2)
    PARAMETER(S) : f : laplacian image containing the pixel (x1,y1);
                   g : laplacian image containing the pixel (x2,y2);
-                  x1,y1 : pixel coordinates in f; 
+                  x1,y1 : pixel coordinates in f;
                   x2,y2 : pixel coordinates in g.
 
         PURPOSE : Computes the Gaussian weighted sum of differences
@@ -1415,7 +1416,7 @@ qnode_ptr_t p1, p2 ;
 
 */
 
-float ssd(f,g,x1,y1,x2,y2) 
+float ssd(f,g,x1,y1,x2,y2)
 qnode_ptr_t f, g ;
 int x1, y1, x2, y2 ;
 
@@ -1449,7 +1450,7 @@ int x1, y1, x2, y2 ;
     }
     for (k2 = -kera.m/2 ; k2 <= kera.m/2 ; k2++) {
       if (y1 + k2 < 0) {
-        yr1 = 0 ; 
+        yr1 = 0 ;
       }
       else {
         if (y1 + k2 >= f->sizx) {
@@ -1460,7 +1461,7 @@ int x1, y1, x2, y2 ;
         }
       }
       if (y2 + k2 < 0) {
-        yr2 = 0 ; 
+        yr2 = 0 ;
       }
       else {
         if (y2 + k2 >= g->sizx) {
@@ -1471,18 +1472,18 @@ int x1, y1, x2, y2 ;
         }
       }
       s = s + (float)kera.k[k1+kera.m/2]*(float)kera.k[k2+kera.m/2]*
-      pow(((*f->lap_ptr)[f->res*xr1 + yr1] - 
+      pow(((*f->lap_ptr)[f->res*xr1 + yr1] -
            (*g->lap_ptr)[g->res*xr2 + yr2]),2.0) ;
     }
   }
   return(s/(kera.f*kera.f)) ;
 }
 
-/* 
+/*
            NAME : usage()
    PARAMETER(S) : None.
- 
-        PURPOSE : Prints the appropriate usage and 
+
+        PURPOSE : Prints the appropriate usage and
                   stops the run.
 
          AUTHOR : Steven Beauchemin
@@ -1492,7 +1493,7 @@ int x1, y1, x2, y2 ;
 
 void usage()
 
-{ 
+{
   fprintf(stderr,"Usage: anandan input-path output-path seq-name. -N n1 n2 [-W n] [-L n] [-I n] [-NR] [-P] [-F n.n] [-B cols rows] [-C corr-vel-file nbins increment]\n") ;
   fprintf(stderr,"-N n1 n2 : frame numbers n1 and n2\n") ;
   fprintf(stderr,"[-W n]   : correlation window size (3, 5 or 7)\n") ;
@@ -1517,11 +1518,11 @@ void usage()
   exit(-1) ;
 }
 
-/* 
+/*
            NAME : vec_rotate(U,t)
    PARAMETER(S) : U : 2D vector;
                   t : rotational angle (radians).
- 
+
         PURPOSE : Rotates the vector U(x,y) of t radians.
 
          AUTHOR : Steven Beauchemin
@@ -1529,7 +1530,7 @@ void usage()
            DATE : May 3 1990
 */
 
-disp_vect_t vec_rotate(U,t) 
+disp_vect_t vec_rotate(U,t)
 disp_vect_t U ;
 float t ;
 
@@ -1559,28 +1560,28 @@ qnode_ptr_t p ;
 char *fn ;
 float div ;
 
-{ float x, y ; 
+{ float x, y ;
   int i, j, fdf, bytes ;
   if ((fdf=creat(fn,0600)) < 1) {
     error(7) ;
   }
-  
+
   x = p->sizx ;
   y = p->sizy ;
   write(fdf,&x,4) ;
   write(fdf,&y,4) ;
-  
+
   x = ((p->sizx-KERNEL_X-NRADIUS)-(KERNEL_X+NRADIUS)+SKIP-1)/SKIP ;
   y = ((p->sizy-KERNEL_Y-NRADIUS)-(KERNEL_Y+NRADIUS)+SKIP-1)/SKIP ;
   write(fdf,&x,4);
   write(fdf,&y,4);
-  
+
   x = (KERNEL_X+NRADIUS+SKIP-1)/SKIP ;
   y = (KERNEL_Y+NRADIUS+SKIP-1)/SKIP ;
   write(fdf,&x,4) ;
   write(fdf,&y,4) ;
   bytes = 24 ;
-  
+
   for(i = KERNEL_Y + NRADIUS ; i < p->sizy - KERNEL_Y - NRADIUS ; i++) {
     for(j = KERNEL_X + NRADIUS ; j < p->sizx - KERNEL_X - NRADIUS ; j++) {
       x = (*p->flow_ptr)[p->res*i + j].y ;
@@ -1597,21 +1598,21 @@ float div ;
   close(fdf) ;
 }
 
-/* 
+/*
            NAME : best_match(im1,im2,ssd_v,x,y,cx,cy)
    PARAMETER(S) : im1,im2 : Contiguous time-varying laplacian images;
                     ssd_v : ssd value to be centered at the
-                            best match computed from the 3 by 3 area 
+                            best match computed from the 3 by 3 area
                             around (cx,cy);
                       x,y : image coordinates of the pixel in im1 to
                             be matched;
-                    cx,cy : image coordinates in im2 of the center 
+                    cx,cy : image coordinates in im2 of the center
                             of the n by n search area of the best
                             match for pixel (x,y) from im1.
- 
+
         PURPOSE : Finds the best match (using the minimization of
                   the ssd surface) of pixel (x,y) in laplacian image 1
-                  in the n by n search area of image 2 centered 
+                  in the n by n search area of image 2 centered
                   at image coordinates (cx,cy) in image 2.
                   Also returns the ssd value at the best match.
                   Note: displacement is computed to pixel accuracy.
@@ -1632,7 +1633,7 @@ int x, y, cx, cy ;
   int pos, dx, dy, h, i, j, k ;
   extern beaudet_t Ix ;
 
-  k = 0 ; 
+  k = 0 ;
   h = Ix.m/2 ;
   *ssd_v = MAXSSD ;
   for(dx = -h ; dx <= h ; dx++) {                /* search in n by n area */
@@ -1649,8 +1650,8 @@ int x, y, cx, cy ;
       }
     }
   }
-  j = 1 ; 
-  V = U[pos] ;  
+  j = 1 ;
+  V = U[pos] ;
   for (i = 0 ; i < k ; i++) {          /* compute variation of ssd values */
     if ((i != pos) && (fabs(v[pos] - v[i]) == 0.0)){
       V.x += U[i].x ;            /* average disp. estimates with same SSD */
@@ -1659,20 +1660,20 @@ int x, y, cx, cy ;
     }
   }
   V.x = V.x/(float)j ;
-  V.y = V.y/(float)j ; 
+  V.y = V.y/(float)j ;
   return(V) ;
 }
 
-/* 
+/*
            NAME : conf_measure(im1,im2,fl,prm,x,y,sp)
    PARAMETER(S) : im1,im2 : time-varying Laplacian images;
                        fl : pointer on a displacement-field node;
-                      prm : parameter-field of the disp. field 
+                      prm : parameter-field of the disp. field
                             (theta,cmin,cmax);
-                      x,y : disp.-field coordinates for which the 
+                      x,y : disp.-field coordinates for which the
                             computation is achieved;
                        sp : adds sub-pixel accurate disp. when true.
- 
+
         PURPOSE : Computes the principal curvatures of the ssd
                   surface, the rotational angle of the eigen
                   basis from the (x,y) space, sub-pixel
@@ -1685,7 +1686,7 @@ int x, y, cx, cy ;
            DATE : April 9 1990
 */
 
-void conf_measure(im1,im2,fl,prm,x,y,sp) 
+void conf_measure(im1,im2,fl,prm,x,y,sp)
 qnode_ptr_t im1, im2, fl, prm ;
 int x, y, sp ;
 
@@ -1712,7 +1713,7 @@ int x, y, sp ;
     }
   }
 
-  if (!abort) { 
+  if (!abort) {
     Sx = dx(&ssd_s) ;       /* derivatives from Beaudet's image operators */
     Sy = dy(&ssd_s) ;
     Sxx = dxx(&ssd_s) ;
@@ -1734,7 +1735,7 @@ int x, y, sp ;
     P.cmin = Cmin/(K1 + K2*ssd_s.k[h][h] + K3*Cmin) ;
     P.th = atan2(Cmin - Sxx,Sxy) ;           /* angle from Emin to x axis */
     rotate(&Sx,&Sy,P.th) ;               /* derivatives along (Emin,Emax) */
-  
+
     if (Cmin != 0.0) {
       Sd.x = Sx/Cmin ;           /* determination of the extremum along A */
     }
@@ -1749,7 +1750,7 @@ int x, y, sp ;
     }
               /* use the second order derivatives to find if the extremum */
                                       /* is a minimum of the ssd function */
-  
+
     if ((fabs(Sd.x) > 1.0) || (Cmin <= 0.0)) {
       Sd.x = 0.0 ;
       P.cmin = 0.0 ;
@@ -1761,10 +1762,10 @@ int x, y, sp ;
     if (sp) {
       U = vec_rotate(U,-P.th) ;
       U.x = U.x + Sd.x ;                  /* sub pixel displacement added */
-      U.y = U.y + Sd.y ;      
+      U.y = U.y + Sd.y ;
       U = vec_rotate(U,P.th) ;
-    } 
-  
+    }
+
     (*fl->flow_ptr)[fl->res*x + y] = U ;
     (*prm->param_ptr)[prm->res*x + y] = P ;
   }
@@ -1776,15 +1777,15 @@ int x, y, sp ;
   }
 }
 
-/* 
+/*
            NAME : convolve(p,ker)
    PARAMETER(S) :   p : pointer on the current node of
                         the image to be convolved;
                   ker : kernel (mask) used for convolution.
- 
+
         PURPOSE : Performs a 2D convolution on (*p->gauss_ptr)[i][j]
                   using a 1D kernel (ker) and puts the result in
-                  (*p->lap_ptr)[i][j]. 
+                  (*p->lap_ptr)[i][j].
 
          AUTHOR : Steven Beauchemin
              AT : University of Western Ontario
@@ -1792,7 +1793,7 @@ int x, y, sp ;
 
 */
 
-void convolve(p,ker) 
+void convolve(p,ker)
 qnode_ptr_t p ;
 kernel_t ker ;
 
@@ -1804,7 +1805,7 @@ kernel_t ker ;
   t = create_node(0,p->res,p->sizx,p->sizy) ;
   alloc_gauss(t) ;
   e = (float)ker.m/2.0 ;
-  
+
   for (i = 0 ; i < p->sizy ; i++) {
     for (j = 0 ; j < p->sizx ; j++) {
       s = 0.0 ;
@@ -1846,18 +1847,18 @@ kernel_t ker ;
   free(t) ;
 }
 
-/* 
-           NAME : create_pyramid(h,q,n,r,sx,sy,f) 
+/*
+           NAME : create_pyramid(h,q,n,r,sx,sy,f)
    PARAMETER(S) : h      : head list pointer;
                   q      : tail list pointer;
                   n      : number of levels;
                   r      : resolution at level 0;
                   sx, sy : size of the image at level 0;
                   f      : resolution reduction rate (2 for 2:1).
- 
+
         PURPOSE : Creation of a pyramid with n levels of
                   resolution r  at level 0 and reduced by
-                  f at every level.  Each level is 
+                  f at every level.  Each level is
                   attached to a doubly linked list node.
 
          AUTHOR : Steven Beauchemin
@@ -1883,11 +1884,11 @@ int n, r, sx, sy, f ;
   }
 }
 
-/* 
+/*
            NAME : delete_pyramid(h,q)
    PARAMETER(S) : h : head list pointer;
                   q : tail list pointer.
- 
+
         PURPOSE : Deletion of all nodes in the
                   list and the corresponding images.
 
@@ -1905,18 +1906,18 @@ qnode_ptr_t *h, *q ;
   t = *h ;
   while (*h != (qnode_ptr_t)NULL) {
     dealloc_image(t) ;
-    delete_node(t,h,q) ; 
+    delete_node(t,h,q) ;
     t = *h ;
   }
 }
 
-/* 
+/*
            NAME : dump_flow(h,q,f,div)
    PARAMETER(S) : h, q : Head and queue pointers on
                          an optic-field pyramid;
                      f : file name;
                    div : flow estimates divisor.
- 
+
         PURPOSE : Dumps all levels of a pyramidal optic-field
                   under the names f"0", ... , f"n-1".
 
@@ -1929,7 +1930,7 @@ void dump_flow(h,q,f,div)
 qnode_ptr_t *h, *q ;
 char *f ;
 float div ;
-{ 
+{
     qnode_ptr_t t ;
 
   /* while (*q != (qnode_ptr_t)NULL) {
@@ -1945,11 +1946,11 @@ float div ;
   write_velocity(f,t,div) ;
 }
 
-/* 
+/*
            NAME : error(n)
    PARAMETER(S) : n : error number.
- 
-        PURPOSE : Prints the appropriate error message and 
+
+        PURPOSE : Prints the appropriate error message and
                   stops the run.
 
          AUTHOR : Steven Beauchemin
@@ -1960,9 +1961,9 @@ float div ;
 void error(n)
 int n ;
 
-{ 
+{
   switch(n) {
-    
+
      case 1 : fprintf(stderr,"error %d : wrong number of arguments\n",n) ;
               break ;
      case 2 : fprintf(stderr,"error %d : invalid option\n",n) ;
@@ -1989,7 +1990,7 @@ int n ;
      case 10: fprintf(stderr,"error %d : file create error\n",n) ;
               exit(-1) ;
               break ;
-     case 11: fprintf(stderr,"error %d : undefined error\n",n) ; 
+     case 11: fprintf(stderr,"error %d : undefined error\n",n) ;
               break ;
      case 12: fprintf(stderr,"error %d : undefined error\n",n) ;
               break ;
@@ -2002,7 +2003,7 @@ int n ;
               break ;
      case 15: fprintf(stderr,"error %d : incompatible image sizes\n",n) ;
               exit(-1) ;
-              break ; 
+              break ;
      case 16: fprintf(stderr,"error %d : window sizes are 3, 5 or 7\n",n) ;
               break ;
      case 17: fprintf(stderr,"error %d : -N required\n",n) ;
@@ -2017,7 +2018,7 @@ int n ;
   usage() ;
 }
 
-/* 
+/*
            NAME : filenames(fn,n1,n2,f1,f2,div)
    PARAMETER(S) : fn  : image sequence filename;
                   n1  : number of first frame;
@@ -2025,7 +2026,7 @@ int n ;
                   f1  : complete filename of image 1;
                   f2  : complete filename of image 2;
                   div : divisor of flow estimates.
- 
+
         PURPOSE : Determines the correct filenames given
                   the stem name and frame numbers.
 
@@ -2048,10 +2049,10 @@ float *div ;
   *div = n2 - n1 ;
 }
 
-/* 
+/*
            NAME : laplacian(p)
    PARAMETER(S) : p : node pointer.
- 
+
         PURPOSE : Computes the laplacian of an image using
                   a DOG approximation.
 
@@ -2068,7 +2069,7 @@ qnode_ptr_t p ;
   qnode_ptr_t create_node(), q ;
   int i, j ;
 
-  q = create_node(0,p->res,p->sizx,p->sizy) ; 
+  q = create_node(0,p->res,p->sizx,p->sizy) ;
   alloc_lap(q) ;
   q->gauss_ptr = p->lap_ptr ;
   for (i = 0 ; i < q->sizy ; i++) {
@@ -2084,17 +2085,17 @@ qnode_ptr_t p ;
   free(q) ;
   for (i = 0 ; i < p->sizy ; i++) {
     for (j = 0 ; j < p->sizx ; j++) {
-      (*p->lap_ptr)[p->res*i + j] = 
+      (*p->lap_ptr)[p->res*i + j] =
       (*p->gauss_ptr)[p->res*i + j] - (*p->lap_ptr)[p->res*i + j] ;
     }
   }
 }
 
-/* 
+/*
            NAME : psi_error(ve,va,div)
    PARAMETER(S) : ve : estimated flow vector;
                   va : accurate flow vector.
- 
+
         PURPOSE : computes angular error of ve with respect to va
                   using Fleet [90] angular error metric
 
@@ -2125,13 +2126,13 @@ float div ;
   return((float)(acos(v))*180.0/M_PI) ;
 }
 
-/* 
+/*
            NAME : raster_size(fn,x,y,a)
-   PARAMETER(S) : fn : raster file name; 
+   PARAMETER(S) : fn : raster file name;
                    x : raster width;
                    y : raster height;
                    a : suitable array size (power of 2).
- 
+
         PURPOSE : Reads the header of raterfile fn to get the
                   size. Computes the suitable array size for
                   the image (array size is a power of 2).
@@ -2181,12 +2182,12 @@ int *x, *y, *a ;
   close(fd) ;
 }
 
-/* 
+/*
            NAME : binary_size(x,y,a)
    PARAMETER(S) : x : raster width;
                   y : raster height;
                   a : suitable array size (power of 2).
- 
+
         PURPOSE : Computes the suitable array size for
                   the image (array size is a power of 2).
 
@@ -2220,14 +2221,14 @@ int x, y, *a ;
   }
 }
 
-/* 
+/*
            NAME : valid_option(argc,argv,in_path,out_path,n1,n2,level,h_type,
                   histo,sm,sp, sf,pyr,ssd,f_type,trsh,v_fname,c_fname,h_fname,
-                  nbin,incr,iter,binary,row,col) 
+                  nbin,incr,iter,binary,row,col)
 
    PARAMETER(S) : argc : argument count;
                   argv : argument values;
-               in_path : path name for input data;         
+               in_path : path name for input data;
               out_path : path name for output data;
                  n1,n2 : frame numbers;
                  level : number of hierarchical levels;
@@ -2249,8 +2250,8 @@ int x, y, *a ;
                   iter : number of iterations for relaxation;
                 binary : input files without header;
                    row : number of rows in input files;
-                   col : number of cols in input files. 
- 
+                   col : number of cols in input files.
+
         PURPOSE : Validates line arguments.
 
          AUTHOR : Steven Beauchemin
@@ -2261,7 +2262,7 @@ int x, y, *a ;
 void valid_option(argc,argv,in_path,out_path,n1,n2,level,h_type,histo,sm,sp,sf,pyr,
 ssd,f_type,trsh,i_fname,v_fname,c_fname,h_fname,nbin,incr,iter,binary,row,col)
 char *argv[] ;
-int argc, *n1, *n2, *iter, *level, *h_type, *histo, *sm, *sp, *sf, *pyr, 
+int argc, *n1, *n2, *iter, *level, *h_type, *histo, *sm, *sp, *sf, *pyr,
     *f_type, *nbin, *ssd, *binary, *row, *col ;
 float *trsh, *incr ;
 string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
@@ -2303,8 +2304,8 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
       if (strcmp("-F",argv[i]) == 0) {
         if (i + 1 < argc) {
           sscanf(argv[i+1],"%f",trsh) ;
-          strcpy(str_trsh,argv[i+1]) ; 
-          if (*sf == TRUE) { 
+          strcpy(str_trsh,argv[i+1]) ;
+          if (*sf == TRUE) {
             error(3) ;
           }
           *sf = TRUE ;
@@ -2328,10 +2329,10 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
           else {
             error(1) ;
           }
-        } 
+        }
         else {
           if (strcmp("-P",argv[i]) == 0) {
-            *sp = FALSE ; 
+            *sp = FALSE ;
             i += 1 ;
           }
           else {
@@ -2382,7 +2383,7 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
                         sscanf(argv[i+1],"%d",col) ;
                         sscanf(argv[i+2],"%d",row) ;
                         *binary = TRUE ;
-                        i += 3 ; 
+                        i += 3 ;
                       }
                       else {
                         error(1) ;
@@ -2390,14 +2391,14 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
                     }
                     else {
                       error(2) ;
-                    } 
+                    }
                   }
                 }
               }
             }
           }
         }
-      } 
+      }
     }
   }
   if (*nbin > N_BINS) {
@@ -2417,9 +2418,9 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
   }
   concat(argv[1],"/",in_path) ;
   concat(argv[2],"/",out_path) ;
-  
+
   concat(in_path,argv[3],i_fname) ;
-  
+
   strcpy(ext,"-n") ;
   sprintf(t0,"%d",*n1);
   concat(ext,t0,ext) ;
@@ -2438,16 +2439,16 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
   if (!(*sm)) {
     concat(ext,"-r",ext) ;
   }
-  if (!(*sp)) { 
+  if (!(*sp)) {
     concat(ext,"-s",ext) ;
   }
   if (*sf) {
     concat(ext,"-f",ext) ;
     concat(ext,str_trsh,ext) ;
-  } 
+  }
   concat(out_path,argv[0],v_fname) ;
   concat(v_fname,".",v_fname) ;
-  concat(v_fname,argv[3],v_fname) ;   
+  concat(v_fname,argv[3],v_fname) ;
   concat(v_fname,"F",v_fname) ;
   concat(v_fname,ext,v_fname) ;
   if (*histo) {
@@ -2464,11 +2465,11 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
   fflush(stdout) ;
 }
 
-/* 
+/*
            NAME : valid_size(x,y)
    PARAMETER(S) : x : image sizes in X for frames 1 and 2;
                   t : image sizes in Y for frames 1 and 2.
- 
+
         PURPOSE : Validates the compatibility of image sizes
 
          AUTHOR : Steven Beauchemin
@@ -2481,15 +2482,15 @@ int x[N_FRAME], y[N_FRAME] ;
 
 { if (x[0] != x[1] || y[0] != y[1]) {
     error(15) ;
-  } 
+  }
 }
 
-/* 
+/*
            NAME : relax(f,g,iter)
    PARAMETER(S) : f : pointer on a vector field node;
                   g : pointer on a parameter field node;
                iter : number of iterations for relaxation.
- 
+
         PURPOSE : Applies a smoothness constraint to the vector field f
                   by using the Gauss-Seidel relaxation algorithm.
 
@@ -2498,7 +2499,7 @@ int x[N_FRAME], y[N_FRAME] ;
            DATE : April 15 1990
 */
 
-void relax(f,g,iter) 
+void relax(f,g,iter)
 qnode_ptr_t f, g ;
 int iter ;
 
@@ -2538,21 +2539,21 @@ int iter ;
           w++ ;
         }
         if(inside(x - 1,y,f->sizy,f->sizx)) {
-          u = (*q->flow_ptr)[q->res*(x - 1) + y].x ; 
+          u = (*q->flow_ptr)[q->res*(x - 1) + y].x ;
           v = (*q->flow_ptr)[q->res*(x - 1) + y].y ;
           Ukp.x = Ukp.x + u ;
           Ukp.y = Ukp.y + v ;
           w++ ;
         }
         if(inside(x,y + 1,f->sizy,f->sizx)) {
-          u = (*q->flow_ptr)[q->res*x + y + 1].x ; 
+          u = (*q->flow_ptr)[q->res*x + y + 1].x ;
           v = (*q->flow_ptr)[q->res*x + y + 1].y ;
           Ukp.x = Ukp.x + u ;
           Ukp.y = Ukp.y + v ;
           w++ ;
         }
         if(inside(x,y - 1,f->sizy,f->sizx)) {
-          u = (*q->flow_ptr)[q->res*x + y - 1].x ; 
+          u = (*q->flow_ptr)[q->res*x + y - 1].x ;
           v = (*q->flow_ptr)[q->res*x + y - 1].y ;
           Ukp.x = Ukp.x + u ;
           Ukp.y = Ukp.y + v ;
@@ -2579,11 +2580,11 @@ int iter ;
         Emin = vec_rotate(Emin,-(*g->param_ptr)[g->res*x + y].th) ;
         Emax = vec_rotate(Emax,-(*g->param_ptr)[g->res*x + y].th) ;
 
-        (*q->flow_ptr)[q->res*x + y].x = Ukp.x + 
+        (*q->flow_ptr)[q->res*x + y].x = Ukp.x +
         pCmax*((D.x - Ukp.x)*Emax.x + (D.y - Ukp.y)*Emax.y)*Emax.x +
         pCmin*((D.x - Ukp.x)*Emin.x + (D.y - Ukp.y)*Emin.y)*Emin.x ;
 
-        (*q->flow_ptr)[q->res*x + y].y = Ukp.y + 
+        (*q->flow_ptr)[q->res*x + y].y = Ukp.y +
         pCmax*((D.x - Ukp.x)*Emax.x + (D.y - Ukp.y)*Emax.y)*Emax.y +
         pCmin*((D.x - Ukp.x)*Emin.x + (D.y - Ukp.y)*Emin.y)*Emin.y ;
       }
@@ -2601,19 +2602,19 @@ int iter ;
   free(q) ;
 }
 
-/* 
+/*
            NAME : compute_flow(im1h,im1q,im2h,im2q,flh,flq,sm,sp,iter)
-   PARAMETER(S) : im1h,im1q : head and queue pointers on a 
+   PARAMETER(S) : im1h,im1q : head and queue pointers on a
                               pyramid of Laplacian images (image1);
-                  im2h,im2q : head and queue pointers on a 
+                  im2h,im2q : head and queue pointers on a
                               pyramid of Laplacian images (image2);
                     flh,flq : head and queue pointers on a list
                               of displacement-fields;
                          sm : relaxation option;
                          sp : sub-pixel accuracy option;
                        iter : number of iterations for relaxation.
- 
-        PURPOSE : Computes the sub-pixel accurate displacement 
+
+        PURPOSE : Computes the sub-pixel accurate displacement
                   field using overlapped projection.
 
          AUTHOR : Steven Beauchemin
@@ -2625,8 +2626,8 @@ void compute_flow(im1h,im1q,im2h,im2q,flh,flq,sm,sp,iter)
 qnode_ptr_t *im1h, *im1q, *im2h, *im2q, *flh, *flq ;
 int sm, sp, iter ;
 
-{ disp_vect_t best_match(), project(), U[S], V ; 
-  qnode_ptr_t fl ; 
+{ disp_vect_t best_match(), project(), U[S], V ;
+  qnode_ptr_t fl ;
   int i, j, k, m, r, ip, jp, min ;
   float ssd[S], min_ssd ;
 
@@ -2634,7 +2635,7 @@ int sm, sp, iter ;
     alloc_param(*flq) ;
     for(i = 0 ; i < (*flq)->sizy ; i++) {
       for(j = 0 ; j < (*flq)->sizx ; j++) {
-        (*(*flq)->flow_ptr)[(*flq)->res*i + j] = 
+        (*(*flq)->flow_ptr)[(*flq)->res*i + j] =
         best_match(*im1h,*im2h,&min_ssd,i,j,i,j) ;
         conf_measure(*im1h,*im2h,*flq,*flq,i,j,sp) ;
       }
@@ -2649,13 +2650,13 @@ int sm, sp, iter ;
       for(j = 0 ; j < (*flq)->sizx ; j++) {
         jp = j - (j + 1) % r ;
         k = 0 ;
-        if (inside(ip/r,jp/r,fl->sizy,fl->sizx)) { 
+        if (inside(ip/r,jp/r,fl->sizy,fl->sizx)) {
           V = project((*fl->flow_ptr)[fl->res*(ip/r) + jp/r],r) ;
           U[k] = best_match(*im1h,*im2h,&min_ssd,i,j,(int)(V.x+i),(int)(V.y+j)) ;
           ssd[k] = min_ssd ;
           k++ ;
         }
-        if (inside(ip/r + 1,jp/r,fl->sizy,fl->sizx)) { 
+        if (inside(ip/r + 1,jp/r,fl->sizy,fl->sizx)) {
           V = project((*fl->flow_ptr)[fl->res*(ip/r + 1) + jp/r],r) ;
           U[k] = best_match(*im1h,*im2h,&min_ssd,i,j,(int)(V.x+i),(int)(V.y+j)) ;
           ssd[k] = min_ssd ;
@@ -2667,7 +2668,7 @@ int sm, sp, iter ;
           ssd[k] = min_ssd ;
           k++ ;
         }
-        if (inside(ip/r + 1,jp/r + 1,fl->sizy,fl->sizx)) { 
+        if (inside(ip/r + 1,jp/r + 1,fl->sizy,fl->sizx)) {
           V = project((*fl->flow_ptr)[fl->res*(ip/r + 1) + jp/r + 1],r) ;
           U[k] = best_match(*im1h,*im2h,&min_ssd,i,j,(int)(V.x+i),(int)(V.y+j)) ;
           ssd[k] = min_ssd ;
@@ -2694,15 +2695,15 @@ int sm, sp, iter ;
   dealloc_lap(*im2h) ;             /* pyramid 1 and 2 and  parameter field */
   delete_node(*im1h,im1h,im1q) ;
   delete_node(*im2h,im2h,im2q) ;
-  if (sm) { 
-    relax(*flq,*flq,iter) ; 
+  if (sm) {
+    relax(*flq,*flq,iter) ;
   }
 }
 
-/* 
+/*
            NAME : cons_gauss(q)
    PARAMETER(S) : q : pointer on a node;
- 
+
         PURPOSE : Constructs the Gaussian images
                   in the pyramid pointed by q.
                   The pointer q must point on the
@@ -2731,10 +2732,10 @@ qnode_ptr_t q ;
   }
 }
 
-/* 
+/*
            NAME : cons_lap(q)
    PARAMETER(S) : q : pointer on a node;
- 
+
         PURPOSE : Constructs the laplacian images
                   in the pyramid pointed by q.
                   The pointer q must point on the
@@ -2777,7 +2778,7 @@ qnode_ptr_t q ;
                ttl_std : standard deviation;
                   dens : dens.
 		  div  : step size (usually 1)
- 
+
         PURPOSE : produces an error histogram
                   h1: error vs confidence measure Cmin;
                   h2: h1 cumulated.
@@ -2796,7 +2797,7 @@ int nbin, h_type ;
 { qnode_ptr_t create_node(), q ;
   disp_vect_t u ;
   histo_t histo1[N_BINS], c_histo1[N_BINS] ;
-  float psi_error(), actual_x, actual_y, size_x, size_y, 
+  float psi_error(), actual_x, actual_y, size_x, size_y,
         offset_x, offset_y, max_qty, qty, err, avg_err, density, t, x, y ;
   int fdf, nbytes, i, j, k, index1, ttl_freq, abs_freq ;
   FILE *fdp ;
@@ -2814,7 +2815,7 @@ int nbin, h_type ;
   nbytes += read(fdf,&size_y,sizeof(float)) ;
   nbytes += read(fdf,&offset_x,sizeof(float)) ;
   nbytes += read(fdf,&offset_y,sizeof(float)) ;
-  
+
   for (i = (int)offset_y ; i < (int)actual_y ; i++) {
     for (j = (int)offset_x ; j < (int)actual_x ; j++) {
       nbytes += read(fdf,&y,sizeof(float)) ;
@@ -2870,7 +2871,7 @@ int nbin, h_type ;
           c_histo1[k].avg += err ;
           c_histo1[k].freq++ ;
         }
-      } 
+      }
     }
   }
   *ttl_err = avg_err/(float)ttl_freq ;
@@ -2887,7 +2888,7 @@ int nbin, h_type ;
     }
     if (c_histo1[i].freq != 0) {
       c_histo1[i].avg /= (float)c_histo1[i].freq ;
-    } 
+    }
   }
   for (i = KERNEL_Y + NRADIUS ; i < f->sizy - KERNEL_Y - NRADIUS ; i++) {
     for (j = KERNEL_X + NRADIUS ; j < f->sizx - KERNEL_X - NRADIUS ; j++) {
@@ -2919,7 +2920,7 @@ int nbin, h_type ;
     }
     if (c_histo1[i].freq != 0) {
       c_histo1[i].std = sqrt(c_histo1[i].std/(float)c_histo1[i].freq) ;
-    } 
+    }
   }
   if ((fdp = fopen(h_fn,"w")) == NULL) {
     error(7) ;
@@ -2931,7 +2932,7 @@ int nbin, h_type ;
   fprintf(fdp,"%5.7f\n",max_qty - incr/2.0) ;
   for (i = 0 ; i < nbin ; i++) {
     t = max_qty/(float)nbin ;
-    fprintf(fdp,"%5.7f %10.7f %10.7f %3.7f\n", t*(float)(i)+t/2.0, 
+    fprintf(fdp,"%5.7f %10.7f %10.7f %3.7f\n", t*(float)(i)+t/2.0,
     histo1[i].avg, histo1[i].std, (float)histo1[i].freq/density) ;
   }
   fprintf(fdp,"\n\n\n") ;
@@ -2939,17 +2940,17 @@ int nbin, h_type ;
   fprintf(fdp,"%3d\n",nbin) ;
   fprintf(fdp,"%5.7f\n",max_qty - incr/2.0) ;
   for (i = 0 ; i < nbin ; i++) {
-    t = max_qty/(float)nbin ; 
-    fprintf(fdp,"%5.7f %10.7f %10.7f %3.7f\n", t*(float)(i)+t/2.0, 
+    t = max_qty/(float)nbin ;
+    fprintf(fdp,"%5.7f %10.7f %10.7f %3.7f\n", t*(float)(i)+t/2.0,
     c_histo1[i].avg, c_histo1[i].std, (float)c_histo1[i].freq/density) ;
   }
   fclose(fdp) ;
 }
 
-/* 
+/*
            NAME : anandan.c
    PARAMETER(S) : line parameters.
- 
+
         PURPOSE : Computes optic flow between two image frames
                   using Anandan[87]'s algorithm.
 

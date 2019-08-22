@@ -1,17 +1,18 @@
 /*********************************************************************
 	Lucas and Kanade, 1981
-	With non-hierarchical modifications using Simoncelli, 
+	With non-hierarchical modifications using Simoncelli,
 		Adelson and Heeger, CVPR 91
 	cc -g lucas.c -lm -o lucas
 **********************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#define _USE_MATH_DEFINES  // needed for Windows
 #include <math.h>
 #include "rasterfile.h"
 
 #define N 2
-#define HALF_C M_PI 
+#define HALF_C M_PI
 #define PIC_X 512
 #define PIC_Y 512
 #define PIC_T 17
@@ -31,7 +32,7 @@ float floatpic[FIVE][PIC_X][PIC_Y];
 unsigned char header[HEAD];
 float Ix[PIC_X][PIC_Y],Iy[PIC_X][PIC_Y],E[PIC_X][PIC_Y];
 float It[PIC_X][PIC_Y],full_vels[PIC_X][PIC_Y][2],Imag[PIC_X][PIC_Y];
-float norm_vels1[PIC_X][PIC_Y][2],correct_vels[PIC_X][PIC_Y][2]; 
+float norm_vels1[PIC_X][PIC_Y][2],correct_vels[PIC_X][PIC_Y][2];
 float norm_vels2[PIC_X][PIC_Y][2];
 float diff1[2],diff2[2];
 int pic_x,pic_y,pic_t;
@@ -57,7 +58,7 @@ void calc_statistics(float correct_vels[PIC_X][PIC_Y][2],
 				float *norm_st_dev2, float *norm_density2,
 				float *norm_min_angle2, float *norm_max_angle2);
 int check_eigen_calc(float mm[N][N],
-float d[N], float v[N][N], int n, 
+float d[N], float v[N][N], int n,
 float diff1[N], float diff2[N], float *length1, float *length2,
 float *angle);
 void compute_ders(
@@ -182,8 +183,8 @@ strcpy(path3,".");
 printf("sigma=%f\n",sigma);
 printf("Central image: %d\n",middle);
 printf("Tau threshold: %f\n",tau_D);
-strcpy(path1,argv[5]); 
-strcpy(path3,argv[6]); 
+strcpy(path1,argv[5]);
+strcpy(path3,argv[6]);
 printf("Input directory: %s\n",path1);
 printf("Output directory: %s\n",path3);
 fflush(stdout);
@@ -221,7 +222,7 @@ if(strcmp("-T",argv[i])==0)
 	i += 2;
 	}
 else
-if(strcmp("-B",argv[i])==0) 
+if(strcmp("-B",argv[i])==0)
 	{
 	sscanf(argv[i+1],"%d",&pic_y);
 	sscanf(argv[i+2],"%d",&pic_x);
@@ -231,7 +232,7 @@ if(strcmp("-B",argv[i])==0)
 else
 if(strcmp("-S",argv[i])==0)
 	{
-	strcpy(path2,argv[i+1]); 
+	strcpy(path2,argv[i+1]);
 	printf("Smoothed data directory: %s\n",path2);
 	OUTPUT_SMOOTH = TRUE;
 	i += 2;
@@ -287,9 +288,9 @@ start = middle-offset;
 end = middle+offset;
 printf("Size: %d Offset: %d Start: %d End: %d\n",size,offset,start,end);
 printf("%d images required\n",end-start+1);
-if(end < start) 
-	{ 
-	printf("Specify images in ascending order\n"); 
+if(end < start)
+	{
+	printf("Specify images in ascending order\n");
 	exit(1);
 	}
 
@@ -300,7 +301,7 @@ else if(sigma != 0.0) printf("\nSmoothed images not output\n");
 
 printf("Number of Columns: %d Number of Rows: %d\n",pic_y,pic_x);
 if(pic_x > PIC_X || pic_y > PIC_Y)
-	{ 
+	{
 	printf("Fatal error: images are too big\n");
 	exit(1);
 	}
@@ -327,17 +328,17 @@ fflush(stdout);
 compute_ders(Ix,Iy,It,floatpic,pic_t,pic_x,pic_y,offset,middle,argv[1]);
 compute_vels(Ix,Iy,It,full_vels,norm_vels1,norm_vels2,pic_x,pic_y,2*offset,tau_D,flag,E);
 if((fdf=fopen(full_name,"wb"))!=NULL){
-	
+
 	output_velocities(fdf,"Full",full_vels,pic_x,pic_y,2*offset);
 }
 else printf("Error in opening %s file\n\n",full_name);
 if((fdn=fopen(norm_name,"wb"))!=NULL){
-	
+
 	output_velocities(fdn,"Normal",norm_vels1,pic_x,pic_y,2*offset);
 }
 else printf("Error in opening %s file\n\n",norm_name);
 if((fdr=fopen(raw_name,"wb"))!=NULL){
-	
+
 	output_velocities(fdr,"Normal",norm_vels2,pic_x,pic_y,2*offset);
 }
 else printf("Error in opening %s file\n\n",raw_name);
@@ -533,10 +534,10 @@ for(i=0;i<5;i++)
 for(j=0;j<5;j++)
 	{
 	weight[i][j] = coeff[i]*coeff[j];
-	printf("%12.8f \n",weight[i][j]); 
+	printf("%12.8f \n",weight[i][j]);
 	sum += weight[i][j];
 	}
-printf("\n"); 
+printf("\n");
 }
 printf("Sum=%f\n",sum);
 full_count = 0;
@@ -621,7 +622,7 @@ for(j=n;j<pic_y-n;j++)
 		printf("Difference: %f %f Length: %f\n",diff2[0],diff2[1],length2);
 		/* Check eigenvalues/eigenvectors for 2*2 matrix using
 		   closed form method as in Anandan's thesis */
-		eigenvalues2[0] = 0.5*((M[0][0]+M[1][1]) - 
+		eigenvalues2[0] = 0.5*((M[0][0]+M[1][1]) -
 		  sqrt((M[0][0]-M[1][1])*(M[0][0]-M[1][1])+4.0*M[0][1]*M[1][0]));
 		eigenvalues2[1] = 0.5*((M[0][0]+M[1][1]) +
 		  sqrt((M[0][0]-M[1][1])*(M[0][0]-M[1][1])+4.0*M[0][1]*M[1][0]));
@@ -648,7 +649,7 @@ for(j=n;j<pic_y-n;j++)
 		}
 		eigen_count++;
 		}
-	else 
+	else
 	{
 	/* Sort the eigenvalues and the corresponding eigenvectors */
 	/* Most likely, already ordered				   */
@@ -667,7 +668,7 @@ for(j=n;j<pic_y-n;j++)
 		eigenvectors[1][1] = temp;
 		no_swaps++;
 		}
-	
+
 	/* Full velocity if spread of M is small */
 	if(eigenvalues[0] >= tau_D && eigenvalues[1] >= tau_D)
 	{
@@ -704,7 +705,7 @@ for(j=n;j<pic_y-n;j++)
 		/* if(i >= 50 && i <= 60 && j >= 50 && j <= 60)
 		printf("Normal velocity at i:%d j:%d: %f %f\n",i,j,norm_vels1[i][j][0],norm_vels1[i][j][1]); */
 		}
-	else 
+	else
 		{
 		/* printf("No velocity\n"); */
 		no_count++;
@@ -776,7 +777,7 @@ no_novals = no_vals = 0;
 for(i=n;i<pic_x-n;i++)
 for(j=n;j<pic_y-n;j++)
 	{
-	if(full_velocities[i][j][0] != NO_VALUE && 
+	if(full_velocities[i][j][0] != NO_VALUE &&
 	   full_velocities[i][j][1] != NO_VALUE)
 		{
 		no_vals++;
@@ -814,9 +815,9 @@ int j,iq,ip,i;
 float thresh,theta,tau,t,sm,s,h,g,c;
 float b[N],z[N],a[N][N];
 
-if(n!=N) { 
-    fprintf(stderr,"\nFatal error: n %d not N %d in jacobi\n",n,N); 
-    exit(EXIT_FAILURE); 
+if(n!=N) {
+    fprintf(stderr,"\nFatal error: n %d not N %d in jacobi\n",n,N);
+    exit(EXIT_FAILURE);
     }
 for(ip=0;ip<n;ip++) /* Initialize to the identity matrix */
 	{
@@ -860,7 +861,7 @@ for(i=0;i<100;i++)
 				{
 				h = d[iq]-d[ip];
 				if(fabs(h)+g==fabs(h)) t=(a[ip][iq])/h;
-				else 
+				else
 				  {
 				  theta = 0.5f*h/(a[ip][iq]);
 				  t = (float)(1.0/(fabs(theta)+sqrt(1.0+theta*theta)));
@@ -913,7 +914,7 @@ a[k][l] = (*h)+s*((*g)-(*h)*tau);
 /* Check eigenvector and eigenvalue computation for 2*2 matrix	     */
 /*********************************************************************/
 int check_eigen_calc(float mm[N][N],
-float d[N], float v[N][N], int n, 
+float d[N], float v[N][N], int n,
 float diff1[N], float diff2[N], float *length1, float *length2,
 float *angle)
 {
@@ -924,7 +925,7 @@ status = TRUE;
 (*angle)=acos((v[0][0]*v[0][1]+v[1][0]*v[1][1])/
 	 (sqrt(v[0][0]*v[0][0]+v[1][0]*v[1][0])*
 	  sqrt(v[0][1]*v[0][1]+v[1][1]*v[1][1])))*180.0/M_PI;
-if((*angle) < 89.5 && (*angle) > 90.5) 
+if((*angle) < 89.5 && (*angle) > 90.5)
 	{
 	status = FALSE;
 	}
@@ -934,7 +935,7 @@ diff1[0] = mm[0][0]*v[0][0]+mm[0][1]*v[1][0];
 diff1[1] = mm[1][0]*v[0][0]+mm[1][1]*v[1][0];
 diff1[0] = diff1[0] - d[0]*v[0][0];
 diff1[1] = diff1[1] - d[0]*v[1][0];
-if(((*length1)=sqrt(diff1[0]*diff1[0]+diff1[1]*diff1[1])) > 0.1) 
+if(((*length1)=sqrt(diff1[0]*diff1[0]+diff1[1]*diff1[1])) > 0.1)
 	{
 	status = FALSE;
 	}
@@ -942,11 +943,11 @@ diff2[0] = mm[0][0]*v[0][1]+mm[0][1]*v[1][1];
 diff2[1] = mm[1][0]*v[0][1]+mm[1][1]*v[1][1];
 diff2[0] = diff2[0] - d[1]*v[0][1];
 diff2[1] = diff2[1] - d[1]*v[1][1];
-if(((*length2)=sqrt(diff2[0]*diff2[0]+diff2[1]*diff2[1])) > 0.1) 
+if(((*length2)=sqrt(diff2[0]*diff2[0]+diff2[1]*diff2[1])) > 0.1)
 	{
 	status = FALSE;
 	}
-if(n > 50) 
+if(n > 50)
 	{
 	status = FALSE;
 	}
@@ -1003,7 +1004,7 @@ for(j=n;j<pic_y-n;j++)
 	  uva[0] = correct_vels[i][j][0]; uva[1] = correct_vels[i][j][1];
 	  temp = PsiER(uve,uva);
 	  (*ave_error) += temp;
-	  if(E[i][j] == NO_VALUE) 
+	  if(E[i][j] == NO_VALUE)
 		{ printf("Fatal error: E has no value\n"); exit(1); }
 	  (*residual) += E[i][j];
 	  sumX2 += temp*temp;
@@ -1057,16 +1058,16 @@ else (*norm_ave_error1) = 0.0;
 if(norm_count2 != 0) (*norm_ave_error2) = (*norm_ave_error2)/norm_count2;
 else (*norm_ave_error2) = 0.0;
 
-if(full_count > 1) 
+if(full_count > 1)
 {
 temp =(float) (fabs((sumX2 - full_count*(*ave_error)*(*ave_error))/(full_count-1)));
 (*st_dev) = (float) sqrt(temp);
 }
 else (*st_dev) = 0.0f;
-if(norm_count1 > 1) 
+if(norm_count1 > 1)
 (*norm_st_dev1) = (float) (sqrt((normal_sumX2_1 - norm_count1*(*norm_ave_error1)*(*norm_ave_error1))/(norm_count1-1)));
 else (*norm_st_dev1) = 0.0;
-if(norm_count2 > 1) 
+if(norm_count2 > 1)
 (*norm_st_dev2) = (float) (sqrt((normal_sumX2_2 - norm_count2*(*norm_ave_error2)*(*norm_ave_error2))/(norm_count2-1)));
 else (*norm_st_dev2) = 0.0;
 
@@ -1092,7 +1093,7 @@ if(RAW_STATISTICS)
 {
 printf("\n                             Raw Normal Velocity Analysis\n");
 printf("\n                                  Histogram Error\n\n");
-for(i=0;i<MAX_I;i++) 
+for(i=0;i<MAX_I;i++)
 	{
      	if(histogram_count[i] != 0.0) bin_ave = histogram_error[i]/(histogram_count[i]*1.0f);
      	else bin_ave = 0.0;
@@ -1212,7 +1213,7 @@ if(!(v1>=-90.0 && v1<=90.0))
 	}
 }
 else v1 = NO_VALUE;
-	
+
 return (float) fabs(v1);
 }
 
@@ -1308,10 +1309,10 @@ else { mask[0] = 1.0; sum = 1.0; }
 
 if(OUTPUT_SMOOTH)
 {
-printf("Size: %d Offset: %d\nMask values: ",size,offset); 
+printf("Size: %d Offset: %d\nMask values: ",size,offset);
 for(i=0;i<size;i++)
 	printf("%f ",mask[i]);
-printf("\nSum of mask values: %f\n",sum); 
+printf("\nSum of mask values: %f\n",sum);
 }
 for(i=0;i<pic_x;i++)
 for(j=0;j<pic_y;j++)
@@ -1392,7 +1393,7 @@ if((end-start) < 0)
 	exit(1);
 	}
 ONCE = TRUE;
-for(i=start;i<=end;i++) 
+for(i=start;i<=end;i++)
 	{
 	time++;
 	no_bytes = 0;
@@ -1417,7 +1418,7 @@ for(i=start;i<=end;i++)
 		no_bytes = 0;
 		fclose(fp);
 		}
-	else 
+	else
 		{
 		printf("File %s does not exist in readfiles.\n",fname);
 		exit(1);
@@ -1444,7 +1445,7 @@ if(sigma==0.0) return;
 printf("\nWriting smoothed files...\n");
 
 time = -1;
-for (i=start;i<=end;i++) 
+for (i=start;i<=end;i++)
 	{
 	no_bytes = 0;
 	time++;
@@ -1456,7 +1457,7 @@ for (i=start;i<=end;i++)
 			no_bytes += fwrite(&result[time][j][0],sizeof(unsigned char), pic_y, fd);
 		printf("File %s written (%d bytes)\n",fname,no_bytes);
 		}
-	else 
+	else
 		{
 		printf("File %s cannot be written\n",fname);
 		exit(1);

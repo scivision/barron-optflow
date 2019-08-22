@@ -1,15 +1,16 @@
+#define _USE_MATH_DEFINES  // needed for Windows
 #include <math.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <stdlib.h>
-/* 
-           NAME : const.h 
+/*
+           NAME : const.h
    PARAMETER(S) : none
- 
-        PURPOSE : Definition of the constants for the 
-                  implementation of Nagel[87]'s motion 
+
+        PURPOSE : Definition of the constants for the
+                  implementation of Nagel[87]'s motion
                   detection approach.
 
          AUTHOR : Steven Beauchemin
@@ -27,7 +28,7 @@
 #define Y           316
 #define Z           20
 
-#define DEF_S1      3.0 
+#define DEF_S1      3.0
 #define DEF_S2      1.5
 #define ALPHA       5.0
 #define DELTA       1.0
@@ -45,10 +46,10 @@
 
 #define RELAXITER    10
 
-/* 
-           NAME : type.h 
+/*
+           NAME : type.h
    PARAMETER(S) : none
- 
+
         PURPOSE : Type definitions for images
                   and related data structures.
 
@@ -69,7 +70,7 @@ typedef struct t_kernel {
                         } kernel_t ;
 
 typedef struct t_disp_vect {
-                             float x, y ;  
+                             float x, y ;
                            } disp_vect_t ;
 
 typedef struct t_param {
@@ -97,11 +98,11 @@ typedef struct t_histo {
                          int   freq ;
                        } histo_t ;
 
-/* 
+/*
            NAME : str.h
    PARAMETER(S) : none
- 
-        PURPOSE : Definitions of constants and types for 
+
+        PURPOSE : Definitions of constants and types for
                   string manipulation.
 
          AUTHOR : Steven Beauchemin
@@ -113,10 +114,10 @@ typedef struct t_histo {
 
 typedef char string[STRLENGTH] ;
 
-/* 
+/*
            NAME : extvar.h
    PARAMETER(S) : none
- 
+
         PURPOSE : declaration of external variables; all
                   masks are external.
 
@@ -128,11 +129,11 @@ typedef char string[STRLENGTH] ;
 kernel_t  ker1, ker2, C ;
 int KERNEL_X, KERNEL_Y ;
 
-/* 
+/*
            NAME : concat(s1,s2,s3) ;
    PARAMETER(S) : s1, s2 : strings to concat;
                       s3 : output string.
- 
+
         PURPOSE : Concats s1 and s2 into s3.
 
          AUTHOR : Steven Beauchemin
@@ -154,12 +155,12 @@ string s1, s2, s3 ;
   }
 }
 
-/* 
+/*
            NAME : convolve(c1,c2,ker1,ker2,n)
    PARAMETER(S) :     c1,c2 : pointers on image cube nodes;
                   ker1,ker2 : kernels  used for 3D convolution;
                           n : number of image frames in cubes.
- 
+
         PURPOSE : Performs a 3D convolution on images of c1 in c2
                   using 2 1D kernels.
 
@@ -179,7 +180,7 @@ int n ;
   int i, j, k, l, h1, h2 ;
 
   h2 = ker2.m/2 ;
-  
+
   for (k = h2 ; k < n - h2 ; k++) {
     for (i = 0 ; i < c1->sizy ; i++) {
       for (j = 0 ; j < c1->sizx ; j++) {
@@ -207,7 +208,7 @@ int n ;
         (*t)[c2->res*i + j] = s/ker1.f ;
       }
     }
-  
+
     for (i = h1 ; i < c2->sizy - h1 ; i++) {
       for (j = 0 ; j < c2->sizx ; j++) {
         s = 0.0 ;
@@ -222,15 +223,15 @@ int n ;
   c2->ofst += h1 ;
 }
 
-/* 
-           NAME : qnode_ptr_t create_node(l,r,sizx,sizy,sizz,ofst) 
+/*
+           NAME : qnode_ptr_t create_node(l,r,sizx,sizy,sizz,ofst)
    PARAMETER(S) :   l          : level in the pyramid;
                     r          : resolution at level l;
                     sizx, sizy : image size;
                     sizz       : sequence length;
                     ofst       : offset from image boundaries.
- 
-        PURPOSE : Creation of a node with 
+
+        PURPOSE : Creation of a node with
                   level l.
 
          AUTHOR : Steven Beauchemin
@@ -242,8 +243,8 @@ int n ;
 qnode_ptr_t create_node(l,r,sizx,sizy,sizz,ofst)
 int l, r, sizx, sizy, sizz, ofst ;
 
-{ qnode_ptr_t p ; 
-  
+{ qnode_ptr_t p ;
+
   p = (qnode_ptr_t)malloc(sizeof(qnode_t)) ;
   p->res = r ;
   p->sizx = sizx ;
@@ -254,11 +255,11 @@ int l, r, sizx, sizy, sizz, ofst ;
   return(p) ;
 }
 
-/* 
+/*
            NAME : delete_node(p,h,q)
    PARAMETER(S) : p : pointer on the node to be deleted;
                   h : head list pointer;
-                  q : tail list pointer. 
+                  q : tail list pointer.
 
         PURPOSE : Deletion of the node pointed by p.
 
@@ -290,15 +291,15 @@ qnode_ptr_t p, *h, *q ;
   free(p) ;
 }
 
-/* 
+/*
            NAME : overflow(x,y,sizx,sizy,ofst,h,l)
    PARAMETER(S) : x,y       : image coordinates ;
                   sizx,sizy : image size;
                   ofst      : offset from image boundaries;
                     h       : even half size of odd masks applied;
                     l       : number of mask applications.
- 
-        PURPOSE : Returns TRUE if x,y in image, 
+
+        PURPOSE : Returns TRUE if x,y in image,
                   FALSE otherwise.
 
          AUTHOR : Steven Beauchemin
@@ -306,22 +307,22 @@ qnode_ptr_t p, *h, *q ;
            DATE : July 23 1990
 */
 
-int overflow(x,y,sizx,sizy,ofst,h,l) 
+int overflow(x,y,sizx,sizy,ofst,h,l)
 int x, y, sizx, sizy, ofst, h, l ;
 
 {
-  return((x < ofst + h*l) || 
-         (x >= sizx - (ofst + h*l)) || 
-         (y < ofst + h*l) || 
+  return((x < ofst + h*l) ||
+         (x >= sizx - (ofst + h*l)) ||
+         (y < ofst + h*l) ||
          (y >= sizy - (ofst + h*l))) ;
 }
 
-/* 
+/*
            NAME : dt(c,q,x,y)
    PARAMETER(S) :      c : image cube node;
                        q : image parameter node ;
                     x, y : image location for computation.
- 
+
         PURPOSE : computes 1st order derivative with respect
                   to time at x,y for middle image of cube c.
 
@@ -349,11 +350,11 @@ int x, y ;
   return(d) ;
 }
 
-/* 
+/*
            NAME : dux(p,x,y)
    PARAMETER(S) : p : flow node;
                 x,y : flow location for computation.
- 
+
         PURPOSE : computes 1st order partial derviative with respect
                   to x at x,y for component u of flow p.
 
@@ -372,12 +373,12 @@ int x, y ;
   return(0.5*d) ;
 }
 
-/* 
+/*
            NAME : wlapu(p,x,y,a,c)
    PARAMETER(S) : p : flow node;
                 x,y : flow location for computation;
                 a,c : scaling factors.
- 
+
         PURPOSE : computes a weighted version of uxx + uyy.
 
          AUTHOR : Steven Beauchemin
@@ -399,12 +400,12 @@ float a, c ;
    return(d) ;
 }
 
-/* 
+/*
            NAME : wlapv(p,x,y,a,c)
    PARAMETER(S) : p : flow node;
                 x,y : flow location for computation;
                 a,c : scaling factors.
- 
+
         PURPOSE : computes a weighted version of vxx + vyy.
 
          AUTHOR : Steven Beauchemin
@@ -426,11 +427,11 @@ float a, c ;
   return(d) ;
 }
 
-/* 
+/*
            NAME : lapu(p,x,y)
    PARAMETER(S) : p : flow node;
                 x,y : flow location for computation.
- 
+
         PURPOSE : computes uxx + uyy as in Horn and Schunck's [81].
 
          AUTHOR : Steven Beauchemin
@@ -447,7 +448,7 @@ int x, y ;
   d = (1.0/6.0)*((*p->flow_ptr)[p->res*(x-1) + y].x +
   (*p->flow_ptr)[p->res*(x+1) + y].x +
   (*p->flow_ptr)[p->res*x + (y-1)].x +
-  (*p->flow_ptr)[p->res*x + (y+1)].x) + 
+  (*p->flow_ptr)[p->res*x + (y+1)].x) +
   (1.0/12.0)*((*p->flow_ptr)[p->res*(x-1) + y-1].x +
   (*p->flow_ptr)[p->res*(x-1) + y+1].x +
   (*p->flow_ptr)[p->res*(x+1) + y-1].x +
@@ -455,11 +456,11 @@ int x, y ;
   return(d) ;
 }
 
-/* 
+/*
            NAME : lapv(p,x,y)
    PARAMETER(S) : p : flow node;
                 x,y : flow location for computation.
- 
+
         PURPOSE : computes vxx + vyy as in Horn and Schunck's [81].
 
          AUTHOR : Steven Beauchemin
@@ -476,7 +477,7 @@ int x, y ;
   d = (1.0/6.0)*((*p->flow_ptr)[p->res*(x-1) + y].y +
   (*p->flow_ptr)[p->res*(x+1) + y].y +
   (*p->flow_ptr)[p->res*x + (y-1)].y +
-  (*p->flow_ptr)[p->res*x + (y+1)].y) + 
+  (*p->flow_ptr)[p->res*x + (y+1)].y) +
   (1.0/12.0)*((*p->flow_ptr)[p->res*(x-1) + y-1].y +
   (*p->flow_ptr)[p->res*(x-1) + y+1].y +
   (*p->flow_ptr)[p->res*(x+1) + y-1].y +
@@ -484,11 +485,11 @@ int x, y ;
   return(d) ;
 }
 
-/* 
+/*
            NAME : duxy(p,x,y)
    PARAMETER(S) : p : flow node;
                 x,y : flow location for computation.
- 
+
         PURPOSE : computes 1st order partial derviative with respect
                   to x y at x,y for component u of flow p.
 
@@ -503,14 +504,14 @@ int x, y ;
 
 { float dux(), d ;
   d = dux(p,x,y-1) - dux(p,x,y+1) ;
-  return(0.5*d) ; 
+  return(0.5*d) ;
 }
 
-/* 
+/*
            NAME : duy(p,x,y)
    PARAMETER(S) : p : flow node;
                 x,y : flow location for computation.
- 
+
         PURPOSE : computes 1st order partial derviative with respect
                   to y at x,y for component u of flow p.
 
@@ -524,16 +525,16 @@ qnode_ptr_t p ;
 int x, y ;
 
 { float d ;
-  
+
   d = (*p->flow_ptr)[p->res*x + (y-1)].x - (*p->flow_ptr)[p->res*x + (y+1)].x ;
   return(0.5*d) ;
 }
 
-/* 
+/*
            NAME : dvx(p,x,y)
    PARAMETER(S) : p : flow node;
                 x,y : flow location for computation.
- 
+
         PURPOSE : computes 1st order partial derviative with respect
                   to x at x,y for component v of flow p.
 
@@ -552,11 +553,11 @@ int x, y ;
   return(0.5*d) ;
 }
 
-/* 
+/*
            NAME : dvxy(p,x,y)
    PARAMETER(S) : p : flow node;
                 x,y : flow location for computation.
- 
+
         PURPOSE : computes 1st order partial derviative with respect
                   to x y at x,y for component v of flow p.
 
@@ -575,11 +576,11 @@ int x, y ;
   return(0.5*d) ;
 }
 
-/* 
+/*
            NAME : dvy(p,x,y)
    PARAMETER(S) : p : flow node;
                 x,y : flow location for computation.
- 
+
         PURPOSE : computes 1st order partial derviative with respect
                   to y at x,y for component v of flow p.
 
@@ -598,12 +599,12 @@ int x, y ;
   return(0.5*d) ;
 }
 
-/* 
+/*
            NAME : dx(p,q,x,y,z)
    PARAMETER(S) : p : image cube node;
                   q : parameters of flow (image derivatives);
               x,y,z : image location for computation.
- 
+
         PURPOSE : computes 1st order partial derviative with respect
                   to x at x,y for image p->gauss_ptr[z].
 
@@ -636,13 +637,13 @@ int x, y, z ;
   return(d) ;
 }
 
-/* 
+/*
            NAME : dxx(q,x,y,z)
    PARAMETER(S) : q : parameters of flow (image derivatives);
               x,y,z : image location for computation.
- 
+
         PURPOSE : computes 2nd order partial derviative with respect
-                  to x at x,y. 
+                  to x at x,y.
 
          AUTHOR : Steven Beauchemin
              AT : University of Western Ontario
@@ -673,13 +674,13 @@ int x, y, z ;
   return(d) ;
 }
 
-/* 
+/*
            NAME : dxy(q,x,y,z)
    PARAMETER(S) : q : parameters of flow (image derivatives);
               x,y,z : image location for computation.
- 
+
         PURPOSE : computes 2nd order partial derviative with respect
-                  to x,y at x,y. 
+                  to x,y at x,y.
 
          AUTHOR : Steven Beauchemin
              AT : University of Western Ontario
@@ -710,12 +711,12 @@ int x, y, z ;
   return(d) ;
 }
 
-/* 
+/*
            NAME : dy(p,q,x,y,z)
    PARAMETER(S) : p : image cube node;
                   q : parameters of flow (image derivatives);
               x,y,z : image location for computation.
- 
+
         PURPOSE : computes 1st order partial derviative with respect
                   to y at x,y for image p->gauss_ptr[z].
 
@@ -748,13 +749,13 @@ int x, y, z ;
   return(d) ;
 }
 
-/* 
+/*
            NAME : dyy(q,x,y,z)
    PARAMETER(S) : q : parameters of flow (image derivatives);
               x,y,z : image location for computation.
- 
+
         PURPOSE : computes 2nd order partial derviative with respect
-                  to y at x,y. 
+                  to y at x,y.
 
          AUTHOR : Steven Beauchemin
              AT : University of Western Ontario
@@ -785,11 +786,11 @@ int x, y, z ;
   return(d) ;
 }
 
-/* 
+/*
            NAME : usage()
    PARAMETER(S) : None.
- 
-        PURPOSE : Prints the appropriate usage and 
+
+        PURPOSE : Prints the appropriate usage and
                   stops the run.
 
          AUTHOR : Steven Beauchemin
@@ -799,11 +800,11 @@ int x, y, z ;
 
 usage()
 
-{ 
+{
   fprintf(stderr,"Usage: nagel input-path output-path seq-name. [-SG n.n] [-TG n.n] [-M n] [-I n] [-A n.n] [-D n.n] [-B cols rows] [-F n.n] [-C corr-vel-file nbins increment]\n") ;
   fprintf(stderr,"[-SG n.n]        : sigma value for spatial gaussian\n") ;
   fprintf(stderr,"                   default value is 3.0\n") ;
-  fprintf(stderr,"[-TG n.n]        : sigma value for temporal gaussian\n") ; 
+  fprintf(stderr,"[-TG n.n]        : sigma value for temporal gaussian\n") ;
   fprintf(stderr,"                   default value is 1.5\n") ;
   fprintf(stderr,"[-M n]           : middle frame of image sequence\n") ;
   fprintf(stderr,"                   default value is 0\n") ;
@@ -817,18 +818,18 @@ usage()
   fprintf(stderr,"[-F n.n]         : filters out unreliable estimates\n") ;
   fprintf(stderr,"                   using the magnitude of local gradient\n") ;
   fprintf(stderr,"[-C corr-vel-file nbins increment]\n") ;
-  fprintf(stderr,"                 : error histogram\n") ;  
+  fprintf(stderr,"                 : error histogram\n") ;
   fprintf(stderr,"                   corr-vel-file : file of correct velocities\n") ;
   fprintf(stderr,"                   nbins : number of bins for histogram\n") ;
   fprintf(stderr,"                   increment : value of gap between bins\n") ;
   exit(-1) ;
 }
 
-/* 
+/*
            NAME : error(n)
    PARAMETER(S) : n : error number.
- 
-        PURPOSE : Prints the appropriate error message and 
+
+        PURPOSE : Prints the appropriate error message and
                   stops the run.
 
          AUTHOR : Steven Beauchemin
@@ -839,9 +840,9 @@ usage()
 error(n)
 int n ;
 
-{ 
+{
   switch(n) {
-    
+
      case 1 : fprintf(stderr,"error %d : wrong number of arguments\n",n) ;
               break ;
      case 2 : fprintf(stderr,"error %d : invalid option\n",n) ;
@@ -886,12 +887,12 @@ int n ;
   usage() ;
 }
 
-/* 
+/*
            NAME : filter(p,q,tresh)
    PARAMETER(S) : p : pointer on a flow node ;
                   q : pointer on a parameter node ;
                   tresh : confidence measure thresholding value.
- 
+
         PURPOSE : Cancels out displacement estimates with conf.
                   measure Gaussian curvature lower than tresh.
 
@@ -904,7 +905,7 @@ filter(p,q,trsh)
 qnode_ptr_t p, q ;
 float trsh ;
 
-{ param_t P ; 
+{ param_t P ;
   disp_vect_t Uerr ;
   int i, j ;
 
@@ -921,11 +922,11 @@ float trsh ;
   }
 }
 
-/* 
+/*
            NAME : screen(p,maxv)
    PARAMETER(S) : p : pointer on a flow node ;
                maxv : maximum magnitude on velocities.
- 
+
         PURPOSE : deletes velocity estimates having magnitudes
                   greater than maxv.
 
@@ -954,10 +955,10 @@ float maxv ;
   }
 }
 
-/* 
+/*
            NAME : frames(s)
    PARAMETER(S) : s : Length of temporal Gaussian.
- 
+
         PURPOSE : returns the number of frames necessary for
                   the smoothing and the computation of
                   4-point central differences.
@@ -970,7 +971,7 @@ float maxv ;
 int frames(s)
 int s ;
 
-{ 
+{
   if (s - 1 + SMSK > Z) {
     error(3) ;
   }
@@ -979,14 +980,14 @@ int s ;
   }
 }
 
-/* 
+/*
            NAME : start_number(middle,s)
    PARAMETER(S) : middle : number of middle frame;
                        s : length of temporal mask for derivatives.
- 
+
         PURPOSE : computes the number of the start frame given
                   the middle frame and the length of the temporal
-                  masks for derivatives. 
+                  masks for derivatives.
 
          AUTHOR : Steven Beauchemin
              AT : University of Western Ontario
@@ -998,11 +999,11 @@ int middle, s ;
 
 { return(middle - (SMSK + s - 1)/2) ; }
 
-/* 
+/*
            NAME : free_cube(p,n) ;
    PARAMETER(S) : p : pointer on an image cube node;
                   n : number of frames.
- 
+
         PURPOSE : deallocates n images to p->gauss_ptr[i].
 
          AUTHOR : Steven Beauchemin
@@ -1011,18 +1012,18 @@ int middle, s ;
 */
 
 void free_cube(qnode_ptr_t p, int n)
-{ 
+{
   for (int i = 0 ; i < n ; i++) {
     free((image512_t *)p->gauss_ptr[i]) ;
   }
 }
 
-/* 
+/*
            NAME : free_flow(p,n) ;
    PARAMETER(S) : p : pointer on an flow and parameter node.
- 
+
         PURPOSE : deallocates a flow field to p->flow_ptr
-                  and n arrays of flow parameters to 
+                  and n arrays of flow parameters to
                   p->param_ptr[i].
 
          AUTHOR : Steven Beauchemin
@@ -1042,11 +1043,11 @@ int n ;
   }
 }
 
-/* 
+/*
            NAME : generate_gauss(ker,sig)
    PARAMETER(S) : ker : 1D  kernel;
                   sig : sigma.
- 
+
         PURPOSE : Inits the kernel values with G(x,sig).
 
          AUTHOR : Steven Beauchemin
@@ -1077,15 +1078,15 @@ float sig ;
     (*ker).k[0] = 1.0 ;
     (*ker).f = 1.0 ;
   }
-  (*ker).m = h ; 
+  (*ker).m = h ;
 }
 
-/* 
+/*
            NAME : init_central(C)
    PARAMETER(S) : C : 1-D mask contraining 4-point central difference
                       factors.
- 
-        PURPOSE : Inits a 4-point central difference mask. 
+
+        PURPOSE : Inits a 4-point central difference mask.
 
          AUTHOR : Steven Beauchemin
              AT : University of Western Ontario
@@ -1096,17 +1097,17 @@ init_central(C)
 kernel_t *C ;
 
 {
-  (*C).k[0] = -1.0 ; (*C).k[1] = 8.0 ; 
+  (*C).k[0] = -1.0 ; (*C).k[1] = 8.0 ;
   (*C).k[2] = 0.0 ; (*C).k[3] = -8.0 ; (*C).k[4] = 1.0 ;
   (*C).m = 5 ;
   (*C).f = 12.0 ;
 }
 
-/* 
+/*
            NAME : init_cube(p,n) ;
    PARAMETER(S) : p : pointer on an image cube node;
                   n : number of image frames to allocate.
- 
+
         PURPOSE : allocates n images to p->gauss_ptr[i].
 
          AUTHOR : Steven Beauchemin
@@ -1120,16 +1121,16 @@ int n ;
 
 { int i ;
 
-  for (i = 0 ; i < n ; i++) { 
+  for (i = 0 ; i < n ; i++) {
     p->gauss_ptr[i] = (image512_t *)malloc(sizeof(image512_t)) ;
   }
 }
 
-/* 
+/*
            NAME : init_flow(p,n) ;
    PARAMETER(S) : p : pointer on an parameter cube node;
                   n : number of parameter frames to allocate.
- 
+
         PURPOSE : allocates n parameter frames to p->param_ptr[i]
                   and a flow field to p->flow_ptr.
 
@@ -1145,16 +1146,16 @@ int n ;
 { int i ;
 
   p->flow_ptr = (disp_field512_t *)malloc(sizeof(disp_field512_t)) ;
-  for (i = 0 ; i < n ; i++) { 
+  for (i = 0 ; i < n ; i++) {
     p->param_ptr[i] = (param512_t *)malloc(sizeof(param512_t)) ;
   }
 }
 
-/* 
-           NAME : init_list(h,q) 
+/*
+           NAME : init_list(h,q)
    PARAMETER(S) : h : head list pointer;
                   q : tail list pointer.
- 
+
         PURPOSE : Initialization of the head
                   and tail pointers to NULL.
 
@@ -1167,18 +1168,18 @@ int n ;
 init_list(h,q)
 qnode_ptr_t *h, *q ;
 
-{ 
+{
   *h = (qnode_ptr_t)NULL ;
   *q = (qnode_ptr_t)NULL ;
 }
 
-/* 
-           NAME : insert_node(p,h,q) 
+/*
+           NAME : insert_node(p,h,q)
    PARAMETER(S) : p : pointer on the node to insert;
                   h : head pointer of the list;
                   q : tail pointer of the list.
- 
-        PURPOSE : Insertion of the node p in a doubly 
+
+        PURPOSE : Insertion of the node p in a doubly
                   linked list in order of the level
                   numbers (p->level).
 
@@ -1188,7 +1189,7 @@ qnode_ptr_t *h, *q ;
 
 */
 
-insert_node(p,h,q) 
+insert_node(p,h,q)
 qnode_ptr_t p, *h, *q ;
 
 { qnode_ptr_t s, t ;
@@ -1217,8 +1218,8 @@ qnode_ptr_t p, *h, *q ;
 
 
 
-/* 
-           NAME : pgetrast(fn,hd,bf,sx,sy,r) 
+/*
+           NAME : pgetrast(fn,hd,bf,sx,sy,r)
    PARAMETER(S) : fn    : filename;
                   hd    : image header (raster file);
                   bf    : Pointer on a 2D array containing the image;
@@ -1234,7 +1235,7 @@ qnode_ptr_t p, *h, *q ;
 
 */
 
-pgetrast(fn,hd,bf,sx,sy,r) 
+pgetrast(fn,hd,bf,sx,sy,r)
 char *fn ;
 unsigned char hd[H] ;
 float bf[X*Y] ;
@@ -1244,7 +1245,7 @@ int sx, sy, r ;
   unsigned char c ;
 
   if ((fd = open(fn,O_RDONLY)) > 0) { ;
-    if (read(fd,hd,H) == H) { 
+    if (read(fd,hd,H) == H) {
       for (i = 0 ; i < sy ; i++) {
         for (j = 0 ; j < sx ; j++) {
           if (read(fd,&c,sizeof(c)) != 1) {
@@ -1264,8 +1265,8 @@ int sx, sy, r ;
   close(fd) ;
 }
 
-/* 
-           NAME : Bpgetrast(fn,bf,sx,sy,r) 
+/*
+           NAME : Bpgetrast(fn,bf,sx,sy,r)
    PARAMETER(S) : fn    : filename;
                   bf    : Pointer on a 2D array containing the image;
                   sx,sy : image size to read;
@@ -1280,7 +1281,7 @@ int sx, sy, r ;
 
 */
 
-Bpgetrast(fn,bf,sx,sy,r) 
+Bpgetrast(fn,bf,sx,sy,r)
 char *fn ;
 float bf[X*Y] ;
 int sx, sy, r ;
@@ -1304,15 +1305,15 @@ int sx, sy, r ;
   close(fd) ;
 }
 
-/* 
-           NAME : pputrast(fn,hd,bf,sx,sy,r) 
+/*
+           NAME : pputrast(fn,hd,bf,sx,sy,r)
    PARAMETER(S) : fn    : filename;
                   hd    : image header (raster file);
                   bf    : Pointer on a 2D array containing the image;
                   sx,sy : image size to write;
                   r     : resolution of the array.
- 
-        PURPOSE : Writes the contents of bf into a 
+
+        PURPOSE : Writes the contents of bf into a
                   rasterfile specified by fn.
 
          AUTHOR : Steven Beauchemin
@@ -1321,7 +1322,7 @@ int sx, sy, r ;
 
 */
 
-pputrast(fn,hd,bf,sx,sy,r) 
+pputrast(fn,hd,bf,sx,sy,r)
 char *fn ;
 unsigned char hd[H] ;
 float bf[X*Y] ;
@@ -1331,9 +1332,9 @@ int sx, sy, r ;
   unsigned char c ;
 
   if ((fd = creat(fn,0600)) > 0) { ;
-    if (write(fd,hd,H) == H) { 
-      for (i = 0 ; i < sy ; i++) { 
-        for (j = 0 ; j < sx ; j++) { 
+    if (write(fd,hd,H) == H) {
+      for (i = 0 ; i < sy ; i++) {
+        for (j = 0 ; j < sx ; j++) {
           c = (unsigned char)bf[r*i + j] ;
           if (write(fd,&c,sizeof(c)) != 1) {
             error(7) ;
@@ -1342,7 +1343,7 @@ int sx, sy, r ;
       }
     }
     else {
-      error(8) ; 
+      error(8) ;
     }
   }
   else {
@@ -1351,14 +1352,14 @@ int sx, sy, r ;
   close(fd) ;
 }
 
-/* 
-           NAME : Bpputrast(fn,hd,bf,sx,sy,r) 
+/*
+           NAME : Bpputrast(fn,hd,bf,sx,sy,r)
    PARAMETER(S) : fn    : filename;
                   bf    : Pointer on a 2D array containing the image;
                   sx,sy : image size to write;
                   r     : resolution of the array.
- 
-        PURPOSE : Writes the contents of bf into a 
+
+        PURPOSE : Writes the contents of bf into a
                   binary file specified by fn.
 
          AUTHOR : Steven Beauchemin
@@ -1367,7 +1368,7 @@ int sx, sy, r ;
 
 */
 
-Bpputrast(fn,bf,sx,sy,r) 
+Bpputrast(fn,bf,sx,sy,r)
 char *fn ;
 float bf[X*Y] ;
 int sx, sy, r ;
@@ -1376,8 +1377,8 @@ int sx, sy, r ;
   unsigned char c ;
 
   if ((fd = creat(fn,0600)) > 0) { ;
-    for (i = 0 ; i < sy ; i++) { 
-      for (j = 0 ; j < sx ; j++) { 
+    for (i = 0 ; i < sy ; i++) {
+      for (j = 0 ; j < sx ; j++) {
         c = (unsigned char)bf[r*i + j] ;
         if (write(fd,&c,sizeof(c)) != 1) {
           error(7) ;
@@ -1391,11 +1392,11 @@ int sx, sy, r ;
   close(fd) ;
 }
 
-/* 
+/*
            NAME : norm(V,n)
    PARAMETER(S) : V : vector;
                   n : length of V.
- 
+
         PURPOSE : returns L2 norm of V
 
          AUTHOR : Steven Beauchemin
@@ -1403,12 +1404,12 @@ int sx, sy, r ;
            DATE : November 7 1990
 */
 
-float norm(V,n) 
+float norm(V,n)
 float V[] ;
 int n ;
 
 { int i ;
-  float sum ; 
+  float sum ;
 
   sum = 0.0 ;
   for (i = 0 ; i < n ; i++) {
@@ -1417,11 +1418,11 @@ int n ;
   return(sqrt(sum)) ;
 }
 
-/* 
+/*
            NAME : psi_error(ve,va)
    PARAMETER(S) : ve : estimated flow vector;
                   va : accurate flow vector.
- 
+
         PURPOSE : computes angular error of ve with respect to va
                   using Fleet [90] angular error metric
 
@@ -1451,16 +1452,16 @@ disp_vect_t ve, va ;
   return((float)(acos(v))*180.0/M_PI) ;
 }
 
-/* 
+/*
            NAME : load_frames(fn,hd,start,n_frame,x,y,cub,bin)
    PARAMETER(S) : fn : filename if the image sequence;
                   hd : image header (raster file);
                start : start number of frames;
              n_frame : number of frames needed;
-                 x,y : image size; 
+                 x,y : image size;
                  cub : pointer on an image cube;
                  bin : binary input files.
- 
+
         PURPOSE : Loads the image sequence from frame start to
                   frame start + n_frame into image cube cub1.
 
@@ -1491,16 +1492,16 @@ qnode_ptr_t cub ;
   }
 }
 
-/* 
+/*
            NAME : dump_frames(fn,hd,start,n_frame,x,y,cub,bin)
    PARAMETER(S) : fn : filename if the image sequence;
                   hd : image header (raster file);
                start : start number of frames;
              n_frame : number of frames needed;
-                 x,y : image size; 
+                 x,y : image size;
                  cub : pointer on an image cube;
                  bin : binary input files.
- 
+
         PURPOSE : dumps the image sequence from frame start to
                   frame start + n_frame from image cube cub1.
 
@@ -1531,15 +1532,15 @@ qnode_ptr_t cub ;
   }
 }
 
-/* 
+/*
            NAME : raster_size(fn,num,x,y)
-   PARAMETER(S) : fn : raster file name; 
+   PARAMETER(S) : fn : raster file name;
                  num : frame number;
                    x : raster width;
                    y : raster height.
- 
+
         PURPOSE : Reads the header of raterfile fn to get the
-                  size. 
+                  size.
 
          AUTHOR : Steven Beauchemin
              AT : University of Western Ontario
@@ -1571,15 +1572,15 @@ int num, *x, *y ;
   close(fd) ;
 }
 
-/* 
+/*
            NAME : binary_size(row,col,x,y)
    PARAMETER(S) : row : number of rows in input image;
                   col : number of cols in input image;
                    x : raster width;
                    y : raster height.
- 
+
         PURPOSE : sets the size of images when option -B used.
-                  size. 
+                  size.
 
          AUTHOR : Steven Beauchemin
              AT : University of Western Ontario
@@ -1596,12 +1597,12 @@ int row, col, *x, *y ;
   }
 }
 
-/* 
+/*
            NAME : flow_error(f,q,avg,std)
    PARAMETER(S) : f,q : flow field pointers;
              avg, std : error statistics.
- 
-        PURPOSE : computes the average angular error and 
+
+        PURPOSE : computes the average angular error and
                   standard deviation of flow f.
 
          AUTHOR : Steven Beauchemin
@@ -1609,7 +1610,7 @@ int row, col, *x, *y ;
            DATE : April 22 1992
 */
 
-flow_error(f,q,avg,std) 
+flow_error(f,q,avg,std)
 qnode_ptr_t f, q ;
 float *avg, *std ;
 
@@ -1643,10 +1644,10 @@ float *avg, *std ;
   *std = sqrt(*std/(float)freq) ;
 }
 
-/* 
+/*
            NAME : flow_l2_norm(q,p)
    PARAMETER(S) : q,p : flow field pointers.
- 
+
         PURPOSE : computes the average l2 norm of the difference
                   between flow q and p.
 
@@ -1655,7 +1656,7 @@ float *avg, *std ;
            DATE : April 22 1992
 */
 
-float flow_l2_norm(q,p) 
+float flow_l2_norm(q,p)
 qnode_ptr_t q, p ;
 
 { disp_vect_t Uold, Unew, T ;
@@ -1678,11 +1679,11 @@ qnode_ptr_t q, p ;
   return(sum/(float)n);
 }
 
-/* 
+/*
            NAME : load_velocity(q,fn)
    PARAMETER(S) :  q : flow field pointer ;
                   fn : correct velocity filename.
- 
+
         PURPOSE : loads a correct velocity file fn into q.
 
          AUTHOR : Steven Beauchemin
@@ -1690,7 +1691,7 @@ qnode_ptr_t q, p ;
            DATE : April 22 1992
 */
 
-load_velocity(q,fn) 
+load_velocity(q,fn)
 qnode_ptr_t q ;
 string fn ;
 
@@ -1718,9 +1719,9 @@ string fn ;
     }
   }
   close(fdf) ;
-} 
+}
 
-/* 
+/*
            NAME : nagel_relax(p,alpha,delta,n,fn,prod_err)
    PARAMETER(S) : p : displacement field to relax and image derivatives;
               alpha : smoothing paramenter;
@@ -1728,7 +1729,7 @@ string fn ;
                   n : number of iterations;
                  fn : correct velocity filename;
            prod_err : produce error statistics for each iteration.
- 
+
         PURPOSE : applies the smoothness constraint defined in Nagel[87].
 
          AUTHOR : Steven Beauchemin
@@ -1745,7 +1746,7 @@ string fn ;
 { qnode_ptr_t create_node(), q, r ;
   param_t f ;
   float dux(), duy(), dvx(), dvy(), duxy(), dvxy(), wlapu(), wlapv(),
-        flow_l2_norm(), a, b, c, d, A, B, C, D, 
+        flow_l2_norm(), a, b, c, d, A, B, C, D,
         u_bar, v_bar, ux, uy, vx, vy, uxy, vxy, Ku, Kv, avg, std ;
   int   i, j, k ;
 
@@ -1795,12 +1796,12 @@ string fn ;
 
           Ku = 0.5*(-(f.fx*(ux*A + uy*B) + f.fy*(ux*C + uy*D))/d + u_bar) ;
           Kv = 0.5*(-(f.fx*(vx*A + vy*B) + f.fy*(vx*C + vy*D))/d + v_bar) ;
-      
-          (*p->flow_ptr)[p->res*i + j].x = 
+
+          (*p->flow_ptr)[p->res*i + j].x =
           Ku - f.fx*(f.fx*Ku + f.fy*Kv + f.ft)
           /(pow(f.fx,2.0) + pow(f.fy,2.0) + 2.0*pow(alpha,2.0)) ;
 
-          (*p->flow_ptr)[p->res*i + j].y = 
+          (*p->flow_ptr)[p->res*i + j].y =
           Kv - f.fy*(f.fx*Ku + f.fy*Kv + f.ft)
           /(pow(f.fx,2.0) + pow(f.fy,2.0) + 2.0*pow(alpha,2.0)) ;
         }
@@ -1809,7 +1810,7 @@ string fn ;
     printf(" Iteration %3d :\n",k+1) ;
     if (prod_err) {
       flow_error(p,r,&avg,&std) ;
-      printf("    Average Angular Error : %10.5f\n",avg) ; 
+      printf("    Average Angular Error : %10.5f\n",avg) ;
       printf("       Standard Deviation : %10.5f\n",std) ;
     }
     printf("       L2 Norm Difference : %10.5f\n",flow_l2_norm(q,p)) ;
@@ -1817,21 +1818,21 @@ string fn ;
   }
   free((disp_field512_t *)q->flow_ptr) ;
   free(q) ;
-  if (prod_err) { 
+  if (prod_err) {
     free((disp_field512_t *)r->flow_ptr) ;
     free(r) ;
-  } 
+  }
 }
 
-/* 
+/*
            NAME : horn_relax(p,alpha,n,fn,prod_err)
    PARAMETER(S) : p : displacement field to relax and image derivatives;
               alpha : smoothing paramenter;
                   n : number of iterations;
                  fn : correct velocity filename;
            prod_err : produce error statistics for each iteration.
- 
-        PURPOSE : applies the smoothness constraint defined in 
+
+        PURPOSE : applies the smoothness constraint defined in
                   Horn and Schunck's [81].
 
          AUTHOR : Steven Beauchemin
@@ -1879,11 +1880,11 @@ string fn ;
           u_bar = lapu(q,i,j) ;
           v_bar = lapv(q,i,j) ;
 
-          (*p->flow_ptr)[p->res*i + j].x = 
+          (*p->flow_ptr)[p->res*i + j].x =
           u_bar - f.fx*(f.fx*u_bar + f.fy*v_bar + f.ft)
           /(pow(f.fx,2.0) + pow(f.fy,2.0) + pow(alpha,2.0)) ;
 
-          (*p->flow_ptr)[p->res*i + j].y = 
+          (*p->flow_ptr)[p->res*i + j].y =
           v_bar - f.fy*(f.fx*u_bar + f.fy*v_bar + f.ft)
           /(pow(f.fx,2.0) + pow(f.fy,2.0) + pow(alpha,2.0)) ;
         }
@@ -1892,7 +1893,7 @@ string fn ;
     printf(" Iteration %3d :\n",k+1) ;
     if (prod_err) {
       flow_error(p,r,&avg,&std) ;
-      printf("    Average Angular Error : %10.5f\n",avg) ; 
+      printf("    Average Angular Error : %10.5f\n",avg) ;
       printf("       Standard Deviation : %10.5f\n",std) ;
     }
     printf("       L2 Norm Difference : %10.5f\n",flow_l2_norm(q,p)) ;
@@ -1900,13 +1901,13 @@ string fn ;
   }
   free((disp_field512_t *)q->flow_ptr) ;
   free(q) ;
-  if (prod_err) { 
+  if (prod_err) {
     free((disp_field512_t *)r->flow_ptr) ;
     free(r) ;
-  } 
+  }
 }
 
-/* 
+/*
            NAME : valid_option(argc,argv,in_path,out_path,sigma1,sigma2,histo,
                   sf,trsh,i_fname,v_fname,c_fname,h_fname,nbin,incr,
                   n_frame,alpha,iter,binary,row,col,horn,vmag,maxv)
@@ -1936,7 +1937,7 @@ string fn ;
                   horn : Horn and Schunck regularization option;
                   vmag : removes outliers;
                   maxv : maximum velocity magnitudes tolerated.
- 
+
         PURPOSE : Validates line arguments.
 
          AUTHOR : Steven Beauchemin
@@ -1946,7 +1947,7 @@ string fn ;
 
 valid_option(argc,argv,in_path,out_path,sigma1,sigma2,histo,sf,trsh,
              i_fname,v_fname,c_fname,h_fname,nbin,incr,n_frame,alpha,
-             delta,iter,binary,row,col,horn,vmag,maxv) 
+             delta,iter,binary,row,col,horn,vmag,maxv)
 int argc ;
 char *argv[] ;
 int *nbin, *iter, *n_frame, *histo, *sf, *binary, *row, *col, *horn, *vmag ;
@@ -2022,7 +2023,7 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
           else {
             error(1) ;
           }
-        } 
+        }
         else {
           if (strcmp("-I",argv[i]) == 0) {
             if (i + 1 < argc) {
@@ -2053,7 +2054,7 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
                 }
                 else {
                   error(1) ;
-                } 
+                }
               }
               else {
                 if (strcmp("-M",argv[i]) == 0) {
@@ -2075,7 +2076,7 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
                     }
                     else {
                       error(1) ;
-                    } 
+                    }
                   }
                   else {
                     if (strcmp("-H",argv[i]) == 0) {
@@ -2108,7 +2109,7 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
                           error(2) ;
                         }
                       }
-                    } 
+                    }
                   }
                 }
               }
@@ -2166,7 +2167,7 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
   fflush(stdout) ;
 }
 
-/* 
+/*
            NAME : prod_histo(f,c_fn,h_fn,nbin,incr,ttl_err,ttl_std,dens)
    PARAMETER(S) :    f : flow field with parameters;
                   c_fn : correct velocities file name;
@@ -2176,7 +2177,7 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
                ttl_err : error in flow field;
                ttl_std : standard deviation;
                   dens : denstiy of flow field.
- 
+
         PURPOSE : produces an error histogram
                   h1: error vs confidence measure Gaussian curvature;
                   h2: h1 cumulated.
@@ -2238,7 +2239,7 @@ int nbin ;
           c_histo1[k].avg += err ;
           c_histo1[k].freq++ ;
         }
-      } 
+      }
     }
   }
   if (abs_freq != 0) {
@@ -2255,7 +2256,7 @@ int nbin ;
     }
     if (c_histo1[i].freq != 0) {
       c_histo1[i].avg /= (float)c_histo1[i].freq ;
-    } 
+    }
   }
   for (i = KERNEL_Y + NRADIUS ; i < f->sizy - KERNEL_Y - NRADIUS ; i++) {
     for (j = KERNEL_X + NRADIUS ; j < f->sizx - KERNEL_X - NRADIUS ; j++) {
@@ -2282,7 +2283,7 @@ int nbin ;
     }
     if (c_histo1[i].freq != 0) {
       c_histo1[i].std = sqrt(c_histo1[i].std/(float)c_histo1[i].freq) ;
-    } 
+    }
   }
   if ((fdp = fopen(h_fn,"w")) == NULL) {
     error(7) ;
@@ -2294,7 +2295,7 @@ int nbin ;
   fprintf(fdp,"%5.7f\n",max_mag - incr/2.0) ;
   for (i = 0 ; i < nbin ; i++) {
     t = max_mag/(float)nbin ;
-    fprintf(fdp,"%5.7f %10.7f %10.7f %3.7f\n", t*(float)(i)+t/2.0, 
+    fprintf(fdp,"%5.7f %10.7f %10.7f %3.7f\n", t*(float)(i)+t/2.0,
     histo1[i].avg, histo1[i].std, (float)histo1[i].freq/density) ;
   }
   fprintf(fdp,"\n\n\n") ;
@@ -2302,8 +2303,8 @@ int nbin ;
   fprintf(fdp,"%3d\n",nbin) ;
   fprintf(fdp,"%5.7f\n",max_mag - incr/2.0) ;
   for (i = 0 ; i < nbin ; i++) {
-    t = max_mag/(float)nbin ; 
-    fprintf(fdp,"%5.7f %10.7f %10.7f %3.7f\n", t*(float)(i)+t/2.0, 
+    t = max_mag/(float)nbin ;
+    fprintf(fdp,"%5.7f %10.7f %10.7f %3.7f\n", t*(float)(i)+t/2.0,
     c_histo1[i].avg, c_histo1[i].std, (float)c_histo1[i].freq/density) ;
   }
   fclose(fdp) ;
@@ -2311,7 +2312,7 @@ int nbin ;
 
 /*
            NAME : write_velocity(fn,flow_field)
-   PARAMETER(S) : flow_field : the 2D array containing velocities 
+   PARAMETER(S) : flow_field : the 2D array containing velocities
                                or displacements.
 
         PURPOSE : Output field using Travis Burkitt's format.
@@ -2326,29 +2327,29 @@ qnode_ptr_t p ;
 char *fn ;
 
 { extern int KERNEL_X, KERNEL_Y ;
-  float x, y ; 
+  float x, y ;
   int i, j, fdf, bytes ;
 
   if ((fdf=creat(fn,0600)) < 1) {
     error(6) ;
   }
-  
+
   x = p->sizx ;
   y = p->sizy ;
   write(fdf,&x,4) ;
   write(fdf,&y,4) ;
-  
+
   x = ((p->sizx-KERNEL_X-NRADIUS)-(KERNEL_X+NRADIUS)+SKIP-1)/SKIP ;
   y = ((p->sizy-KERNEL_Y-NRADIUS)-(KERNEL_Y+NRADIUS)+SKIP-1)/SKIP ;
   write(fdf,&x,4);
   write(fdf,&y,4);
-  
+
   x = (KERNEL_X+NRADIUS+SKIP-1)/SKIP ;
   y = (KERNEL_Y+NRADIUS+SKIP-1)/SKIP ;
   write(fdf,&x,4) ;
   write(fdf,&y,4) ;
   bytes = 24 ;
-  
+
   for(i = KERNEL_Y + NRADIUS ; i < p->sizy - KERNEL_Y - NRADIUS ; i++) {
     for(j = KERNEL_X + NRADIUS ; j < p->sizx - KERNEL_X - NRADIUS ; j++) {
       x = (*p->flow_ptr)[p->res*i + j].y ;
@@ -2361,13 +2362,13 @@ char *fn ;
   close(fdf) ;
 }
 
-/* 
+/*
            NAME : compute_deriv(c,f,horn)
    PARAMETER(S) :     c : pointer on an image cube node;
                       f : pointer on a flow field and
                           its parameters;
                    horn : Horn and Schunck [81] regularization option.
- 
+
         PURPOSE : Computes image derivatives needed for
                   the second-order method of Nagel [87].
 
@@ -2392,28 +2393,28 @@ int horn ;
       }
     }
   }
-  k = c->sizz/2 ; 
+  k = c->sizz/2 ;
   for (i = f->ofst ; i < f->sizy - f->ofst ; i++) {
-    for (j = f->ofst ; j < f->sizx - f->ofst ; j++) { 
-      if ((*f->param_ptr[k])[f->res*i + j].err == NO_ERROR) { 
+    for (j = f->ofst ; j < f->sizx - f->ofst ; j++) {
+      if ((*f->param_ptr[k])[f->res*i + j].err == NO_ERROR) {
         (*f->param_ptr[k])[f->res*i + j].ft = dt(c,f,i,j) ;
       }
     }
   }
-  if (!horn) { 
+  if (!horn) {
     for (i = f->ofst ; i < f->sizy - f->ofst ; i++) {
-      for (j = f->ofst ; j < f->sizx - f->ofst ; j++) { 
-        if ((*f->param_ptr[k])[f->res*i + j].err == NO_ERROR) { 
+      for (j = f->ofst ; j < f->sizx - f->ofst ; j++) {
+        if ((*f->param_ptr[k])[f->res*i + j].err == NO_ERROR) {
           (*f->param_ptr[k])[f->res*i + j].fxx = dxx(f,i,j,k) ;
           (*f->param_ptr[k])[f->res*i + j].fyy = dyy(f,i,j,k) ;
-          (*f->param_ptr[k])[f->res*i + j].fxy = dxy(f,i,j,k) ; 
+          (*f->param_ptr[k])[f->res*i + j].fxy = dxy(f,i,j,k) ;
         }
       }
     }
   }
   for (i = f->ofst ; i < f->sizy - f->ofst ; i++) {
     for (j = f->ofst ; j < f->sizx - f->ofst ; j++) {
-      if ((*f->param_ptr[k])[f->res*i + j].err == NO_ERROR) { 
+      if ((*f->param_ptr[k])[f->res*i + j].err == NO_ERROR) {
         P = (*f->param_ptr[k])[f->res*i + j] ;
         (*f->param_ptr[k])[f->res*i + j].mag =
         sqrt(pow(P.fx,2.0) + pow(P.fy,2.0)) ;
@@ -2422,7 +2423,7 @@ int horn ;
   }
 }
 
-/* 
+/*
            NAME : nagel.c
    PARAMETER(S) : line parameters.
 
@@ -2439,7 +2440,7 @@ int argc ;
 char *argv[] ;
 
 { qnode_ptr_t create_node(), cub1h, cub1q, cub2h, cub2q, flh, flq,
-              cub1, cub2, fl ; 
+              cub1, cub2, fl ;
   unsigned char hd[H] ;
   float sigma1, sigma2, trsh, incr, alpha, delta, avg_err, std, density,
         maxv ;
@@ -2508,7 +2509,7 @@ char *argv[] ;
   free_cube(cub2,z - ker2.m + 1) ;
   free_flow(fl,z - ker2.m + 1) ;
   delete_node(cub2,&cub2h,&cub2q) ;
-  delete_node(fl,&flh,&flq) ; 
+  delete_node(fl,&flh,&flq) ;
   printf("STAGE 10: End of Program\n\n") ;
   if (histo) {
     printf("         Average Angular Error: %10.5f\n", avg_err) ;

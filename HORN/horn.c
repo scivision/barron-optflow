@@ -7,8 +7,9 @@
 	for calculating an optical flow field.
 ************************************************************/
 #include  <fcntl.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include  <stdio.h>
+#define _USE_MATH_DEFINES  // needed for Windows
 #include  <math.h>
 #include "rasterfile.h"
 
@@ -37,7 +38,7 @@ float floatpic[FIVE][PIC_X][PIC_Y];
 unsigned header[HEAD];
 float Ix[PIC_X][PIC_Y],Iy[PIC_X][PIC_Y];
 float It[PIC_X][PIC_Y],full_vels[PIC_X][PIC_Y][2];
-float correct_vels[PIC_X][PIC_Y][2],full_vels1[PIC_X][PIC_Y][2]; 
+float correct_vels[PIC_X][PIC_Y][2],full_vels1[PIC_X][PIC_Y][2];
 float diff_x(),diff_y(),diff_t(),difference(),temp_vels[PIC_X][PIC_Y][2];
 float PsiER(),norm(),alpha;
 int pic_x,pic_y,pic_t,THRESHOLD,STANDARD,BINARY,int_size_x,int_size_y;
@@ -75,7 +76,7 @@ if(argc < 7 || argc > 19)
 	printf("<input path> - directory where input data resides\n");
 	printf("<output path> - directory where computed flow fields put\n");
 	printf("-S <smooth path> - directory where smoothed data is to be put\n");
-	printf("   if not present smoothed files are not written\n"); 
+	printf("   if not present smoothed files are not written\n");
 	printf("-B <cols> <rows> - use binary file of size <cols>*<rows> characters\n");
 	printf("   instead of black and white rasterfiles as image input\n");
 	printf("   image size read from rasterfile header if used\n");
@@ -102,9 +103,9 @@ printf("alpha=%f\n",alpha);
 printf("sigma=%f\n",sigma);
 printf("Central image: %d\n",middle);
 printf("Number of iterations: %d\n",numpass);
-strcpy(path1,argv[6]); 
-strcpy(path2,"."); 
-strcpy(path3,argv[7]); 
+strcpy(path1,argv[6]);
+strcpy(path2,".");
+strcpy(path3,argv[7]);
 
 printf("Input directory: %s\n",path1);
 printf("Output directory: %s\n",path3);
@@ -117,27 +118,27 @@ i=8;
 strcpy(correct_filename,"unknown");
 while(i<argc)
 {
-if(strcmp("-H",argv[i])==0) 
-	{ 
-	STANDARD = TRUE; 
+if(strcmp("-H",argv[i])==0)
+	{
+	STANDARD = TRUE;
 	i++;
 	}
 else
-if(strcmp("-MH",argv[i])==0) 
-	{ 
-	STANDARD = FALSE; 
+if(strcmp("-MH",argv[i])==0)
+	{
+	STANDARD = FALSE;
 	i++;
 	}
 else
-if(strcmp("-C",argv[i])==0) 
-	{ 
-	strcpy(correct_filename,argv[i+1]); 
+if(strcmp("-C",argv[i])==0)
+	{
+	strcpy(correct_filename,argv[i+1]);
 	i+=2;
 	}
 else
-if(strcmp("-T",argv[i])==0) 
-	{ 
-	sscanf(argv[i+1],"%f",&tau); 
+if(strcmp("-T",argv[i])==0)
+	{
+	sscanf(argv[i+1],"%f",&tau);
 	i+=2;
 	THRESHOLD = TRUE;
 	}
@@ -149,7 +150,7 @@ if(strcmp("-S",argv[i])==0)
 	i+=2;
 	}
 else
-if(strcmp("-B",argv[i])==0) 
+if(strcmp("-B",argv[i])==0)
 	{
 	sscanf(argv[i+1],"%d",&pic_y);
 	sscanf(argv[i+2],"%d",&pic_x);
@@ -217,9 +218,9 @@ if((end-start+1) > PIC_T)
 	printf("Fatal error: not enough room for the images\n");
 	exit(1);
 	}
-if(end < start) 
-	{ 
-	printf("Fatal error: specify images in ascending order\n"); 
+if(end < start)
+	{
+	printf("Fatal error: specify images in ascending order\n");
 	exit(1);
 	}
 
@@ -227,7 +228,7 @@ read_and_smooth3D(path1,argv[1],sigma,floatpic,pic,inpic,start,middle,end,header
 if(sigma!=0.0 && WRITE_SMOOTH)
 writefiles(path2,argv[1],pic,sigma,pic_t,pic_x,pic_y,middle-2,middle+2,header);
 }
-else 
+else
 {
 start = middle;
 end = middle+1;
@@ -252,7 +253,7 @@ for(j=0;j<pic_y;j++)
 
 printf("Number of Columns: %d Number of Rows: %d\n",pic_y,pic_x);
 if(pic_x > PIC_X || pic_y > PIC_Y)
-	{ 
+	{
 	printf("Fatal error: images are too big\n");
 	exit(1);
 	}
@@ -309,7 +310,7 @@ for(j=0;j<PIC_Y;j++)
 	}
 
 /* Perform iterations */
-for(i=0;i<numpass;i+=2) 
+for(i=0;i<numpass;i+=2)
 	{
 	printf("%3dth iteration\n",i);
 	fflush(stdout);
@@ -369,9 +370,9 @@ int t;
 {
 int i,j;
 
-printf("****** calculating Ex ******\n"); 
+printf("****** calculating Ex ******\n");
 for(i=startx;i<=endx;i+=step)
-for(j=starty;j<=endy;j+=step) 
+for(j=starty;j<=endy;j+=step)
 	{
 	Ex[i][j] = (floatpic[t][i+step][j] + floatpic[t][i+step][j+step] +
 	    	    floatpic[t+1][i+step][j] + floatpic[t+1][i+step][j+step])/4.0
@@ -398,9 +399,9 @@ int i,j;
 
 printf("****** calculating Ey ******\n");
 for(i=startx;i<=endx;i+=step)
-for(j=starty;j<=endy;j+=step) 
+for(j=starty;j<=endy;j+=step)
 	{
-	Ey[i][j] = (floatpic[t][i][j+step] + floatpic[t][i+step][j+step] + 
+	Ey[i][j] = (floatpic[t][i][j+step] + floatpic[t][i+step][j+step] +
 		    floatpic[t+1][i][j+step] + floatpic[t+1][i+step][j+step])/4.0
 		  -(floatpic[t][i][j] + floatpic[t][i+step][j] +
 		    floatpic[t+1][i][j] + floatpic[t+1][i+step][j])/4.0;
@@ -422,7 +423,7 @@ int t;
 {
 int i,j;
 
-printf("****** calculating Et ******\n"); 
+printf("****** calculating Et ******\n");
 for(i=startx;i<=endx;i+=step)
 for(j=starty;j<=endy;j+=step)
 	{
@@ -497,11 +498,11 @@ float Ex[PIC_X][PIC_Y],Ey[PIC_X][PIC_Y],Et[PIC_X][PIC_Y];
 int i,j;
 float mag,ave[PIC_X][PIC_Y][2];
 
-printf("****** Computing Velocity ******\n"); 
+printf("****** Computing Velocity ******\n");
 fflush(stdout);
 vels_avg(vels1,ave);
 for(i=startx;i<=endx;i+=step)
-for(j=starty;j<=endy;j+=step) 
+for(j=starty;j<=endy;j+=step)
 	{
 	vels[i][j][0] = ave[i][j][0]-Ex[i][j]*
 		(Ex[i][j]*ave[i][j][0]+Ey[i][j]*ave[i][j][1]+Et[i][j])
@@ -510,7 +511,7 @@ for(j=starty;j<=endy;j+=step)
 		(Ex[i][j]*ave[i][j][0]+Ey[i][j]*ave[i][j][1]+Et[i][j])
 		/(alpha*alpha+Ex[i][j]*Ex[i][j]+Ey[i][j]*Ey[i][j]);
 	mag = sqrt(vels[i][j][0]*vels[i][j][0]+vels[i][j][1]*vels[i][j][1]);
-	if(mag > 5.0 && FALSE) 
+	if(mag > 5.0 && FALSE)
 		{
 		printf("Velocity magnitude of %f at %d %d is over 5.0\n",mag,i,j) ;
                 }
@@ -528,21 +529,21 @@ float Ex[PIC_X][PIC_Y],Ey[PIC_X][PIC_Y],Et[PIC_X][PIC_Y];
 int i,j;
 
 printf("********************  Ex  ********************\n");
-for(i=50;i<=60;i+=step) 
+for(i=50;i<=60;i+=step)
 	{
 	for(j=50;j<=60;j+=step) printf("%5.1f ",Ex[i][j]);
 	printf ("\n");
     	}
 
 printf("********************  Ey  ********************\n");
-for(i=50;i<=60;i+=step) 
+for(i=50;i<=60;i+=step)
 	{
 	for(j=50;j<=60;j+=step) printf("%5.1f ",Ey[i][j]);
 	printf("\n");
     	}
 
 printf("********************  Et  ********************\n");
-for(i=50;i<=60;i+=step) 
+for(i=50;i<=60;i+=step)
 	{
 	for(j=50;j<=60;j+=step) printf("%5.1f ",Et[i][j]);
 	printf("\n");
@@ -680,7 +681,7 @@ if((end-start) < 0)
 	exit(1);
 	}
 ONCE = TRUE;
-for(i=start;i<=end;i++) 
+for(i=start;i<=end;i++)
 	{
 	time++;
 	no_bytes = 0;
@@ -704,7 +705,7 @@ for(i=start;i<=end;i++)
 		printf("File %s read (%d bytes)\n",fname,no_bytes);
 		no_bytes = 0;
 		}
-	else 
+	else
 		{
 		printf("File %s does not exist in readfiles.\n",fname);
 		exit(1);
@@ -730,7 +731,7 @@ int i,j,fp,time,no_bytes;
 printf("\nWriting smoothed files...\n");
 
 time = -1;
-for (i=start;i<=end;i++) 
+for (i=start;i<=end;i++)
 	{
 	no_bytes = 0;
 	time++;
@@ -742,7 +743,7 @@ for (i=start;i<=end;i++)
 			no_bytes += write(fp,&result[time][j][0],pic_y);
 		printf("File %s written (%d bytes)\n",fname,no_bytes);
 		}
-	else 
+	else
 		{
 		printf("File %s cannot be written\n",fname);
 		exit(1);
@@ -840,10 +841,10 @@ else { mask[0] = 1.0; sum = 1.0; }
 
 if(OUTPUT_SMOOTH && sigma!=0.0)
 {
-printf("Size: %d Offset: %d\nMask values: ",size,offset); 
+printf("Size: %d Offset: %d\nMask values: ",size,offset);
 for(i=0;i<size;i++)
 	printf("%f ",mask[i]);
-printf("\nSum of mask values: %f\n",sum); 
+printf("\nSum of mask values: %f\n",sum);
 }
 for(i=0;i<pic_x;i++)
 for(j=0;j<pic_y;j++)
@@ -949,7 +950,7 @@ no_novals = no_vals = 0;
 for(i=n;i<pic_x-n;i++)
 for(j=n;j<pic_y-n;j++)
 	{
-	if(full_velocities[i][j][0] != NO_VALUE && 
+	if(full_velocities[i][j][0] != NO_VALUE &&
 	   full_velocities[i][j][1] != NO_VALUE)
 		{
 		no_vals++;
@@ -1016,7 +1017,7 @@ for(j=n;j<pic_y-n;j++)
 
 if(full_count != 0) (*ave_error) = (*ave_error)/full_count;
 else (*ave_error) = 0.0;
-if(full_count > 1) 
+if(full_count > 1)
 {
 temp = fabs((sumX2 - full_count*(*ave_error)*(*ave_error))/(full_count-1));
 (*st_dev) = sqrt(temp);
@@ -1132,7 +1133,7 @@ tau2 = tau*tau;
 for(i=0;i<pic_x;i++)
 for(j=0;j<pic_y;j++)
 	{
-	gradient2 = Ix[i][j]*Ix[i][j]+Iy[i][j]*Iy[i][j]; 
+	gradient2 = Ix[i][j]*Ix[i][j]+Iy[i][j]*Iy[i][j];
 	/* gradient2 = fmin(Ix[i][j]*Ix[i][j],Iy[i][j]*Iy[i][j]); */
 	if(gradient2 < tau2)
 		{

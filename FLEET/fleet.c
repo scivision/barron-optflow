@@ -23,7 +23,7 @@
 #define PMODE 0644
 #define TRUE 1
 #define FALSE 0
-#define BETA 0.001 
+#define BETA 0.001
 #define KERNEL_X 20
 #define KERNEL_Y 20
 #define KERNEL_T 20
@@ -33,7 +33,7 @@
 #define NOT_THRESHOLDED 1
 #define TORAD (PI/180.0)
 #define NRADIUS 4
-#define NO_NORM_VEL (NRADIUS*2+1)*(NRADIUS*2+1)*22 
+#define NO_NORM_VEL (NRADIUS*2+1)*(NRADIUS*2+1)*22
 #define NO_UNKNOWNS 6
 #define UNDEFINED 100.0
 #define NO_VALUE 100.0
@@ -44,7 +44,7 @@
 
 typedef unsigned char cimages[PIC_T][PIC_X][PIC_Y];
 typedef float images[NUMBER][PIC_X][PIC_Y];
-typedef float imageplane[PIC_X][PIC_Y]; 
+typedef float imageplane[PIC_X][PIC_Y];
 typedef struct { float Re, Im;} Imag,*ImagP;
 typedef int int3[3];
 typedef float float3[3];
@@ -161,9 +161,9 @@ strcpy(path3,".");
 printf("sigma=%f\n",sigma);
 printf("Central image: %d\n",central_image);
 printf("Amplitude threshold: %f percent\n",percent_maxamp*100.0);
-strcpy(path1,argv[5]); 
-strcpy(path2,argv[6]); 
-strcpy(path3,argv[7]); 
+strcpy(path1,argv[5]);
+strcpy(path2,argv[6]);
+strcpy(path3,argv[7]);
 printf("<input path>: %s\n<filter path>: %s\n<output path>: %s\n",
 	path1,path2,path3);
 
@@ -173,14 +173,14 @@ if(size % 2 == 0) size += 1;
 OFFSET_X = OFFSET_Y = OFFSET_T = size/2.0;
 NUMFILES = size+4; /* Filter 5 adjacent images */
 pic_t = 5;
-if(NUMFILES > PIC_T || NUMBER > NUMFILES-2*OFFSET_T || NUMBER < pic_t) 
-	{ 
+if(NUMFILES > PIC_T || NUMBER > NUMFILES-2*OFFSET_T || NUMBER < pic_t)
+	{
 	fprintf(stderr,"Fatal error: not enough room for image data\n");
 	fprintf(stderr,"NUMFILES: %d PIC_T: %d OFFSET_T: %d\n",
 		NUMFILES,PIC_T,OFFSET_T);
 	exit(EXIT_FAILURE);
 	}
-	
+
 STARTFILE = central_image-size/2-2;
 printf("Offsets in x, y and t: %d\n",size/2);
 printf("NUMFILES: %d STARTFILE: %d\n",NUMFILES,STARTFILE);
@@ -265,7 +265,7 @@ sprintf(command,"rm %s/%sfilter*",path2,argv[1]);
 printf("%s\n",command);
 system(command);
 }
-fflush(fp); 
+fflush(fp);
 /* Filter the images */
 filter_images(path1,path2,argv[1],sigma);
 
@@ -288,7 +288,7 @@ fflush(fp);
 else if(BINARY==FALSE)
     {
     set_dimensions(path1,argv[1],central_image);
-    fprintf(fp,"\nConvolution not performed\n"); 
+    fprintf(fp,"\nConvolution not performed\n");
     fflush(fp);
     }
 
@@ -322,9 +322,9 @@ fprintf(fp,"Elasped time in minutes: %f\n",(time4-time1)*1.0/60.0);
 fprintf(fp,"Elasped time in hours: %f\n",(time4-time1)*1.0/3600.0);
 fflush(fp);
 }
-else { 
+else {
      fprintf(fp,"\nThresholding and Velocity Computation not performed\n");
-     fflush(fp); 
+     fflush(fp);
 }
 
 return EXIT_SUCCESS;
@@ -355,7 +355,7 @@ printf("Max amplitude == %15.10f\n",maxamp);
 
 
 /************************************************************
--Convolves images with each filter and computes amplitudes. 
+-Convolves images with each filter and computes amplitudes.
 -writes files.
 ************************************************************/
 void all_filters(name,path,maxamp,filter,sigma)
@@ -373,21 +373,21 @@ float  Gsx[2*KERNEL_X+1], Gsy[2*KERNEL_Y+1], Gst[2*KERNEL_T+1],
 /* We do not use the flicker channel */
 
 (*maxamp) = 0.0;
-for(n=0;n<22;n++)  /* Start of n loop */             
-	{ 
-	printf("\n\nCalculating filter %d...\n",n);    
+for(n=0;n<22;n++)  /* Start of n loop */
+	{
+	printf("\n\nCalculating filter %d...\n",n);
 	calc_gabors(Gsx,Gsy,Gst,Gcx,Gcy,Gct,
 		   filter[n][0],filter[n][1],filter[n][2],sigma);
 	printf("k1=%f k2=%f k3=%f\n",filter[n][0],filter[n][1],filter[n][2]);
-	if(PRINT) coefficients_and_sums(Gsx,Gsy,Gst,Gcx,Gcy,Gct,sigma);	
-	printf("Convolving Gabors...\n");      
+	if(PRINT) coefficients_and_sums(Gsx,Gsy,Gst,Gcx,Gcy,Gct,sigma);
+	printf("Convolving Gabors...\n");
 	fflush(stdout);
 	convolve_gabors(Gsx,Gsy,Gst,Gcx,Gcy,Gct);
 
 	/***** subtract DC component, 0.001 G from cos output  *****/
 	calc_gaussian(Gx,Gy,Gt,sigma);
 	calc_DC(Gx,Gy,Gt);
-	subpic(IfRe,DC); 
+	subpic(IfRe,DC);
 
 	calc_maxamp(maxamp);
 	sprintf(name1,"%s%s",name,"filter");
@@ -403,7 +403,7 @@ fclose(fpa);
 
 
 /************************************************************
-  Computes amplitudes of each filter output and saves in 
+  Computes amplitudes of each filter output and saves in
   intermediate files. Saves a running maximum amplitude.
   USES GLOBALS images IfRe,IfIm;
 ************************************************************/
@@ -411,10 +411,10 @@ void calc_maxamp(float* maxamp)
 {
 int i,j,k;
 float amplitude;
-float filtmax = 0.0;	
-	
+float filtmax = 0.0;
+
 i = 2; /* Use middle image */
-for(j=0;j<pic_x;j++) 
+for(j=0;j<pic_x;j++)
 	{
        	for (k=0;k<pic_y;k++)
 		{
@@ -442,28 +442,28 @@ float val;
 float twopi = sqrt((float)(2.0*M_PI));
 
 
-for(i=(-OFFSET_T);i<=OFFSET_T;i++) 
+for(i=(-OFFSET_T);i<=OFFSET_T;i++)
 	{
         val = i;
         Gt[i+OFFSET_T] = 1.0/(twopi*sigma) * exp(-(val*val/(2.0*sigma*sigma)));
     }
- 
-for(i=(-OFFSET_X);i<=OFFSET_X;i++) 
+
+for(i=(-OFFSET_X);i<=OFFSET_X;i++)
 	{
         val = i;
         Gx[i+OFFSET_X] = 1.0/(twopi*sigma) * exp(-(val*val/(2.0*sigma*sigma)));
     }
- 
-for(i=(-OFFSET_Y);i<=OFFSET_Y;i++) 
+
+for(i=(-OFFSET_Y);i<=OFFSET_Y;i++)
 	{
         val = i;
-        Gy[i+OFFSET_Y] = 1.0/(twopi*sigma) * exp(-(val*val/(2.0*sigma*sigma))); 
+        Gy[i+OFFSET_Y] = 1.0/(twopi*sigma) * exp(-(val*val/(2.0*sigma*sigma)));
 	}
 } /* End of calc_gaussian */
 
 
 /************************************************************
-  Compute values for the 1-D sine and cosine gabors. 
+  Compute values for the 1-D sine and cosine gabors.
 ************************************************************/
 void calc_gabors(Gsx,Gsy,Gst,Gcx,Gcy,Gct,wx,wy,wt,sigma)
 float Gsx[],Gsy[],Gst[],Gcx[],Gcy[],Gct[];
@@ -475,44 +475,44 @@ int SWITCH;
 
 float twopi = sqrt((float)(2.0*M_PI));
 
-SWITCH = 2; /* 0 or 2 to reverse the order of the coefficients */ 
+SWITCH = 2; /* 0 or 2 to reverse the order of the coefficients */
 
 constant = 1.0;
 
 printf("\n");
-for(i=(-OFFSET_T);i<=OFFSET_T;i++) 
+for(i=(-OFFSET_T);i<=OFFSET_T;i++)
 	{
 	val = i;
 	Gst[i+OFFSET_T-SWITCH*i] = 1.0/(twopi*sigma)* sin(constant*val*wt) *
 				        exp(-(val*val/(2.0*sigma*sigma)));
 	}
-for(i=(-OFFSET_X);i<=OFFSET_X;i++) 
+for(i=(-OFFSET_X);i<=OFFSET_X;i++)
 	{
 	val = i;
         Gsx[i+OFFSET_X-SWITCH*i] = 1.0/(twopi*sigma)* sin(constant*val*wx) *
 				        exp(-(val*val/(2.0*sigma*sigma)));
 	}
-for(i=(-OFFSET_Y);i<=OFFSET_Y;i++) 
+for(i=(-OFFSET_Y);i<=OFFSET_Y;i++)
 	{
 	val = i;
         Gsy[i+OFFSET_Y-SWITCH*i] = 1.0/(twopi*sigma)* sin(constant*val*wy) *
-				        exp(-(val*val/(2.0*sigma*sigma))); 
-	} 
+				        exp(-(val*val/(2.0*sigma*sigma)));
+	}
 
-/* Cosine gabors */ 
-for(i=(-OFFSET_T);i<=OFFSET_T;i++) 
+/* Cosine gabors */
+for(i=(-OFFSET_T);i<=OFFSET_T;i++)
 	{
 	val = i;
         Gct[i+OFFSET_T-SWITCH*i] = 1.0/(twopi*sigma)* (cos(constant*val*wt)) *
 				        exp(-(val*val/(2.0*sigma*sigma)));
 	}
-for(i=(-OFFSET_X);i<=OFFSET_X;i++) 
+for(i=(-OFFSET_X);i<=OFFSET_X;i++)
 	{
 	val = i;
         Gcx[i+OFFSET_X-SWITCH*i] = 1.0/(twopi*sigma)* (cos(constant*val*wx)) *
 				        exp(-(val*val/(2.0*sigma*sigma)));
 	}
-for(i=(-OFFSET_Y);i<=OFFSET_Y;i++) 
+for(i=(-OFFSET_Y);i<=OFFSET_Y;i++)
 	{
 	val = i;
         Gcy[i+OFFSET_Y-SWITCH*i] = 1.0/(twopi*sigma)* (cos(constant*val*wy)) *
@@ -525,7 +525,7 @@ for(i=(-OFFSET_Y);i<=OFFSET_Y;i++)
 /* Remove the DC component, i.e. 0.001 of the Gaussian		       */
 /***********************************************************************/
 void calc_DC(Gx,Gy,Gt)
-float Gx[],Gy[],Gt[]; 
+float Gx[],Gy[],Gt[];
 {
 printf("\n\nComputing DC component as 0.001G ...\n");
 conv_t(Gt,DC,pic);
@@ -553,26 +553,26 @@ float Gsx[],Gsy[],Gst[],Gcx[],Gcy[],Gct[];
 conv_t(Gct,savet,pic);
 conv_x(Gcx,savex,savet);
 conv_y(Gsy,IfIm,savex);
-conv_y(Gcy,IfRe,savex); 
+conv_y(Gcy,IfRe,savex);
 
 conv_x(Gsx,savex,savet);
 conv_y(Gcy,savet,savex);
-addpic(IfIm,savet); 
+addpic(IfIm,savet);
 conv_y(Gsy,savet,savex);
-subpic(IfRe,savet); 
+subpic(IfRe,savet);
 
 conv_t(Gst,savett,pic);
 conv_x(Gsx,savex,savett);
 conv_y(Gsy,savet,savex);
-subpic(IfIm,savet); 
+subpic(IfIm,savet);
 conv_y(Gcy,savet,savex);
 subpic(IfRe,savet);
 
 conv_x(Gcx,savex,savett);
 conv_y(Gcy,savet,savex);
-addpic(IfIm,savet); 
+addpic(IfIm,savet);
 conv_y(Gsy,savet,savex);
-subpic(IfRe,savet); 
+subpic(IfRe,savet);
 
 fflush(stdout);
 } /* End of convolve_gabors */
@@ -590,11 +590,11 @@ cimages pic;
 register int i,j,k,m;
 
 for(i=0;i<NUMFILES-2*OFFSET_T;i++)
-for(j=OFFSET_X;j<pic_x-OFFSET_X;j++) 
-for(k=OFFSET_Y;k<pic_y-OFFSET_Y;k++) 
+for(j=OFFSET_X;j<pic_x-OFFSET_X;j++)
+for(k=OFFSET_Y;k<pic_y-OFFSET_Y;k++)
 	{
 	save[i][j][k] = 0;
-	for(m=i;m<=i+2*OFFSET_T;m++) 
+	for(m=i;m<=i+2*OFFSET_T;m++)
 		{
 	        save[i][j][k] += (pic[m][j][k] * G[m-i]);
 		}
@@ -612,15 +612,15 @@ images save,pic;
 register int i,j,k,m,start;
 
 for(i=0;i<NUMFILES-2*OFFSET_T;i++)
-for(j=OFFSET_X;j<pic_x-OFFSET_X;j++) 
-for(k=OFFSET_Y;k<pic_y-OFFSET_Y;k++)  
-	{ 
+for(j=OFFSET_X;j<pic_x-OFFSET_X;j++)
+for(k=OFFSET_Y;k<pic_y-OFFSET_Y;k++)
+	{
 	save[i][j][k] = 0;
 	start = j-OFFSET_X;
-	for (m=start;m<=j+OFFSET_X;m++) 
-		{ 
+	for (m=start;m<=j+OFFSET_X;m++)
+		{
 		save[i][j][k] += (pic[i][m][k] * G[m-start]);
-                } 
+                }
 	}
 } /* End of conv_x */
 
@@ -628,16 +628,16 @@ for(k=OFFSET_Y;k<pic_y-OFFSET_Y;k++)
 /************************************************************
   Convolve 1d gabor in y
 ************************************************************/
-void conv_y(G,save,pic) 
-float G[]; 
+void conv_y(G,save,pic)
+float G[];
 images save,pic;
 {
 register int i,j,k,m,start;
 
-for(i=0;i<NUMFILES-2*OFFSET_T;i++)	
-for(j=OFFSET_X;j<pic_x-OFFSET_X;j++) 
-for(k=OFFSET_Y;k<pic_y-OFFSET_Y;k++)  
-	{ 
+for(i=0;i<NUMFILES-2*OFFSET_T;i++)
+for(j=OFFSET_X;j<pic_x-OFFSET_X;j++)
+for(k=OFFSET_Y;k<pic_y-OFFSET_Y;k++)
+	{
 	save[i][j][k] = 0;
 	start = k-OFFSET_Y;
 	for(m=start;m<=k+OFFSET_Y;m++)
@@ -653,13 +653,13 @@ for(k=OFFSET_Y;k<pic_y-OFFSET_Y;k++)
       Used to add results of two convolutions.
 ************************************************************/
 void addpic(res,data)
-images res,data; 
+images res,data;
 {
 register int i,j,k;
 
 for(i=0;i<NUMFILES-2*OFFSET_T;i++)  /*******/
 for(j=0;j<pic_x;j++)
-for(k=0;k<pic_y;k++)  
+for(k=0;k<pic_y;k++)
 	{
 	res[i][j][k] += data[i][j][k];
         }
@@ -671,13 +671,13 @@ for(k=0;k<pic_y;k++)
       Used to subtract results of two convolutions.
 ************************************************************/
 void subpic(res,data)
-images res,data; 
+images res,data;
 {
 register int i,j,k;
 
-for(i=0;i<NUMFILES-2*OFFSET_T;i++)     
+for(i=0;i<NUMFILES-2*OFFSET_T;i++)
 for(j=0;j<pic_x;j++)
-for(k=0;k<pic_y;k++) 
+for(k=0;k<pic_y;k++)
 	{
 	res[i][j][k] -= data[i][j][k];
 	}
@@ -691,11 +691,11 @@ for(k=0;k<pic_y;k++)
 void mult(images pic, float val)
 {
 register int i,j,k;
-for(i=0; i < NUMFILES-2*OFFSET_T; i++)    
+for(i=0; i < NUMFILES-2*OFFSET_T; i++)
 for(j=0; j < pic_x; j++)
-for(k=0; k < pic_y; k++)  
+for(k=0; k < pic_y; k++)
 	{
-	pic[i][j][k] = pic[i][j][k] * val; 
+	pic[i][j][k] = pic[i][j][k] * val;
 	}
 }
 
@@ -716,7 +716,7 @@ int fd,ints[8],ONCE,bytes;
 
 ONCE = TRUE;
 bytes = 0;
-for(int i=0;i<NUMFILES;i++) 
+for(int i=0;i<NUMFILES;i++)
 	{
 	sprintf(fname,"%s%d",s,i+STARTFILE);
  	if((fd = open(fname,O_RDONLY)) >=0)
@@ -724,7 +724,7 @@ for(int i=0;i<NUMFILES;i++)
 		if(!BINARY)
 		{
 		if(ONCE)
-			{ 
+			{
             printf("opening %s\n",fname);
 			read(fd,ints,HEAD);
 			pic_y = ints[1];
@@ -747,7 +747,7 @@ for(int i=0;i<NUMFILES;i++)
 		printf("File %s read -- %d bytes\n",fname,bytes);
 		fflush(stdout);
 		}
-	      else 
+	      else
 		{
 		fprintf(stderr,"File %s does not exist in read_image_files.\n",fname);
 		exit(EXIT_FAILURE);
@@ -778,7 +778,7 @@ printf("Size data obtained from %s\n",fname);
 } /* End of set_dimensions  */
 
 
- 
+
 
 /************************************************************************/
 /* Print out the coefficients and their sums for each sine and cosine   */
@@ -793,30 +793,30 @@ float sum;
 printf("Value of sigma: %f\n",sigma);
 /* Sine Gabors */
 printf("\nCoefficients of Gsx:\n");
-for(i=0;i<2*OFFSET_X+1;i++) 
-	{ 
-	if(i%8==0) printf("\n"); 
-	printf("%f ",Gsx[i]); 
+for(i=0;i<2*OFFSET_X+1;i++)
+	{
+	if(i%8==0) printf("\n");
+	printf("%f ",Gsx[i]);
 	}
 sum=0.0;
 for(i=0;i<2*OFFSET_X+1;i++) sum += Gsx[i];
 printf("\nSum=%f\n",sum);
 
 printf("\nCoefficients of Gsy:\n");
-for(i=0;i<2*OFFSET_Y+1;i++) 
-	{ 
-	if(i%8==0) printf("\n"); 
-	printf("%f ",Gsy[i]); 
+for(i=0;i<2*OFFSET_Y+1;i++)
+	{
+	if(i%8==0) printf("\n");
+	printf("%f ",Gsy[i]);
 	}
 sum=0.0;
 for(i=0;i<2*OFFSET_Y+1;i++) sum += Gsy[i];
 printf("\nSum=%f\n",sum);
 
 printf("\nCoefficients of Gst:\n");
-for(i=0;i<2*OFFSET_T+1;i++) 
-	{ 
-	if(i%8==0) printf("\n"); 
-	printf("%f ",Gst[i]); 
+for(i=0;i<2*OFFSET_T+1;i++)
+	{
+	if(i%8==0) printf("\n");
+	printf("%f ",Gst[i]);
 	}
 sum=0.0;
 for(i=0;i<2*OFFSET_T+1;i++) sum += Gst[i];
@@ -825,30 +825,30 @@ printf("\nSum=%f\n",sum);
 
 /* Cosine Gabors */
 printf("\nCoefficients of Gcx:\n");
-for(i=0;i<2*OFFSET_X+1;i++) 
-	{ 
-	if(i%8==0) printf("\n"); 
-	printf("%f ",Gcx[i]); 
+for(i=0;i<2*OFFSET_X+1;i++)
+	{
+	if(i%8==0) printf("\n");
+	printf("%f ",Gcx[i]);
 	}
 sum=0.0;
 for(i=0;i<2*OFFSET_X+1;i++) sum += Gcx[i];
 printf("\nSum=%f\n",sum);
 
 printf("\nCoefficients of Gcy:\n");
-for(i=0;i<2*OFFSET_Y+1;i++) 
-	{ 
-	if(i%8==0) printf("\n"); 
-	printf("%f ",Gcy[i]); 
+for(i=0;i<2*OFFSET_Y+1;i++)
+	{
+	if(i%8==0) printf("\n");
+	printf("%f ",Gcy[i]);
 	}
 sum=0.0;
 for(i=0;i<2*OFFSET_Y+1;i++) sum += Gcy[i];
 printf("\nSum=%f\n",sum);
 
 printf("\nCoefficients of Gct:\n");
-for(i=0;i<2*OFFSET_T+1;i++) 
-	{ 
-	if(i%8==0) printf("\n"); 
-	printf("%f ",Gct[i]); 
+for(i=0;i<2*OFFSET_T+1;i++)
+	{
+	if(i%8==0) printf("\n");
+	printf("%f ",Gct[i]);
 	}
 sum=0.0;
 for(i=0;i<2*OFFSET_T+1;i++) sum += Gct[i];
@@ -859,7 +859,7 @@ fflush(stdout);
 
 
 /*********************************************************
-  Threshold the filter output and then compute image 
+  Threshold the filter output and then compute image
   velocities using the thresholded results
 *********************************************************/
 void thresh_and_compute(s,path2,path3,correct_name,sigma,
@@ -901,7 +901,7 @@ initfilters(filter,tuning_info,sigma);
 sprintf(name,"%s/%s%s",path2,s,"filter");
 
 if(!OLD_WAY)
-threshold1(name,thresholded,maxamp,num_thresh,filter,percent_maxamp,tau); 
+threshold1(name,thresholded,maxamp,num_thresh,filter,percent_maxamp,tau);
 else
 threshold2(name,thresholded,maxamp,num_thresh,filter,percent_maxamp,tauA,tauF);
 
@@ -915,7 +915,7 @@ sprintf(fullname,"%s/fleet.%s%dF-%3.2f-%3.2f",path3,s,(int)(sigma*10),tauA,tauF)
 if((fdf = creat(fullname,0644))<0)
 	{
         printf("Error creating file %s.\n",fullname);
-        exit(1); 
+        exit(1);
 	}
 printf("\nFile %s opened\n",fullname);
 
@@ -926,7 +926,7 @@ sprintf(normalname,"%s/fleet.%s%dN-%3.2f-%3.2f",path3,s,(int)(sigma*10),tauA,tau
 if((fdn = creat(normalname,0644))<0)
 	{
         printf("Error creating file %s.\n",normalname);
-        exit(1); 
+        exit(1);
 	}
 printf("\nFile %s opened\n",normalname);
 fflush(stdout);
@@ -948,7 +948,7 @@ output_normal_velocities(fdn,normal_velocities);
 fflush(stdout);
 printf("Starting full image velocity calculation\n");
 fflush(stdout);
-calc_full_velocities(normal_velocities,full_velocities,E); 
+calc_full_velocities(normal_velocities,full_velocities,E);
 printf("Full image computed\n");
 fflush(stdout);
 output_full_velocities(fdf,full_velocities);
@@ -1005,7 +1005,7 @@ fflush(stdout);
 /************************************************************
    Write FLOATS from 3-D internal array into files.
 ************************************************************/
-void write_If_data(name,path,n,Re,Im)   
+void write_If_data(name,path,n,Re,Im)
 char name[100],path[100];
 int n;
 images Re,Im;
@@ -1018,7 +1018,7 @@ sprintf(fname,"%s/%s%d",path,name,n);
 printf("Writing file: %s in write_If_data\n",fname);
 if((fd = creat(fname,0755)) >=0)
 	{
-        for (i=0;i<NUMFILES-2*OFFSET_T;i++) 
+        for (i=0;i<NUMFILES-2*OFFSET_T;i++)
 		{
 		for(j=0;j<pic_x;j++)
 		{
@@ -1062,7 +1062,7 @@ printf("\nReading file: %s in read_If_data\n",fname);
 fflush(stdout);
 if((fd = open(fname,O_RDONLY,0644))>=0)
 	{
-        for(i=0;i<NUMFILES-2*OFFSET_T;i++) 
+        for(i=0;i<NUMFILES-2*OFFSET_T;i++)
 		{
 		for(j=0;j<pic_x;j++)
 		{
@@ -1189,7 +1189,7 @@ for(i=(-2);i<=2;i++)
 
 
 /************************************************************
-   Computes Del Phi 
+   Computes Del Phi
 ************************************************************/
 void Dphi(Re,Im,phi,kf,n)
 images Re,Im;
@@ -1256,7 +1256,7 @@ fflush(stdout);
 }
 
 /************************************************************
-  Threshold the filter results based on a single 
+  Threshold the filter results based on a single
   amplitude/frequency constraint
 ************************************************************/
 void threshold1(name,thresholded,maxamp,num_thresh,filter,percent_maxamp,tau)
@@ -1337,7 +1337,7 @@ if(thresholded[n][i][j] == NOT_THRESHOLDED)
 		printf("phi: %f %f %f\n",phi[i][j][0],phi[i][j][1],phi[i][j][2]);
 		}
 		}
-	else 
+	else
 		{
 		diff[0] = diff[1] = diff[2] = HUGE;
 		}
@@ -1351,7 +1351,7 @@ if(thresholded[n][i][j] == NOT_THRESHOLDED)
 		thresholded[n][i][j] = THRESHOLDED;
 		num_thresh[n]++;
 		}
-	else 
+	else
 		{
 		count[n]++;
 		}
@@ -1396,7 +1396,7 @@ beta = 0.8;
 base = 2.0;
 b = pow(base,beta); /* 1.7411 */
 
-for(n=0;n<22;n++) 
+for(n=0;n<22;n++)
 	{
 	num_thresh[n] = 0;
 	threshA[n] = 0;
@@ -1436,7 +1436,7 @@ if(thresholded[n][i][j] == NOT_THRESHOLDED)
 		diff[1] = (phi[i][j][1]-filter[n][1]);
 		diff[2] = (phi[i][j][2]-filter[n][2]);
 		}
-	else 
+	else
 		{
 		dA[0] = dA[1] = dA[2] = HUGE;
 		diff[0] = diff[1] = diff[2] = HUGE;
@@ -1453,7 +1453,7 @@ if(thresholded[n][i][j] == NOT_THRESHOLDED)
 	/* Accumulate thresholding statistics */
 	already = FALSE;
 	if((amplitude < ampthresh) ||
-	   (sigma*L2norm(&dA[0],3))/amplitude > tauA) 
+	   (sigma*L2norm(&dA[0],3))/amplitude > tauA)
 		{
 		threshA[n]++;
 		already = TRUE;
@@ -1533,19 +1533,19 @@ tuning_info[18][0] = 120.0; tuning_info[18][1] = constant2;
 tuning_info[19][0] = 180.0; tuning_info[19][1] = constant2;
 tuning_info[20][0] = 240.0; tuning_info[20][1] = constant2;
 tuning_info[21][0] = 300.0; tuning_info[21][1] = constant2;
- 
- 
+
+
 printf("\nFilter frequency information:\n");
 for(ii=0;ii<22;ii++)
 	{
         theta = tuning_info[ii][0];
         speed = tuning_info[ii][1];
- 
+
         wavelength = (two_pi*(b-1)*sigma)/(mu*(b+1));
         lambdas = wavelength*(sqrt(speed*speed+1.0));
         if(fabs(speed) > 0.000001) lambdat = -lambdas/speed;
         else lambdat = HUGE;
- 
+
         k3 = two_pi/lambdat;
         rho = two_pi/lambdas;
         k1 = rho*sin(theta*two_pi/360.0);
@@ -1611,7 +1611,7 @@ int n;
 {
 int i;
 float sum = 0.0;
-for (i=0;i<n; i++) 
+for (i=0;i<n; i++)
 	sum += (float)(v[i]*v[i]);
 sum = sqrt(sum);
 return(sum);
@@ -1720,14 +1720,14 @@ for(j=(2*OFFSET_Y+NRADIUS);j<pic_y-(2*OFFSET_Y+NRADIUS);j++)
 		condnum = cal_velocity(count,J,JI,vn,v,product);
 	else condnum = HUGE;
 
-	for(ii=0;ii<count;ii++) 
+	for(ii=0;ii<count;ii++)
 		{
 		difference[ii] = (float) (vn[ii] - product[ii]);
 		difference[ii] = difference[ii]*difference[ii];
 		fvn[ii] = (float) vn[ii];
 		}
 
-	if(condnum < 10.0 && 
+	if(condnum < 10.0 &&
 	  (residual_error=L2norm(difference,count)/L2norm(fvn,count)) < 0.5)
 		{
 		E[i][j] = residual_error;
@@ -1791,7 +1791,7 @@ for(j=(2*OFFSET_Y+NRADIUS);j<pic_y-(2*OFFSET_Y+NRADIUS);j++)
 	{
 	x = -full_velocities[i][j][0];
 	y = full_velocities[i][j][1];
-	if(full_velocities[i][j][0] != NO_VALUE && 
+	if(full_velocities[i][j][0] != NO_VALUE &&
 	   full_velocities[i][j][1] != NO_VALUE)
 		{
 		full_velocities[i][j][0] = y;
@@ -1870,7 +1870,7 @@ for(j=(2*OFFSET_Y+NRADIUS);j<pic_y-(2*OFFSET_Y+NRADIUS);j++)
 		if(thresholded[k][i][j] == NOT_THRESHOLDED)
 			{
 			x = -normal_velocities[k][i][j][0];
-			y = normal_velocities[k][i][j][1]; 
+			y = normal_velocities[k][i][j][1];
 			/* write(fdn,&y,4);
 			write(fdn,&x,4); */
 			data[num] = y;
@@ -1883,7 +1883,7 @@ for(j=(2*OFFSET_Y+NRADIUS);j<pic_y-(2*OFFSET_Y+NRADIUS);j++)
 	/* write(fdn,&last,4); */
 	data[num] = last;
 	num++;
-	if(num > 5000) 
+	if(num > 5000)
 		{
 		printf("Fatal error: data array not big enough for normal velocity data\n");
 		exit(1);
@@ -1951,7 +1951,7 @@ double J[NO_NORM_VEL][NO_UNKNOWNS];
 double JI[NO_UNKNOWNS][NO_NORM_VEL];
 int r;
 {
-extern void dsvdc(double [][NO_NORM_VEL], int* , int*, int*, double [], double [], double [][NO_NORM_VEL], int*, double [][NO_UNKNOWNS], int* , double [], int*, int*); 
+extern void dsvdc(double [][NO_NORM_VEL], int* , int*, int*, double [], double [], double [][NO_NORM_VEL], int*, double [][NO_UNKNOWNS], int* , double [], int*, int*);
 
 int size;
 double 	VT[NO_UNKNOWNS][NO_UNKNOWNS],
@@ -1978,7 +1978,7 @@ for(j=0;j<size;j++)
 job = 21;
 
 /* Call limpack double percision SVD routine */
-dsvdc(JT,&mdim,&m,&n, W, zero, UU,&mdim,VV,&n,temp,&job,&Ierr);  
+dsvdc(JT,&mdim,&m,&n, W, zero, UU,&mdim,VV,&n,temp,&job,&Ierr);
 
 /* Undo "Fortran" damage, i.e. transpose the data and convert to
    single percision.  */
@@ -2036,13 +2036,13 @@ for(j=0;j<NO_UNKNOWNS;j++)
 	}
 
 /* Check I */
-if (condnum < 100000.0) 
+if (condnum < 100000.0)
 {
 error = FALSE;
 for(i=0;i<NO_UNKNOWNS;i++)
 for(j=0;j<NO_UNKNOWNS;j++)
 	{
-	if(i==j) 
+	if(i==j)
 		{
 		if(fabs(I[i][i])<0.9999 || fabs(I[i][i])>1.0001) error=TRUE;
 		}
@@ -2098,14 +2098,14 @@ for(j=(2*OFFSET_Y+NRADIUS);j<pic_y-(2*OFFSET_Y+NRADIUS);j++)
 	{
 	if(full_vels[i][j][0] == NO_VALUE && full_vels[i][j][1] == NO_VALUE)
 		no_count++;
-	else 
+	else
 	  {
 	  count++;
 	  uve[0] = full_vels[i][j][0]; uve[1] = full_vels[i][j][1];
 	  uva[0] = correct_vels[i][j][0]; uva[1] = correct_vels[i][j][1];
 	  temp = PsiER(uve,uva);
 	  (*ave_error) += temp;
-	  if(E[i][j] == NO_VALUE) 
+	  if(E[i][j] == NO_VALUE)
 		{ printf("Fatal error: E has no value\n"); exit(1); }
 	  (*residual) += E[i][j];
 	  sumX2 += temp*temp;
@@ -2207,7 +2207,7 @@ if(!(v1>=-90.0 && v1<=90.0))
 	}
 }
 else v1 = NO_VALUE;
-	
+
 return(v1);
 }
 
