@@ -1,0 +1,33 @@
+name: cmake
+
+on:
+  push:
+    paths:
+      - "**.c"
+      - "**.f"
+      - "**.cmake"
+      - "**/CMakeLists.txt"
+      - ".github/workflows/cmake.yml"
+
+env:
+  TMPDIR: /tmp
+  HOMEBREW_NO_INSTALL_CLEANUP: 1
+
+jobs:
+
+  core:
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: GFortran (macOS)
+      if: runner.os == 'macOS'
+      run: brew reinstall gcc
+
+    - run: cmake --workflow --preset default

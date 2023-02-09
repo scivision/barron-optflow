@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
-//#include <unistd.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 #include <stdlib.h>
 /*
            NAME : const.h

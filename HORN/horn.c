@@ -7,7 +7,9 @@
 	for calculating an optical flow field.
 ************************************************************/
 #include  <fcntl.h>
-//#include <unistd.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 #include  <stdio.h>
 #define _USE_MATH_DEFINES  // needed for Windows
 #include  <math.h>

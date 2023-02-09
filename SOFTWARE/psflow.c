@@ -1,5 +1,7 @@
 #include <fcntl.h>
-//#include <unistd.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #define _USE_MATH_DEFINES  // needed for Windows

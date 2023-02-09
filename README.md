@@ -16,9 +16,8 @@ Some of the programs require a Fortran compiler and/or BLAS library.
 -   Mac: `brew install gcc openblas`
 
 ```sh
-meson build
-
-meson test -C build
+cmake -Bbuild
+cmake --build build
 ```
 
 ## Horn-Schunck

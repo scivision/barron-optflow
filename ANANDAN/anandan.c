@@ -4,7 +4,9 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdlib.h>
-//#include <unistd.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 /*
            NAME : const.h
@@ -3051,4 +3053,3 @@ char *argv[] ;
     fflush(stdout) ;
   }
 }
-
