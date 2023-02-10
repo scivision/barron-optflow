@@ -16,7 +16,6 @@
 #include <time.h>
 #include <sys/types.h>
 
-#define HUGE HUGE_VAL
 #define PIC_X  325
 #define PIC_Y  325
 #define PIC_T  22
@@ -2210,4 +2209,3 @@ else v1 = NO_VALUE;
 
 return(v1);
 }
-

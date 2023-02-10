@@ -145,7 +145,7 @@ int KERNEL_X, KERNEL_Y ;
            DATE : June 25 1990
 */
 
-concat(s1,s2,s3)
+void concat(s1,s2,s3)
 string s1, s2, s3 ;
 
 { string t ;
@@ -174,7 +174,7 @@ string s1, s2, s3 ;
 
 */
 
-convolve(c1,c2,ker1,ker2,n)
+void convolve(c1,c2,ker1,ker2,n)
 qnode_ptr_t c1, c2 ;
 kernel_t ker1, ker2 ;
 int n ;
@@ -273,7 +273,7 @@ int l, r, sizx, sizy, sizz, ofst ;
 
 */
 
-delete_node(p,h,q)
+void delete_node(p,h,q)
 qnode_ptr_t p, *h, *q ;
 
 { qnode_ptr_t s, t ;
@@ -802,7 +802,7 @@ int x, y, z ;
            DATE : June 25 1990
 */
 
-usage()
+void usage()
 
 {
   fprintf(stderr,"Usage: nagel input-path output-path seq-name. [-SG n.n] [-TG n.n] [-M n] [-I n] [-A n.n] [-D n.n] [-B cols rows] [-F n.n] [-C corr-vel-file nbins increment]\n") ;
@@ -826,7 +826,7 @@ usage()
   fprintf(stderr,"                   corr-vel-file : file of correct velocities\n") ;
   fprintf(stderr,"                   nbins : number of bins for histogram\n") ;
   fprintf(stderr,"                   increment : value of gap between bins\n") ;
-  exit(-1) ;
+  exit(EXIT_FAILURE) ;
 }
 
 /*
@@ -841,7 +841,7 @@ usage()
            DATE : June 25 1990
 */
 
-error(n)
+void error(n)
 int n ;
 
 {
@@ -905,7 +905,7 @@ int n ;
            DATE : January 21 1991 ;
 */
 
-filter(p,q,trsh)
+void filter(p,q,trsh)
 qnode_ptr_t p, q ;
 float trsh ;
 
@@ -939,7 +939,7 @@ float trsh ;
            DATE : January 21 1991 ;
 */
 
-screen(p,maxv)
+void screen(p,maxv)
 qnode_ptr_t p ;
 float maxv ;
 
@@ -976,12 +976,10 @@ int frames(s)
 int s ;
 
 {
-  if (s - 1 + SMSK > Z) {
-    error(3) ;
-  }
-  else {
-   return(s - 1  + SMSK) ;
-  }
+  if (s - 1 + SMSK > Z)
+    error(3);
+
+  return(s - 1  + SMSK) ;
 }
 
 /*
@@ -1035,7 +1033,7 @@ void free_cube(qnode_ptr_t p, int n)
            DATE : September 15 1990
 */
 
-free_flow(p,n)
+void free_flow(p,n)
 qnode_ptr_t p ;
 int n ;
 
@@ -1060,7 +1058,7 @@ int n ;
 
 */
 
-generate_gauss(ker,sig)
+void generate_gauss(ker,sig)
 kernel_t *ker ;
 float sig ;
 
@@ -1097,7 +1095,7 @@ float sig ;
            DATE : April 25 1992
 */
 
-init_central(C)
+void init_central(C)
 kernel_t *C ;
 
 {
@@ -1119,7 +1117,7 @@ kernel_t *C ;
            DATE : September 15 1990
 */
 
-init_cube(p,n)
+void init_cube(p,n)
 qnode_ptr_t p ;
 int n ;
 
@@ -1143,7 +1141,7 @@ int n ;
            DATE : September 15 1990
 */
 
-init_flow(p,n)
+void init_flow(p,n)
 qnode_ptr_t p ;
 int n ;
 
@@ -1169,7 +1167,7 @@ int n ;
 
 */
 
-init_list(h,q)
+void init_list(h,q)
 qnode_ptr_t *h, *q ;
 
 {
@@ -1193,7 +1191,7 @@ qnode_ptr_t *h, *q ;
 
 */
 
-insert_node(p,h,q)
+void insert_node(p,h,q)
 qnode_ptr_t p, *h, *q ;
 
 { qnode_ptr_t s, t ;
@@ -1239,7 +1237,7 @@ qnode_ptr_t p, *h, *q ;
 
 */
 
-pgetrast(fn,hd,bf,sx,sy,r)
+void pgetrast(fn,hd,bf,sx,sy,r)
 char *fn ;
 unsigned char hd[H] ;
 float bf[X*Y] ;
@@ -1285,7 +1283,7 @@ int sx, sy, r ;
 
 */
 
-Bpgetrast(fn,bf,sx,sy,r)
+void Bpgetrast(fn,bf,sx,sy,r)
 char *fn ;
 float bf[X*Y] ;
 int sx, sy, r ;
@@ -1326,7 +1324,7 @@ int sx, sy, r ;
 
 */
 
-pputrast(fn,hd,bf,sx,sy,r)
+void pputrast(fn,hd,bf,sx,sy,r)
 char *fn ;
 unsigned char hd[H] ;
 float bf[X*Y] ;
@@ -1372,7 +1370,7 @@ int sx, sy, r ;
 
 */
 
-Bpputrast(fn,bf,sx,sy,r)
+void Bpputrast(fn,bf,sx,sy,r)
 char *fn ;
 float bf[X*Y] ;
 int sx, sy, r ;
@@ -1474,7 +1472,7 @@ disp_vect_t ve, va ;
            DATE : April 25 1992
 */
 
-load_frames(fn,hd,start,n_frame,x,y,cub,bin)
+void load_frames(fn,hd,start,n_frame,x,y,cub,bin)
 string fn ;
 unsigned char hd[H] ;
 int start, n_frame, x, y, bin ;
@@ -1514,7 +1512,7 @@ qnode_ptr_t cub ;
            DATE : April 25 1992
 */
 
-dump_frames(fn,hd,start,n_frame,x,y,cub,bin)
+void dump_frames(fn,hd,start,n_frame,x,y,cub,bin)
 string fn ;
 unsigned char hd[H] ;
 int start, n_frame, x, y, bin ;
@@ -1551,7 +1549,7 @@ qnode_ptr_t cub ;
            DATE : April 22 1992
 */
 
-raster_size(fn,num,x,y)
+void raster_size(fn,num,x,y)
 char *fn ;
 int num, *x, *y ;
 
@@ -1591,7 +1589,7 @@ int num, *x, *y ;
            DATE : April 22 1992
 */
 
-binary_size(row,col,x,y)
+void binary_size(row,col,x,y)
 int row, col, *x, *y ;
 
 { *x = col ;
@@ -1614,7 +1612,7 @@ int row, col, *x, *y ;
            DATE : April 22 1992
 */
 
-flow_error(f,q,avg,std)
+void flow_error(f,q,avg,std)
 qnode_ptr_t f, q ;
 float *avg, *std ;
 
@@ -1695,7 +1693,7 @@ qnode_ptr_t q, p ;
            DATE : April 22 1992
 */
 
-load_velocity(q,fn)
+void load_velocity(q,fn)
 qnode_ptr_t q ;
 string fn ;
 
@@ -1741,7 +1739,7 @@ string fn ;
            DATE : October 4 1990
 */
 
-nagel_relax(p,alpha,delta,n,fn,prod_err)
+void nagel_relax(p,alpha,delta,n,fn,prod_err)
 qnode_ptr_t p ;
 float alpha, delta ;
 int n, prod_err ;
@@ -1844,7 +1842,7 @@ string fn ;
            DATE : April 25 1993
 */
 
-horn_relax(p,alpha,n,fn,prod_err)
+void horn_relax(p,alpha,n,fn,prod_err)
 qnode_ptr_t p ;
 float alpha ;
 int n, prod_err ;
@@ -1949,7 +1947,7 @@ string fn ;
            DATE : June 25 1990
 */
 
-valid_option(argc,argv,in_path,out_path,sigma1,sigma2,histo,sf,trsh,
+void valid_option(argc,argv,in_path,out_path,sigma1,sigma2,histo,sf,trsh,
              i_fname,v_fname,c_fname,h_fname,nbin,incr,n_frame,alpha,
              delta,iter,binary,row,col,horn,vmag,maxv)
 int argc ;
@@ -2191,7 +2189,7 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
            DATE : February 20 1992
 */
 
-prod_histo(f,c_fn,h_fn,nbin,incr,ttl_err,ttl_std,dens)
+void prod_histo(f,c_fn,h_fn,nbin,incr,ttl_err,ttl_std,dens)
 qnode_ptr_t f ;
 string c_fn, h_fn ;
 float incr, *ttl_err, *ttl_std, *dens ;
@@ -2326,7 +2324,7 @@ int nbin ;
            DATE : May 7 1990
 */
 
-write_velocity(fn,p)
+void write_velocity(fn,p)
 qnode_ptr_t p ;
 char *fn ;
 
@@ -2381,10 +2379,7 @@ char *fn ;
            DATE : September 16 1990
 */
 
-compute_deriv(c,f,horn)
-qnode_ptr_t c, f ;
-int horn ;
-
+void compute_deriv(qnode_ptr_t c, qnode_ptr_t f, int horn)
 { float dxx(), dyy(), dxy(), dx(), dy(), dt() ;
   param_t P ;
   int i, j, k ;
@@ -2439,7 +2434,7 @@ int horn ;
            DATE : September 16 1990
 */
 
-main(argc,argv)
+int main(argc,argv)
 int argc ;
 char *argv[] ;
 

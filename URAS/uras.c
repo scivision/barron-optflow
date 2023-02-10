@@ -157,7 +157,7 @@ int KERNEL_X, KERNEL_Y ;
            DATE : June 25 1990
 */
 
-concat(s1,s2,s3)
+void concat(s1,s2,s3)
 string s1, s2, s3 ;
 
 { string t ;
@@ -213,7 +213,7 @@ qnode_ptr_t f ;
 
 */
 
-convolve(c1,c2,ker1,ker2,n)
+void convolve(c1,c2,ker1,ker2,n)
 qnode_ptr_t c1, c2 ;
 kernel_t ker1, ker2 ;
 int n ;
@@ -312,7 +312,7 @@ int l, r, sizx, sizy, sizz, ofst ;
 
 */
 
-delete_node(p,h,q)
+void delete_node(p,h,q)
 qnode_ptr_t p, *h, *q ;
 
 { qnode_ptr_t s, t ;
@@ -821,8 +821,7 @@ int x, y, z ;
            DATE : June 25 1990
 */
 
-usage()
-
+void usage()
 {
   fprintf(stderr,"Usage: uras input-path output-path seq-name. [-SG n.n] [-TG n.n] [-M n] [-R 1 | -R 2 n.n] [-B rows cols] [-F n.n] [-C corr-vel-file nbins1 increment1 nbins2 increment2]\n") ;
   fprintf(stderr,"[-SG n.n]         : sigma value for spatial gaussian\n") ;
@@ -842,7 +841,7 @@ usage()
   fprintf(stderr,"                    corr-vel-file : file of correct velocities\n") ;
   fprintf(stderr,"                    nbins1, nbins2 : number of bins for histograms\n") ;
   fprintf(stderr,"                    increment1, increment2 : value of gap between bins\n") ;
-  exit(-1) ;
+  exit(EXIT_FAILURE) ;
 }
 
 /*
@@ -857,9 +856,7 @@ usage()
            DATE : June 25 1990
 */
 
-error(n)
-int n ;
-
+void error(int n)
 {
   switch(n) {
 
@@ -920,16 +917,12 @@ int n ;
            DATE : April 25 1992
 */
 
-int frames(s)
-int s ;
-
+int frames(int s)
 {
-  if (s - 1 + SMSK > Z) {
-    error(3) ;
-  }
-  else {
-   return(s - 1  + SMSK) ;
-  }
+  if (s - 1 + SMSK > Z)
+    error(3);
+
+  return(s - 1  + SMSK) ;
 }
 
 /*
@@ -984,7 +977,7 @@ void free_cube( qnode_ptr_t p, int n)
            DATE : September 15 1990
 */
 
-free_flow(p,n)
+void free_flow(p,n)
 qnode_ptr_t p ;
 int n ;
 
@@ -1009,7 +1002,7 @@ int n ;
 
 */
 
-generate_gauss(ker,sig)
+void generate_gauss(ker,sig)
 kernel_t *ker ;
 float sig ;
 
@@ -1048,7 +1041,7 @@ float sig ;
            DATE : September 13 1990
 */
 
-init_beaudet(Ix,Ixx,Ixy)
+void init_beaudet(Ix,Ixx,Ixy)
 beaudet_t *Ix, *Ixx, *Ixy ;
 
 {
@@ -1104,7 +1097,7 @@ beaudet_t *Ix, *Ixx, *Ixy ;
            DATE : April 25 1992
 */
 
-init_central(C)
+void init_central(C)
 kernel_t *C ;
 
 {
@@ -1126,7 +1119,7 @@ kernel_t *C ;
            DATE : September 15 1990
 */
 
-init_cube(p,n)
+void init_cube(p,n)
 qnode_ptr_t p ;
 int n ;
 
@@ -1150,7 +1143,7 @@ int n ;
            DATE : September 15 1990
 */
 
-init_flow(p,n)
+void init_flow(p,n)
 qnode_ptr_t p ;
 int n ;
 
@@ -1176,7 +1169,7 @@ int n ;
 
 */
 
-init_list(h,q)
+void init_list(h,q)
 qnode_ptr_t *h, *q ;
 
 {
@@ -1200,7 +1193,7 @@ qnode_ptr_t *h, *q ;
 
 */
 
-insert_node(p,h,q)
+void insert_node(p,h,q)
 qnode_ptr_t p, *h, *q ;
 
 { qnode_ptr_t s, t ;
@@ -1319,7 +1312,7 @@ int sf ;
            DATE : September 15 1990
 */
 
-sort(discr_val,sample,num,n)
+void sort(discr_val,sample,num,n)
 float discr_val[X] ;
 pos_t sample[X] ;
 int num, n ;
@@ -1364,7 +1357,7 @@ int num, n ;
            DATE : November 7 1990
 */
 
-min_discr(f,i,j,n,sample,num)
+void min_discr(f,i,j,n,sample,num)
 qnode_ptr_t f ;
 int i, j, n ;
 pos_t sample[X] ;
@@ -1430,7 +1423,7 @@ int n ;
 
 */
 
-pgetrast(fn,hd,bf,sx,sy,r)
+void pgetrast(fn,hd,bf,sx,sy,r)
 char *fn ;
 unsigned char hd[H] ;
 float bf[X*Y] ;
@@ -1476,7 +1469,7 @@ int sx, sy, r ;
 
 */
 
-Bpgetrast(fn,bf,sx,sy,r)
+void Bpgetrast(fn,bf,sx,sy,r)
 char *fn ;
 float bf[X*Y] ;
 int sx, sy, r ;
@@ -1517,7 +1510,7 @@ int sx, sy, r ;
 
 */
 
-pputrast(fn,hd,bf,sx,sy,r)
+void pputrast(fn,hd,bf,sx,sy,r)
 char *fn ;
 unsigned char hd[H] ;
 float bf[X*Y] ;
@@ -1564,7 +1557,7 @@ int sx, sy, r ;
            DATE : November 7 1990
 */
 
-propagate(u,det,cn,q,i,j,n)
+void propagate(u,det,cn,q,i,j,n)
 disp_vect_t u ;
 float det, cn ;
 qnode_ptr_t q ;
@@ -1630,7 +1623,7 @@ disp_vect_t ve, va ;
            DATE : April 22 1992
 */
 
-raster_size(fn,num,x,y)
+void raster_size(fn,num,x,y)
 char *fn ;
 int num, *x, *y ;
 
@@ -1669,7 +1662,7 @@ int num, *x, *y ;
            DATE : April 22 1992
 */
 
-binary_size(row,col,x,y)
+void binary_size(row,col,x,y)
 int row, col, *x, *y ;
 
 { *x = col ;
@@ -1722,7 +1715,7 @@ qnode_ptr_t f ;
            DATE : November 7 1990
 */
 
-regul1(f,n,sf,trsh)
+void regul1(f,n,sf,trsh)
 qnode_ptr_t f ;
 int n, sf ;
 float trsh ;
@@ -1763,7 +1756,7 @@ float trsh ;
            DATE : November 7 1990
 */
 
-regul2(fl,ker)
+void regul2(fl,ker)
 qnode_ptr_t fl ;
 kernel_t ker ;
 
@@ -1815,7 +1808,7 @@ kernel_t ker ;
            DATE : May 7 1990
 */
 
-write_velocity(fn,p)
+void write_velocity(fn,p)
 qnode_ptr_t p ;
 char *fn ;
 
@@ -1891,7 +1884,7 @@ char *fn ;
            DATE : June 25 1990
 */
 
-valid_option(argc,argv,in_path,out_path,sigma1,sigma2,sigma3,histo,re,sf,trsh,
+void valid_option(argc,argv,in_path,out_path,sigma1,sigma2,sigma3,histo,re,sf,trsh,
              i_fname,v_fname,c_fname,h_fname,nbin_1,incr_1,nbin_2,incr_2,
              n_frame,binary,row,col)
 int argc ;
@@ -2109,7 +2102,7 @@ string in_path, out_path, i_fname, v_fname, c_fname, h_fname ;
            DATE : February 20 1992
 */
 
-prod_histo(f,c_fn,h_fn,nbin_1,incr_1,nbin_2,incr_2,ttl_err,ttl_std,dens)
+void prod_histo(f,c_fn,h_fn,nbin_1,incr_1,nbin_2,incr_2,ttl_err,ttl_std,dens)
 qnode_ptr_t f ;
 string c_fn, h_fn ;
 float incr_1, incr_2, *ttl_err, *ttl_std, *dens ;
@@ -2330,7 +2323,7 @@ int nbin_1, nbin_2 ;
            DATE : April 25 1992
 */
 
-load_frames(fn,start,n_frame,x,y,cub,bin)
+void load_frames(fn,start,n_frame,x,y,cub,bin)
 string fn ;
 int start, n_frame, x, y, bin ;
 qnode_ptr_t cub ;
@@ -2366,7 +2359,7 @@ qnode_ptr_t cub ;
            DATE : September 16 1990
 */
 
-compute_deriv(c,f)
+void compute_deriv(c,f)
 qnode_ptr_t c, f ;
 
 { float dxx(), dyy(), dxy(), dx(), dy(), dt(), dxt(), dyt() ;
@@ -2413,7 +2406,7 @@ param_t P ;
            DATE : November 7 1990
 */
 
-compute_discr(fl)
+void compute_discr(fl)
 qnode_ptr_t fl ;
 
 { param_t P ;
@@ -2468,7 +2461,7 @@ qnode_ptr_t fl ;
            DATE : September 16 1990
 */
 
-compute_flow(fl)
+void compute_flow(fl)
 qnode_ptr_t fl ;
 
 { disp_vect_t u, v ;
@@ -2516,7 +2509,7 @@ qnode_ptr_t fl ;
            DATE : September 16 1990
 */
 
-main(argc,argv)
+int main(argc,argv)
 int argc ;
 char *argv[] ;
 
