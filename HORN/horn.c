@@ -7,11 +7,12 @@
 	for calculating an optical flow field.
 ************************************************************/
 #include  <fcntl.h>
-#ifndef _WIN32
+#ifdef _WIN32
+#define _USE_MATH_DEFINES  // needed for Windows
+#else
 #include <unistd.h>
 #endif
 #include  <stdio.h>
-#define _USE_MATH_DEFINES  // needed for Windows
 #include  <math.h>
 #include "rasterfile.h"
 

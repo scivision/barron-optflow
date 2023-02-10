@@ -1,12 +1,14 @@
 #include <string.h>
-#define _USE_MATH_DEFINES  // needed for Windows
+#ifdef _WIN32
+#define _USE_MATH_DEFINES
+#else
+#include <unistd.h>
+#endif
 #include <math.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#ifndef _WIN32
-#include <unistd.h>
-#endif
+
 
 /*
            NAME : const.h

@@ -1,10 +1,11 @@
 #include <fcntl.h>
-#ifndef _WIN32
+#ifdef _WIN32
+#define _USE_MATH_DEFINES
+#else
 #include <unistd.h>
 #endif
 #include <stdlib.h>
 #include <stdio.h>
-#define _USE_MATH_DEFINES  // needed for Windows
 #include <math.h>
 
 #define SPACE 10

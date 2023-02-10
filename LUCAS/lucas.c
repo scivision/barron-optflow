@@ -7,7 +7,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#define _USE_MATH_DEFINES  // needed for Windows
+#ifdef _WIN32
+#define _USE_MATH_DEFINES
+#endif
 #include <math.h>
 #include "rasterfile.h"
 
