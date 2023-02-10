@@ -1280,8 +1280,8 @@ printf("Amplitude threshold: %f (%f percent of %f)\n",
 beta = 0.8;
 base = 2.0;
 b = pow(base,beta); /* 1.7411 */
-maxA = -HUGE;
-minA =  HUGE;
+maxA = -HUGE_VAL;
+minA =  HUGE_VAL;
 
 for(i=0;i<22;i++) num_thresh[i] = 0;
 for(i=0;i<22;i++) count[i] = 0;
@@ -1338,7 +1338,7 @@ if(thresholded[n][i][j] == NOT_THRESHOLDED)
 		}
 	else
 		{
-		diff[0] = diff[1] = diff[2] = HUGE;
+		diff[0] = diff[1] = diff[2] = HUGE_VAL;
 		}
 
 	sum3 = diff[0]+diff[1]+diff[2];
@@ -1437,8 +1437,8 @@ if(thresholded[n][i][j] == NOT_THRESHOLDED)
 		}
 	else
 		{
-		dA[0] = dA[1] = dA[2] = HUGE;
-		diff[0] = diff[1] = diff[2] = HUGE;
+		dA[0] = dA[1] = dA[2] = HUGE_VAL;
+		diff[0] = diff[1] = diff[2] = HUGE_VAL;
 		}
 
 	/* Threshold the old way */
@@ -1543,7 +1543,7 @@ for(ii=0;ii<22;ii++)
         wavelength = (two_pi*(b-1)*sigma)/(mu*(b+1));
         lambdas = wavelength*(sqrt(speed*speed+1.0));
         if(fabs(speed) > 0.000001) lambdat = -lambdas/speed;
-        else lambdat = HUGE;
+        else lambdat = HUGE_VAL;
 
         k3 = two_pi/lambdat;
         rho = two_pi/lambdas;
@@ -1563,7 +1563,7 @@ speed = 1.0/sqrt(3.0);
 wavelength = (two_pi*(b-1)*sigma)/(mu*(b+1));
 lambdas = wavelength*(sqrt(speed*speed+1.0));
 if(fabs(speed) > 0.000001) lambdat = -lambdas/speed;
-else lambdat = HUGE;
+else lambdat = HUGE_VAL;
 k3 = two_pi/lambdat;
 rho = two_pi/lambdas;
 k2 = rho*sin(theta*two_pi/360.0);
@@ -1717,7 +1717,7 @@ for(j=(2*OFFSET_Y+NRADIUS);j<pic_y-(2*OFFSET_Y+NRADIUS);j++)
 	normal_ct[i][j] = count;
 	if(count >= 6) /* At least 6 normal velocities are needed */
 		condnum = cal_velocity(count,J,JI,vn,v,product);
-	else condnum = HUGE;
+	else condnum = HUGE_VAL;
 
 	for(ii=0;ii<count;ii++)
 		{
@@ -1915,7 +1915,7 @@ int i,j;
 double condnum,alphabeta[NO_UNKNOWNS];
 
 condnum=cal_inverse(r,J,JI);
-if(condnum != HUGE)
+if(condnum != HUGE_VAL)
 {
 for(i=0;i<NO_UNKNOWNS;i++)
 	{
@@ -1998,7 +1998,7 @@ for(j=0;j<NO_UNKNOWNS;j++)
 	VT[i][j] = V[j][i];
 /* Compute condition number as the ratio of maximum to
    minimum diagonal element of the SVD diagonal matrix */
-min = HUGE;
+min = HUGE_VAL;
 max = 0.0;
 for(i=0;i<NO_UNKNOWNS;i++)
 	{
@@ -2007,10 +2007,10 @@ for(i=0;i<NO_UNKNOWNS;i++)
 	if(fabs(W[i]) < min) min = fabs(W[i]);
 	}
 if(min != 0.0) condnum = max/min;
-else condnum=HUGE;
+else condnum=HUGE_VAL;
 /* Compute the inverse of the diagonal matrix */
 for(i=0;i<NO_UNKNOWNS;i++) if(D[i][i] !=0.0) DI[i][i] = 1.0/D[i][i];
-	else DI[i][i] = HUGE;
+	else DI[i][i] = HUGE_VAL;
 
 /* Check correctness of SVD, compute I = JI*J */
 for(i=0;i<NO_UNKNOWNS;i++)
@@ -2083,12 +2083,12 @@ float sumX2,temp,uva[2],uve[2],sum2;
 
 count = no_count = norm_count = 0;
 sum2 = sumX2 = 0.0;
-(*min_angle) = HUGE;
+(*min_angle) = HUGE_VAL;
 (*max_angle) = 0.0;
 (*ave_error) = (*st_dev) = 0.0;
 (*density) = (*residual) = 0.0;
-(*min_norm_angle) = HUGE;
-(*max_norm_angle) = -HUGE;
+(*min_norm_angle) = HUGE_VAL;
+(*max_norm_angle) = -HUGE_VAL;
 (*norm_err) = (*norm_st_dev) = 0.0;
 
 for(i=(2*OFFSET_X+NRADIUS);i<pic_x-(2*OFFSET_X+NRADIUS);i++)

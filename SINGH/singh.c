@@ -1304,7 +1304,7 @@ float error[PIC_Y][PIC_X];
 
 count = no_count = 0;
 sum2 = sumX2 = 0.0;
-(*min_angle) = HUGE;
+(*min_angle) = HUGE_VAL;
 (*max_angle) = 0.0;
 (*ave_error) = (*st_dev) = 0.0;
 (*density) = 0.0;
@@ -1556,8 +1556,8 @@ unsigned char raster[ARRSIZE][ARRSIZE],name[100],path[100],command[100];
 
 /* Compute normalized weighted mean */
 (*vel_type) = FULL;
-max = -HUGE;
-min = HUGE;
+max = -HUGE_VAL;
+min = HUGE_VAL;
 f_sum = 0.0;
 size = 2*N+1;
 for(i=0;i<size;i++)
@@ -1692,7 +1692,7 @@ if(check_eigen_calc(A,value,v,nrot,diff1,diff2,&length1,&length2,&angle)==FALSE)
 	printf("Difference length for eigenvector2\n");
 	printf("Difference: %f %f Length: %f\n",diff2[0],diff2[1],length2);
 	printf("Original eigenvalues set to infinity\n");
-	value[0] = value[1] = HUGE;
+	value[0] = value[1] = HUGE_VAL;
 	printf("********************************************\n\n");
 	fflush(stdout);
 	if(FALSE) exit(1);
@@ -1789,10 +1789,10 @@ for(v=(-size);v<=size;v++)
 /* Add the left and right SSD surfaces and compute minimum SSD coordinates  */
 /* in 2N+1 by 2N+1 area centered about the origin of 4N+1 by 4N+1 SSD data  */
 /****************************************************************************/
-sum_min =  HUGE;
-sum_max = -HUGE;
-SSDmin =  HUGE;
-SSDmax = -HUGE;
+sum_min =  HUGE_VAL;
+sum_max = -HUGE_VAL;
+SSDmin =  HUGE_VAL;
+SSDmax = -HUGE_VAL;
 a = b = 0;
 SSDmag = 0.0;
 for(u=(-size);u<=size;u++)
@@ -1837,7 +1837,7 @@ compute_big_n_minimums(SSDvalues,size,20);
 /* Center SSD computation by extracting    */
 /* 2N+1 by 2N+1 SSD sub-surface about peak */
 /*******************************************/
-sum_min = HUGE;
+sum_min = HUGE_VAL;
 c = d = 0;
 for(u=(-N);u<=N;u++)
 for(v=(-N);v<=N;v++)
@@ -1870,8 +1870,8 @@ compute_n_minimums(SSDdata,N,20);
 if(sum_min < 1.0e-6) k = 0.0085;
 else k = -log(constant)/sum_min;
 
-min =  HUGE;
-max = -HUGE;
+min =  HUGE_VAL;
+max = -HUGE_VAL;
 for(u=(-N);u<=N;u++)
 for(v=(-N);v<=N;v++)
 	{
@@ -1958,7 +1958,7 @@ else
 MI[0][0] = 1.0;
 MI[0][1] = 0.0;
 MI[1][0] = 0.0;
-MI[1][1] = HUGE;
+MI[1][1] = HUGE_VAL;
 printf("            M                          MI\n");
 printf("%12.8f %12.8f    %12.8f %12.8f\n",M[0][0],M[0][1],MI[0][0],MI[0][1]);
 printf("%12.8f %12.8f    %12.8f %12.8f\n",M[1][0],M[1][1],MI[1][0],MI[1][1]);
@@ -2108,11 +2108,11 @@ for(i=1;i<NO_COLS;i++)
 	if(W[i] < min) min=W[i];
 	}
 if(min != 0.0) { cond = max/min; worst = 1.0/min; }
-else { cond = HUGE; worst = HUGE; }
+else { cond = HUGE_VAL; worst = HUGE_VAL; }
 best = 1.0/max;
 
 for(i=0;i<NO_COLS;i++) if(D[i][i] !=0.0) DI[i][i] = 1.0/D[i][i];
-	else DI[i][i] = HUGE;
+	else DI[i][i] = HUGE_VAL;
 if(print) printf("\nIerr=%d DI[0][0]: %f DI[1][1]: %f\n",Ierr,DI[0][0],DI[1][1]);
 
 /* Check correctness of SVD, compute I = JI*J */
@@ -2257,8 +2257,8 @@ for(i=0;i<NUMFILES; i++)
 	fflush(stdout);
 
 	/* Subtract blurred images to obtain Laplacian of Gaussian */
-	min =  HUGE;
-	max = -HUGE;
+	min =  HUGE_VAL;
+	max = -HUGE_VAL;
 	for(j=OFFSET;j<pic_y-OFFSET;j++)
 	for(k=OFFSET;k<pic_x-OFFSET;k++)
 		{
@@ -2308,8 +2308,8 @@ for(j=0;j<2*N+1;j++)
 }
 for(i=0;i<n;i++)
 {
-min_value = HUGE;
-SSDmag = HUGE;
+min_value = HUGE_VAL;
+SSDmag = HUGE_VAL;
 u_min = v_min = 0;
 for(u=(-N);u<=N;u++)
 for(v=(-N);v<=N;v++)
@@ -2324,7 +2324,7 @@ for(v=(-N);v<=N;v++)
 		v_min = v;
 		}
 	}
-SSD[u_min+N][v_min+N] = HUGE;
+SSD[u_min+N][v_min+N] = HUGE_VAL;
 printf("%dth minimum: %f at %d,%d\n",i,min_value,u_min,v_min);
 }
 }
@@ -2348,7 +2348,7 @@ for(j=0;j<2*N+1;j++)
 }
 for(i=0;i<n;i++)
 {
-min_value = HUGE;
+min_value = HUGE_VAL;
 SSDmag = 0.0;
 u_min = v_min = 0;
 for(u=(-N);u<=N;u++)
@@ -2365,7 +2365,7 @@ for(v=(-N);v<=N;v++)
 		v_min = v;
 		}
 	}
-SSD[u_min+N][v_min+N] = HUGE;
+SSD[u_min+N][v_min+N] = HUGE_VAL;
 printf("%dth minimum: %f at %d,%d SSDmag: %d\n",i,min_value,u_min,v_min,u_min*u_min+v_min*v_min);
 }
 }
